@@ -223,9 +223,11 @@
             /*
               WARNING: MediaSource.isTypeSupported very inconsistent!
               e.g. Safari ignores codecs entirely, even bogus, like codecs="XYZ"
-              example avc3 main level 3.1 + aac_he: avc3.4d401f; mp4a.40.5
+              example avc1 main level 3.1 + aac_he: avc1.4d401e, mp4a.40.5
               example avc1 high level 4.1 + aac_lc: avc1.640029; mp4a.40.2
-              default: avc1 baseline level 3.0 + aac_lc
+              hls.js check (extended baseline): avc1.42e01e, mp4a.40.2
+
+              default: avc1 constrained baseline level 3.0 + aac_lc
             */
             conf.hlsjs = extend({
                 type: "video/mp4",
