@@ -133,17 +133,45 @@
                         videoTag.className = 'fp-engine hlsjs-engine';
                         common.prepend(common.find(".fp-player", root)[0], videoTag);
 
-                        hls.attachVideo(videoTag);
-                        hls.on(Hls.Events.MSE_ATTACHED, function () {
-                            hls.loadSource(video.src);
-                        });
+                        hls.on(Hls.Events.ERROR, function (e, data) {
+                            var fperr,
+                                errtypes = Hls.ErrorTypes,
+                                errobj;
 
-                        /*
-                            ERROR HANDLING goes here
-                        */
+                            if (data.fatal) {
+                                // try recovery?
+                                switch (data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    // in theory should be 3 (Network error)
+                                    fperr = 4;
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    fperr = 3;
+                                    break;
+                                default:
+                                    fperr = 5;
+                                    break;
+                                }
+                                errobj = {code: fperr};
+                                if (fperr > 2) {
+                                    errobj.video = extend(video, {
+                                        src: video.src,
+                                        url: video.src
+                                    });
+                                }
+                                player.trigger('error', [player, errobj]);
+                            }
+                            /* TODO: */
+                            // log non fatals
+                        });
 
                         player.on("error", function () {
                             hls.destroy();
+                        });
+
+                        hls.attachVideo(videoTag);
+                        hls.on(Hls.Events.MSE_ATTACHED, function () {
+                            hls.loadSource(video.src);
                         });
                     },
 
