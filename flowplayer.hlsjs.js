@@ -28,9 +28,7 @@
             var bean = flowplayer.bean,
                 common = flowplayer.common,
                 videoTag,
-                hls = new Hls({
-                    debug: player.conf.debug
-                });
+                hls;
 
                 engine = {
                     engineName: engineName,
@@ -133,7 +131,14 @@
                         videoTag.className = 'fp-engine hlsjs-engine';
                         common.prepend(common.find(".fp-player", root)[0], videoTag);
 
-                        hls.on(Hls.Events.ERROR, function (e, data) {
+                        hls = new Hls({
+                            debug: player.conf.debug
+                        });
+
+                        hls.on(Hls.Events.MSE_ATTACHED, function () {
+                            hls.loadSource(video.src);
+
+                        }).on(Hls.Events.ERROR, function (e, data) {
                             var fperr,
                                 errtypes = Hls.ErrorTypes,
                                 errobj;
@@ -165,14 +170,16 @@
                             // log non fatals
                         });
 
-                        player.on("error", function () {
-                            hls.destroy();
+                        player.on("error unload", function (e) {
+                            if (e.type == "error" || player.conf.splash) {
+                                hls.destroy();
+
+                                // why does unload not do this already?
+                                common.find('video.fp-engine', root).forEach(common.removeNode);
+                            }
                         });
 
                         hls.attachVideo(videoTag);
-                        hls.on(Hls.Events.MSE_ATTACHED, function () {
-                            hls.loadSource(video.src);
-                        });
                     },
 
                     resume: function () {
@@ -199,14 +206,6 @@
                     },
 
                     unload: function () {
-                        /*
-                        if (player.video.live && player.paused) {
-                            videoTag.play();
-                        }
-                        */
-                        if (player.conf.splash) {
-                            hls.detachVideo();
-                        }
                         player.trigger('unload', [player]);
                     }
                 };
