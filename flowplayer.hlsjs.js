@@ -20,6 +20,7 @@
 (function () {
     var win = window,
         engineName = "hlsjs",
+        hlsconf,
         extend = flowplayer.extend,
 
         engineImpl = function hlsjsEngine(player, root) {
@@ -120,8 +121,7 @@
                         videoTag.className = 'fp-engine hlsjs-engine';
                         common.prepend(common.find(".fp-player", root)[0], videoTag);
 
-                        var conf = extend({}, player.conf.hlsjs, player.conf.clip.hlsjs);
-                        hls = new Hls(conf);
+                        hls = new Hls(hlsconf);
 
                         hls.on(Hls.Events.MSE_ATTACHED, function () {
                             hls.loadSource(video.src);
@@ -205,6 +205,9 @@
         // only load engine if it can be used
         engineImpl.engineName = engineName; // must be exposed
         engineImpl.canPlay = function (type, conf) {
+            // merge hlsjs clip config at earliest opportunity
+            hlsconf = extend({}, conf.hlsjs, conf.clip.hlsjs);
+
             return /mpegurl/i.test(type);
         };
 
