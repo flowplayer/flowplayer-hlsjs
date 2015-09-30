@@ -20,8 +20,6 @@
 (function () {
     var win = window,
         engineName = "hlsjs",
-        support = flowplayer.support,
-        clientSupport = support.video && win.MediaSource,
         extend = flowplayer.extend,
 
         engineImpl = function hlsjsEngine(player, root) {
@@ -114,15 +112,6 @@
                         });
                         bean.on(videoTag, "ended", function () {
                             player.trigger('finish', [player]);
-                            /*
-                            if (support.browser.safari && !player.conf.autoplay) {
-                                bean.one(videoTag, "seeked.hlsjsreplay", function () {
-                                    if (!videoTag.currentTime) {
-                                        videoTag.play();
-                                    }
-                                });
-                            }
-                            */
                         });
                         bean.on(videoTag, "volumechange", function () {
                             player.trigger('volume', [player, videoTag.volume]);
@@ -213,29 +202,11 @@
             return engine;
         };
 
-    if (clientSupport) {
+    if (Hls.isSupported()) {
         // only load engine if it can be used
         engineImpl.engineName = engineName; // must be exposed
         engineImpl.canPlay = function (type, conf) {
-            var hlsjsconf = conf.hlsjs;
-
-            /*
-              WARNING: MediaSource.isTypeSupported very inconsistent!
-              e.g. Safari ignores codecs entirely, even bogus, like codecs="XYZ"
-              example avc1 main level 3.1 + aac_he: avc1.4d401e, mp4a.40.5
-              example avc1 high level 4.1 + aac_lc: avc1.640029; mp4a.40.2
-              hls.js check (extended baseline): avc1.42e01e, mp4a.40.2
-
-              default: avc1 constrained baseline level 3.0 + aac_lc
-            */
-            conf.hlsjs = extend({
-                type: "video/mp4",
-                codecs: "avc1.42c00d, mp4a.40.2"
-            }, hlsjsconf);
-            if (/mpegurl/i.test(type)) {
-                return win.MediaSource.isTypeSupported(conf.hlsjs.type + '; codecs="' + conf.hlsjs.codecs + '"');
-            }
-            return false;
+            return /mpegurl/i.test(type);
         };
 
         // put on top of engine stack
