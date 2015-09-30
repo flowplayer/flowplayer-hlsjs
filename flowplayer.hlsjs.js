@@ -161,15 +161,6 @@
                             // log non fatals
                         });
 
-                        player.on("error unload", function (e) {
-                            if (e.type == "error" || player.conf.splash) {
-                                hls.destroy();
-
-                                // why does unload not do this already?
-                                common.find('video.fp-engine', root).forEach(common.removeNode);
-                            }
-                        });
-
                         hls.attachVideo(videoTag);
                     },
 
@@ -198,6 +189,10 @@
 
                     unload: function () {
                         player.trigger('unload', [player]);
+                        if (player.conf.splash) {
+                            hls.destroy();
+                            common.find("video.fp-engine", root).forEach(common.removeNode);
+                        }
                     }
                 };
 
