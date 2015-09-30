@@ -149,7 +149,7 @@
                                 if (fperr > 2) {
                                     errobj.video = extend(video, {
                                         src: video.src,
-                                        url: video.src
+                                        url: data.url || video.src
                                     });
                                 }
                                 player.trigger('error', [player, errobj]);
