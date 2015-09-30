@@ -45,6 +45,9 @@
                     },
 
                     load: function (video) {
+                        if (hls) {
+                            hls.destroy();
+                        }
                         common.removeNode(common.findDirect("video", root)[0] || common.find(".fp-player > video", root)[0]);
                         videoTag = common.createElement("video");
 
