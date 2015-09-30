@@ -209,7 +209,7 @@
         };
 
         // put on top of engine stack
-        // so hlsjs is tested before html5
+        // so hlsjs is tested before html5 video hls and flash hls
         flowplayer.engines.unshift(engineImpl);
     }
 
