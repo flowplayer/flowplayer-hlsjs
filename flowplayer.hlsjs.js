@@ -120,9 +120,8 @@
                         videoTag.className = 'fp-engine hlsjs-engine';
                         common.prepend(common.find(".fp-player", root)[0], videoTag);
 
-                        hls = new Hls({
-                            debug: player.conf.debug
-                        });
+                        var conf = extend({}, player.conf.hlsjs, player.conf.clip.hlsjs);
+                        hls = new Hls(conf);
 
                         hls.on(Hls.Events.MSE_ATTACHED, function () {
                             hls.loadSource(video.src);
