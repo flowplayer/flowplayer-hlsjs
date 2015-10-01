@@ -39,7 +39,7 @@
                         var i,
                             source;
 
-                        for (i = 0; i < sources.length; i = i + 1) {
+                        for (i = 0; i < sources.length; i += 1) {
                             source = sources[i];
                             if (/mpegurl/i.test(source.type) && (!source.engine || source.engine === "hlsjs")) {
                                 return source;
@@ -105,7 +105,7 @@
                                 // buffered.end(null) will not always return the current buffer
                                 // so we cycle through the time ranges to obtain it
                                 if (ct) {
-                                    for (i = 1; i < buffered.length; i = i + 1) {
+                                    for (i = 1; i < buffered.length; i += 1) {
                                         buffend = buffered.end(i);
 
                                         if (buffend >= ct && buffered.start(i) <= ct) {
