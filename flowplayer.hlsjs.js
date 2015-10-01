@@ -1,3 +1,6 @@
+/*jslint browser: true, for: true */
+/*global Hls, flowplayer */
+
 /*!
 
    hlsjs engine plugin for Flowplayer HTML5
@@ -18,6 +21,7 @@
 */
 
 (function () {
+    "use strict";
     var engineName = "hlsjs",
         hlsconf,
         extend = flowplayer.extend,
