@@ -18,8 +18,7 @@
 */
 
 (function () {
-    var win = window,
-        engineName = "hlsjs",
+    var engineName = "hlsjs",
         hlsconf,
         extend = flowplayer.extend,
 
@@ -27,7 +26,7 @@
             var bean = flowplayer.bean,
                 common = flowplayer.common,
                 videoTag,
-                hls;
+                hls,
 
                 engine = {
                     engineName: engineName,
@@ -38,7 +37,7 @@
 
                         for (i = 0; i < sources.length; i = i + 1) {
                             source = sources[i];
-                            if (/mpegurl/i.test(source.type) && (!source.engine || source.engine == "hlsjs")) {
+                            if (/mpegurl/i.test(source.type) && (!source.engine || source.engine === "hlsjs")) {
                                 return source;
                             }
                         }
@@ -131,7 +130,6 @@
 
                         }).on(Hls.Events.ERROR, function (e, data) {
                             var fperr,
-                                errtypes = Hls.ErrorTypes,
                                 errobj;
 
                             if (data.fatal) {
