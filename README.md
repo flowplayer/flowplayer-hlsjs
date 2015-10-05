@@ -61,7 +61,7 @@ Features
 --------
 
 - packs a compatibility tested version - current:
-  https://github.com/dailymotion/hls.js/commit/2fd81a3d392bdbe66eb5426f15959473b465eb41 - of
+  https://github.com/dailymotion/hls.js/commit/e912b424c1930b7858cc44ac86e71f22273091ea - of
   hls.js
 - engine is only loaded if the browser supports
   [MediaSource extensions](http://w3c.github.io/media-source/) reliably for playback
@@ -99,6 +99,5 @@ Known issues
 - Safari's MSE implementation has fatal problems with
   [fragmented MP4 playback](https://github.com/dailymotion/hls.js/issues/9) - for the moment the
   hlsjs engine will only be loaded in Safari for [debugging purposes](#debugging).
-- end of video detection [not 100% reliable](https://github.com/dailymotion/hls.js/issues/16)
 - not tested with live streams by lack of examples where CORS is enabled on the server
 - encrypted streams not yet supported
