@@ -205,6 +205,11 @@
         // only load engine if it can be used
         engineImpl.engineName = engineName; // must be exposed
         engineImpl.canPlay = function (type, conf) {
+            if (conf.hlsjs === false || conf.clip.hlsjs === false) {
+                // engine disabled for player or clip
+                return false;
+            }
+
             // merge hlsjs clip config at earliest opportunity
             hlsconf = extend({}, conf.hlsjs, conf.clip.hlsjs);
 

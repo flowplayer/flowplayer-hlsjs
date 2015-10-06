@@ -42,6 +42,10 @@ The `hlsjs` option accepts all
 [configuration parameters for hls.js](https://github.com/dailymotion/hls.js/blob/master/API.md#fine-tuning)
 which are passed on to the client.
 
+Setting `hlsjs` to `false` can be used to disable the engine for a specific player or clip.
+Convenient when one knows that certain HLS streams are not served with the required [CORS](#cors)
+policy.
+
 CORS
 ----
 
