@@ -205,6 +205,9 @@
         // only load engine if it can be used
         engineImpl.engineName = engineName; // must be exposed
         engineImpl.canPlay = function (type, conf) {
+            var UA = navigator.userAgent,
+                IE11 = UA.indexOf("Trident/7") > -1;
+
             if (conf.hlsjs === false || conf.clip.hlsjs === false) {
                 // engine disabled for player or clip
                 return false;
@@ -215,7 +218,8 @@
 
             // support Safari only when hlsjs debugging
             // https://github.com/dailymotion/hls.js/issues/9
-            return /mpegurl/i.test(type) && (!flowplayer.support.browser.safari || hlsconf.debug);
+            return /mpegurl/i.test(type) &&
+                    (IE11 || !flowplayer.support.browser.safari || hlsconf.debug);
         };
 
         // put on top of engine stack
