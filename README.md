@@ -65,7 +65,7 @@ Features
 --------
 
 - packs a compatibility tested version - current:
-  https://github.com/dailymotion/hls.js/commit/e912b424c1930b7858cc44ac86e71f22273091ea - of
+  https://github.com/dailymotion/hls.js/commit/6b54e7a932309100c08d8c5f42658c942a331774 - of
   hls.js
 - engine is only loaded if the browser supports
   [MediaSource extensions](http://w3c.github.io/media-source/) reliably for playback
