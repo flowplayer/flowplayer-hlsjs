@@ -48,9 +48,13 @@
                     },
 
                     load: function (video) {
-                        if (hls) {
+                        var init = hls === undefined;
+
+                        if (!init) {
                             hls.destroy();
+                            bean.off(videoTag);
                         }
+
                         common.removeNode(common.findDirect("video", root)[0] || common.find(".fp-player > video", root)[0]);
                         videoTag = common.createElement("video");
 
@@ -87,7 +91,7 @@
                                 });
                             }
 
-                            if (player.conf.autoplay) {
+                            if (player.conf.autoplay || !init) {
                                 // let the fp API take care of autoplay
                                 videoTag.play();
                             }
