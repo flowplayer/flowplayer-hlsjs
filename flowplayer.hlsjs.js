@@ -50,13 +50,15 @@
                     load: function (video) {
                         var init = hls === undefined;
 
-                        if (!init) {
+                        if (init) {
+                            common.removeNode(common.findDirect("video", root)[0] || common.find(".fp-player > video", root)[0]);
+                            videoTag = common.createElement("video");
+                            videoTag.autoplay = player.conf.autoplay;
+                        } else {
                             hls.destroy();
                             bean.off(videoTag);
+                            videoTag.autoplay = true;
                         }
-
-                        common.removeNode(common.findDirect("video", root)[0] || common.find(".fp-player > video", root)[0]);
-                        videoTag = common.createElement("video");
 
                         bean.on(videoTag, "play", function () {
                             player.trigger('resume', [player]);
@@ -89,11 +91,6 @@
                                         });
                                     }, 0);
                                 });
-                            }
-
-                            if (player.conf.autoplay || !init) {
-                                // let the fp API take care of autoplay
-                                videoTag.play();
                             }
                         });
                         bean.on(videoTag, "seeked", function () {
@@ -129,8 +126,10 @@
                             player.trigger('volume', [player, videoTag.volume]);
                         });
 
-                        videoTag.className = 'fp-engine hlsjs-engine';
-                        common.prepend(common.find(".fp-player", root)[0], videoTag);
+                        if (init) {
+                            videoTag.className = 'fp-engine hlsjs-engine';
+                            common.prepend(common.find(".fp-player", root)[0], videoTag);
+                        }
 
                         hls = new Hls(hlsconf);
 
