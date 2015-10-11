@@ -64,6 +64,8 @@
                             player.trigger('progress', [player, videoTag.currentTime]);
                         });
                         bean.on(videoTag, "loadeddata", function () {
+                            var posterClass = "is-poster";
+
                             extend(video, {
                                 duration: videoTag.duration,
                                 seekable: videoTag.seekable.end(null),
@@ -74,13 +76,12 @@
                             player.trigger('ready', [player, video]);
 
                             // fix timing for poster class
-                            var poster = "is-poster";
-                            if (common.hasClass(root, poster)) {
+                            if (common.hasClass(root, posterClass)) {
                                 player.on("stop.hlsjs", function () {
                                     setTimeout(function () {
-                                        common.addClass(root, poster);
+                                        common.addClass(root, posterClass);
                                         bean.one(videoTag, "play.hlsjs", function () {
-                                            common.removeClass(root, poster);
+                                            common.removeClass(root, posterClass);
                                         });
                                     }, 0);
                                 });
