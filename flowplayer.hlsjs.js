@@ -194,7 +194,6 @@
                     },
 
                     unload: function () {
-                        player.trigger('unload', [player]);
                         if (hls) {
                             hls.destroy();
                             common.find("video.fp-engine", root).forEach(common.removeNode);
