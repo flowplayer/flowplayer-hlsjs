@@ -48,86 +48,87 @@
                     },
 
                     load: function (video) {
-                        if (!hls) {
-                            common.removeNode(common.findDirect("video", root)[0] || common.find(".fp-player > video", root)[0]);
-                            videoTag = common.createElement("video", {
-                                className: "fp-engine hlsjs-engine",
-                                autoplay: player.conf.autoplay
-                            });
-                            videoTag.setAttribute("x-webkit-airplay", "allow");
-                            common.prepend(common.find(".fp-player", root)[0], videoTag);
+                        common.removeNode(common.findDirect("video", root)[0] || common.find(".fp-player > video", root)[0]);
+                        videoTag = common.createElement("video", {
+                            className: "fp-engine hlsjs-engine",
+                            autoplay: player.conf.autoplay || !!hls
+                        });
+                        videoTag.setAttribute("x-webkit-airplay", "allow");
 
-                            bean.on(videoTag, "play", function () {
-                                player.trigger('resume', [player]);
-                            });
-                            bean.on(videoTag, "pause", function () {
-                                player.trigger('pause', [player]);
-                            });
-                            bean.on(videoTag, "timeupdate", function () {
-                                player.trigger('progress', [player, videoTag.currentTime]);
-                            });
-                            bean.on(videoTag, "loadeddata", function () {
-                                var posterClass = "is-poster";
+                        bean.on(videoTag, "play", function () {
+                            player.trigger('resume', [player]);
+                        });
+                        bean.on(videoTag, "pause", function () {
+                            player.trigger('pause', [player]);
+                        });
+                        bean.on(videoTag, "timeupdate", function () {
+                            player.trigger('progress', [player, videoTag.currentTime]);
+                        });
+                        bean.on(videoTag, "loadeddata", function () {
+                            var posterClass = "is-poster";
 
-                                extend(video, {
-                                    duration: videoTag.duration,
-                                    seekable: videoTag.seekable.end(null),
-                                    width: videoTag.videoWidth,
-                                    height: videoTag.videoHeight,
-                                    url: videoTag.currentSrc
+                            video = extend(video, {
+                                duration: videoTag.duration,
+                                seekable: videoTag.seekable.end(null),
+                                width: videoTag.videoWidth,
+                                height: videoTag.videoHeight,
+                                url: videoTag.currentSrc
+                            });
+                            player.trigger('ready', [player, video]);
+
+                            // fix timing for poster class
+                            if (common.hasClass(root, posterClass)) {
+                                player.on("stop.hlsjs", function () {
+                                    setTimeout(function () {
+                                        common.addClass(root, posterClass);
+                                        bean.one(videoTag, "play.hlsjs", function () {
+                                            common.removeClass(root, posterClass);
+                                        });
+                                    }, 0);
                                 });
-                                player.trigger('ready', [player, video]);
+                            }
 
-                                // fix timing for poster class
-                                if (common.hasClass(root, posterClass)) {
-                                    player.on("stop.hlsjs", function () {
-                                        setTimeout(function () {
-                                            common.addClass(root, posterClass);
-                                            bean.one(videoTag, "play.hlsjs", function () {
-                                                common.removeClass(root, posterClass);
-                                            });
-                                        }, 0);
-                                    });
-                                }
-                            });
-                            bean.on(videoTag, "seeked", function () {
-                                player.trigger('seek', [player, videoTag.currentTime]);
-                            });
-                            bean.on(videoTag, "progress", function (e) {
-                                try {
-                                    var buffered = videoTag.buffered,
-                                        buffer = buffered.end(null), // first loaded buffer
-                                        ct = videoTag.currentTime,
-                                        buffend = 0,
-                                        i;
+                            // Firefox needs explicit play()
+                            if (player.conf.autoplay || !!hls) {
+                                videoTag.play();
+                            }
+                        });
+                        bean.on(videoTag, "seeked", function () {
+                            player.trigger('seek', [player, videoTag.currentTime]);
+                        });
+                        bean.on(videoTag, "progress", function (e) {
+                            try {
+                                var buffered = videoTag.buffered,
+                                    buffer = buffered.end(null), // first loaded buffer
+                                    ct = videoTag.currentTime,
+                                    buffend = 0,
+                                    i;
 
-                                    // buffered.end(null) will not always return the current buffer
-                                    // so we cycle through the time ranges to obtain it
-                                    if (ct) {
-                                        for (i = 1; i < buffered.length; i += 1) {
-                                            buffend = buffered.end(i);
+                                // buffered.end(null) will not always return the current buffer
+                                // so we cycle through the time ranges to obtain it
+                                if (ct) {
+                                    for (i = 1; i < buffered.length; i += 1) {
+                                        buffend = buffered.end(i);
 
-                                            if (buffend >= ct && buffered.start(i) <= ct) {
-                                                buffer = buffend;
-                                            }
+                                        if (buffend >= ct && buffered.start(i) <= ct) {
+                                            buffer = buffend;
                                         }
                                     }
-                                    video.buffer = buffer;
-                                } catch (ignored) {}
-                                player.trigger('buffer', [player, e]);
-                            });
-                            bean.on(videoTag, "ended", function () {
-                                player.trigger('finish', [player]);
-                            });
-                            bean.on(videoTag, "volumechange", function () {
-                                player.trigger('volume', [player, videoTag.volume]);
-                            });
+                                }
+                                video.buffer = buffer;
+                            } catch (ignored) {}
+                            player.trigger('buffer', [player, e]);
+                        });
+                        bean.on(videoTag, "ended", function () {
+                            player.trigger('finish', [player]);
+                        });
+                        bean.on(videoTag, "volumechange", function () {
+                            player.trigger('volume', [player, videoTag.volume]);
+                        });
 
-                        } else {
+                        if (hls) {
                             hls.destroy();
-                            videoTag.autoplay = true;
                         }
-
                         hls = new Hls(hlsconf);
 
                         hls.on(Hls.Events.MSE_ATTACHED, function () {
@@ -164,6 +165,7 @@
                             // log non fatals
                         });
 
+                        common.prepend(common.find(".fp-player", root)[0], videoTag);
                         hls.attachVideo(videoTag);
                     },
 
@@ -191,10 +193,13 @@
                     },
 
                     unload: function () {
+                        // hls conditional probably not needed once
+                        // https://github.com/flowplayer/flowplayer/commit/871ff783a8f23aa603e1120f4319d4a892125b0a
+                        // is released
                         if (hls) {
                             hls.destroy();
-                            common.find("video.fp-engine", root).forEach(common.removeNode);
                             hls = 0;
+                            common.find("video.fp-engine", root).forEach(common.removeNode);
                         }
                     }
                 };
