@@ -48,10 +48,12 @@
                     },
 
                     load: function (video) {
+                        var init = !hls;
+
                         common.removeNode(common.findDirect("video", root)[0] || common.find(".fp-player > video", root)[0]);
                         videoTag = common.createElement("video", {
                             className: "fp-engine hlsjs-engine",
-                            autoplay: player.conf.autoplay || !!hls
+                            autoplay: player.conf.autoplay || !init
                         });
                         videoTag.setAttribute("x-webkit-airplay", "allow");
 
@@ -89,7 +91,7 @@
                             }
 
                             // Firefox needs explicit play()
-                            if (player.conf.autoplay || !!hls) {
+                            if (player.conf.autoplay || !init) {
                                 videoTag.play();
                             }
                         });
