@@ -99,26 +99,32 @@
                             player.trigger('seek', [player, videoTag.currentTime]);
                         });
                         bean.on(videoTag, "progress", function (e) {
-                            try {
-                                var buffered = videoTag.buffered,
-                                    buffer = buffered.end(null), // first loaded buffer
-                                    ct = videoTag.currentTime,
-                                    buffend = 0,
-                                    i;
+                            var ct = videoTag.currentTime,
+                                buffer = 0,
+                                buffend,
+                                buffered,
+                                last,
+                                i;
 
-                                // buffered.end(null) will not always return the current buffer
-                                // so we cycle through the time ranges to obtain it
+                            try {
+                                buffered = videoTag.buffered,
+                                last = buffered.length - 1,
+                                buffend = 0;
+
+                                // cycle through time ranges to obtain buffer
+                                // nearest current time
                                 if (ct) {
-                                    for (i = 1; i < buffered.length; i += 1) {
+                                    for (i = last; i > -1; i -= 1) {
                                         buffend = buffered.end(i);
 
-                                        if (buffend >= ct && buffered.start(i) <= ct) {
+                                        if (buffend >= ct) {
                                             buffer = buffend;
                                         }
                                     }
                                 }
-                                video.buffer = buffer;
                             } catch (ignored) {}
+
+                            video.buffer = buffer;
                             player.trigger('buffer', [player, e]);
                         });
                         bean.on(videoTag, "ended", function () {
