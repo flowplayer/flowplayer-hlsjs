@@ -207,7 +207,8 @@
                         if (hls) {
                             hls.destroy();
                             hls = 0;
-                            common.find("video.fp-engine", root).forEach(common.removeNode);
+                            common.removeNode(videoTag);
+                            videoTag = 0;
                         }
                     }
                 };
