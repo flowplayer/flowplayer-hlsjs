@@ -212,6 +212,7 @@
                         if (hls) {
                             hls.destroy();
                             hls = 0;
+                            bean.off(videoTag);
                             common.removeNode(videoTag);
                             videoTag = 0;
                         }
