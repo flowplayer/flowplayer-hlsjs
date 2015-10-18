@@ -48,13 +48,19 @@
                     },
 
                     load: function (video) {
-                        var init = !hls;
+                        var init = !hls,
+                            conf = player.conf;
 
-                        common.removeNode(common.findDirect("video", root)[0] || common.find(".fp-player > video", root)[0]);
-                        videoTag = common.createElement("video", {
-                            className: "fp-engine hlsjs-engine",
-                            autoplay: player.conf.autoplay || !init
-                        });
+                        if (init) {
+                            common.removeNode(common.findDirect("video", root)[0] || common.find(".fp-player > video", root)[0]);
+                            videoTag = common.createElement("video", {
+                                className: "fp-engine hlsjs-engine",
+                                autoplay: conf.autoplay ? "autoplay" : false
+                            });
+                        } else {
+                            hls.destroy();
+                        }
+
                         videoTag.setAttribute("x-webkit-airplay", "allow");
 
                         bean.on(videoTag, "play", function () {
@@ -88,11 +94,6 @@
                                         });
                                     }, 0);
                                 });
-                            }
-
-                            // Firefox needs explicit play()
-                            if (player.conf.autoplay || !init) {
-                                videoTag.play();
                             }
                         });
                         bean.on(videoTag, "seeked", function () {
@@ -134,13 +135,15 @@
                             player.trigger('volume', [player, videoTag.volume]);
                         });
 
-                        if (hls) {
-                            hls.destroy();
-                        }
                         hls = new Hls(hlsconf);
 
                         hls.on(Hls.Events.MSE_ATTACHED, function () {
                             hls.loadSource(video.src);
+
+                            videoTag.load();
+                            if (videoTag.paused && (video.autoplay || conf.autoplay)) {
+                                videoTag.play();
+                            }
 
                         }).on(Hls.Events.ERROR, function (e, data) {
                             var fperr,
@@ -173,7 +176,9 @@
                             // log non fatals
                         });
 
-                        common.prepend(common.find(".fp-player", root)[0], videoTag);
+                        if (init) {
+                            common.prepend(common.find(".fp-player", root)[0], videoTag);
+                        }
                         hls.attachVideo(videoTag);
                     },
 
