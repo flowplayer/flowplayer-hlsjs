@@ -148,14 +148,17 @@
 
                         }).on(Hls.Events.ERROR, function (e, data) {
                             var fperr,
-                                errobj;
+                                errobj = {};
 
                             if (data.fatal || hlsconf.strict) {
-                                // try recovery?
                                 switch (data.type) {
                                 case Hls.ErrorTypes.NETWORK_ERROR:
-                                    // in theory should be 3 (Network error)
-                                    fperr = 4;
+                                    if (data.frag && data.frag.url) {
+                                        errobj.url = data.frag.url;
+                                        fperr = 2;
+                                    } else {
+                                        fperr = 4;
+                                    }
                                     break;
                                 case Hls.ErrorTypes.MEDIA_ERROR:
                                     fperr = 3;
@@ -164,7 +167,7 @@
                                     fperr = 5;
                                     break;
                                 }
-                                errobj = {code: fperr};
+                                errobj.code = fperr;
                                 if (fperr > 2) {
                                     errobj.video = extend(video, {
                                         src: video.src,
