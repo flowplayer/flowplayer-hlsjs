@@ -26,6 +26,7 @@
         hlsconf,
         common = flowplayer.common,
         extend = flowplayer.extend,
+        support = flowplayer.support,
 
         engineImpl = function hlsjsEngine(player, root) {
             var bean = flowplayer.bean,
@@ -230,7 +231,7 @@
             // support Safari only when hlsjs debugging
             // https://github.com/dailymotion/hls.js/issues/9
             return /mpegurl/i.test(type) &&
-                    (IE11 || !flowplayer.support.browser.safari || hlsconf.debug);
+                    (IE11 || !support.browser.safari || hlsconf.debug);
         };
 
         // put on top of engine stack
@@ -254,7 +255,8 @@
                     // the hlsjs engine works around
                     // https://github.com/flowplayer/flowplayer/issues/942
 
-                    if (e.type.stop || api.engine.engineName === engineName) {
+                    // Firefox does not catch the first seek after pause
+                    if (e.type.stop || !support.browser.mozilla) {
                         setTimeout(function () {
                             var posterClass = "is-poster";
 
