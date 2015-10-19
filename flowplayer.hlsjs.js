@@ -32,14 +32,6 @@
                 videoTag,
                 hls,
 
-                cleanup = function () {
-                    hls.destroy();
-                    hls = 0;
-                    bean.off(videoTag);
-                    common.removeNode(videoTag);
-                    videoTag = 0;
-                },
-
                 engine = {
                     engineName: engineName,
 
@@ -185,8 +177,6 @@
                             // log non fatals
                         });
 
-                        player.on("error", cleanup);
-
                         if (init) {
                             common.prepend(common.find(".fp-player", root)[0], videoTag);
                         }
@@ -221,7 +211,11 @@
                         // https://github.com/flowplayer/flowplayer/commit/871ff783a8f23aa603e1120f4319d4a892125b0a
                         // is released
                         if (hls) {
-                            cleanup();
+                            hls.destroy();
+                            hls = 0;
+                            bean.off(videoTag);
+                            common.removeNode(videoTag);
+                            videoTag = 0;
                         }
                     }
                 };
