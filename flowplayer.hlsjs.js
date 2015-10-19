@@ -55,7 +55,9 @@
                             common.removeNode(common.findDirect("video", root)[0] || common.find(".fp-player > video", root)[0]);
                             videoTag = common.createElement("video", {
                                 className: "fp-engine hlsjs-engine",
-                                autoplay: conf.autoplay ? "autoplay" : false
+                                autoplay: conf.autoplay
+                                    ? "autoplay"
+                                    : false
                             });
                         } else {
                             hls.destroy();
@@ -108,10 +110,9 @@
                                 i;
 
                             try {
-                                buffered = videoTag.buffered,
-                                last = buffered.length - 1,
+                                buffered = videoTag.buffered;
+                                last = buffered.length - 1;
                                 buffend = 0;
-
                                 // cycle through time ranges to obtain buffer
                                 // nearest current time
                                 if (ct) {
