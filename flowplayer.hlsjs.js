@@ -24,11 +24,11 @@
     "use strict";
     var engineName = "hlsjs",
         hlsconf,
+        common = flowplayer.common,
         extend = flowplayer.extend,
 
         engineImpl = function hlsjsEngine(player, root) {
             var bean = flowplayer.bean,
-                common = flowplayer.common,
                 videoTag,
                 hls,
 
@@ -75,8 +75,6 @@
                             player.trigger('progress', [player, videoTag.currentTime]);
                         });
                         bean.on(videoTag, "loadeddata", function () {
-                            var posterClass = "is-poster";
-
                             video = extend(video, {
                                 duration: videoTag.duration,
                                 seekable: videoTag.seekable.end(null),
@@ -85,18 +83,6 @@
                                 url: videoTag.currentSrc
                             });
                             player.trigger('ready', [player, video]);
-
-                            // fix timing for poster class
-                            if (common.hasClass(root, posterClass)) {
-                                player.on("stop.hlsjs", function () {
-                                    setTimeout(function () {
-                                        common.addClass(root, posterClass);
-                                        bean.one(videoTag, "play.hlsjs", function () {
-                                            common.removeClass(root, posterClass);
-                                        });
-                                    }, 0);
-                                });
-                            }
                         });
                         bean.on(videoTag, "seeked", function () {
                             player.trigger('seek', [player, videoTag.currentTime]);
@@ -250,6 +236,45 @@
         // put on top of engine stack
         // so hlsjs is tested before html5 video hls and flash hls
         flowplayer.engines.unshift(engineImpl);
+
+
+        // poster hack
+        flowplayer(function (api, root) {
+            // detect poster condition as in core on boot
+            var bc = common.css(root, 'backgroundColor'),
+                has_bg = common.css(root, 'backgroundImage') !== "none" ||
+                        (bc && bc !== "rgba(0, 0, 0, 0)" && bc !== "transparent"),
+                posterCondition = has_bg && !api.conf.splash && !api.conf.autoplay,
+
+                posterHack = function (e) {
+                    api.off("seek.hlsjs");
+
+                    //if (api.engine.engineName === engineName) {
+                    // omitting this condition which would confine the hack to
+                    // the hlsjs engine works around
+                    // https://github.com/flowplayer/flowplayer/issues/942
+
+                    if (e.type.stop || api.engine.engineName === engineName) {
+                        setTimeout(function () {
+                            var posterClass = "is-poster";
+
+                            common.addClass(root, posterClass);
+                            api.one("resume", function () {
+                                common.removeClass(root, posterClass);
+                            });
+                        }, 0);
+                    }
+                };
+
+            if (posterCondition) {
+                // setup once at first load
+                api.one("load", function (e, api) {
+                    // one("seek") is not reliable as it's caught only
+                    // with playlists, so will be off'd in posterHack
+                    api.on("seek.hlsjs", posterHack).on("stop.hlsjs", posterHack);
+                });
+            }
+        });
     }
 
 }());
