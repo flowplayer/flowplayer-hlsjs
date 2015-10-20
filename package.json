@@ -1,0 +1,28 @@
+{
+  "name": "flowplayer-hlsjs",
+  "version": "0.1.0",
+  "description": "Flowplayer HLS.js plugin",
+  "main": "flowplayer.hlsjs.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/flowplayer/flowplayer-hlsjs"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/flowplayer/flowplayer-hlsjs/issues"
+  },
+  "homepage": "https://github.com/flowplayer/flowplayer-hlsjs",
+  "dependencies": {
+    "hls.js": "git://github.com/dailymotion/hls.js#6554d339cf8ab58495829d227c02c67b334571f1"
+  },
+  "peerDependencies": {
+    "flowplayer": "^6.0.3"
+  },
+  "jshintConfig": {
+    "undef": true
+  }
+}
