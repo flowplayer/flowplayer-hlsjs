@@ -1,5 +1,4 @@
-/*jslint browser: true, for: true */
-/*global Hls, flowplayer */
+/*jslint browser: true, for: true, node: true */
 
 /*!
 
@@ -20,7 +19,7 @@
 
 */
 
-(function () {
+(function (flowplayer, Hls) {
     "use strict";
     var engineName = "hlsjs",
         hlsconf,
@@ -279,4 +278,7 @@
         });
     }
 
-}());
+}.apply(null, typeof module === 'object' && module.exports ?
+        [require('flowplayer'), require('hls.js')] :
+        [window.flowplayer, window.Hls]
+       ));
