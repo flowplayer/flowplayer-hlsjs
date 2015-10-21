@@ -273,7 +273,10 @@
                 api.one("load", function (e, api) {
                     // one("seek") is not reliable as it's caught only
                     // with playlists, so will be off'd in posterHack
-                    api.on("seek.hlsjs", posterHack).on("stop.hlsjs", posterHack);
+                    api.on("seek.hlsjs", posterHack).on("stop.hlsjs", posterHack).on("ready", function () {
+                        // required for videos which take longer to load
+                        api.off("seek.hlsjs");
+                    });
                 });
             }
         });
