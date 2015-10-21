@@ -31,6 +31,26 @@ clip: {
 }
 ```
 
+### CommonJS
+
+The plugin can be used in a [browserify](http://browserify.org) and/or
+[webpack](https://webpack.github.io/) environment with a
+[commonjs](http://requirejs.org/docs/commonjs.html) loader:
+
+```js
+var flowplayer = require('flowplayer');
+require('flowplayer-hlsjs'); // Plugin injects itself to flowplayer
+
+flowplayer('#container', {
+  clip: {
+    sources: [{
+      type: 'application/x-mpegurl',
+      src: '//stream.flowplayer.org/bauhaus.m3u8'
+    }]
+  }
+});
+```
+
 Plugin configuration
 --------------------
 
@@ -53,13 +73,10 @@ The HLS streams must be loaded from a server with a
 [cross domain policy](https://flowplayer.org/docs/setup.html#cross-domain) permitting `GET`
 requests.
 
-
-<!--
 Demo
 ----
 
 A fully documented demo can be found [here](http://demos.flowplayer.org/api/hlsjs.html).
--->
 
 Features
 --------
@@ -67,10 +84,10 @@ Features
 - packs a compatibility tested version - current:
   https://github.com/dailymotion/hls.js/commit/6554d339cf8ab58495829d227c02c67b334571f1 - of
   hls.js
-- engine is only loaded if the browser supports
+- by default the engine is only loaded if the browser supports
   [MediaSource extensions](http://w3c.github.io/media-source/) reliably for playback
 
-## Upcoming
+### Upcoming
 
 Manual quality switching.
 
@@ -97,11 +114,23 @@ flowplayer.conf.hlsjs = {
 </script>
 ```
 
+### Building the plugin
+
+Build requirement:
+
+- [nodejs](https://nodejs.org) with [npm](https://www.npmjs.com)
+
+```sh
+cd flowplayer-hlsjs
+make deps
+make
+```
+
 Known issues
 ------------
 
 - Safari's MSE implementation has fatal problems with
   [fragmented MP4 playback](https://github.com/dailymotion/hls.js/issues/9) - for the moment the
   hlsjs engine will only be loaded in Safari for [debugging purposes](#debugging).
-- not tested with live streams by lack of examples where CORS is enabled on the server
+- scarcely tested with live streams by lack of examples where CORS is enabled on the server
 - encrypted streams not yet supported
