@@ -66,6 +66,14 @@ Setting `hlsjs` to `false` can be used to disable the engine for a specific play
 Convenient when one knows that certain HLS streams are not served with the required [CORS](#cors)
 policy.
 
+### Plugin options
+
+The plugin also provides the following `hljs` parameter:
+
+option   | default value | description
+:------- | :------------ | :----------
+`strict` | `false`       | Set to `true` if you want non fatal `hls.js` errors to trigger Flowplayer errors. Useful for debugging streams and live stream maintenance.
+
 CORS
 ----
 
