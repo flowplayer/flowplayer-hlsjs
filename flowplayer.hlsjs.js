@@ -1,4 +1,5 @@
 /*jslint browser: true, for: true, node: true */
+/*global window */
 
 /*!
 
@@ -278,7 +279,6 @@
         });
     }
 
-}.apply(null, typeof module === 'object' && module.exports ?
-        [require('flowplayer'), require('hls.js')] :
-        [window.flowplayer, window.Hls]
-       ));
+}.apply(null, (typeof module === 'object' && module.exports)
+    ? [require('flowplayer'), require('hls.js')]
+    : [window.flowplayer, window.Hls]));
