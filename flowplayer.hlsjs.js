@@ -26,7 +26,6 @@
         hlsconf,
         common = flowplayer.common,
         extend = flowplayer.extend,
-        client = flowplayer.support.browser,
 
         engineImpl = function hlsjsEngine(player, root) {
             var bean = flowplayer.bean,
@@ -231,7 +230,7 @@
             // support Safari only when hlsjs debugging
             // https://github.com/dailymotion/hls.js/issues/9
             return /mpegurl/i.test(type) &&
-                    (IE11 || !client.safari || hlsconf.debug);
+                    (IE11 || !flowplayer.support.browser.safari || hlsconf.debug);
         };
 
         // put on top of engine stack
@@ -248,15 +247,16 @@
                 posterCondition = has_bg && !api.conf.splash && !api.conf.autoplay,
 
                 posterHack = function (e) {
-                    api.off("seek.hlsjs");
-
                     //if (api.engine.engineName === engineName) {
                     // omitting this condition which would confine the hack to
                     // the hlsjs engine works around
                     // https://github.com/flowplayer/flowplayer/issues/942
 
-                    // Firefox does not catch the first seek after pause
-                    if (e.type.stop || client.chrome || client.opera) {
+                    api.off("seek.hlsjs");
+
+                    if (e.type !== "ready") {
+                        // assert that poster is set regardless of client of
+                        // video loading delay
                         setTimeout(function () {
                             var posterClass = "is-poster";
 
@@ -273,10 +273,7 @@
                 api.one("load", function (e, api) {
                     // one("seek") is not reliable as it's caught only
                     // with playlists, so will be off'd in posterHack
-                    api.on("seek.hlsjs", posterHack).on("stop.hlsjs", posterHack).on("ready", function () {
-                        // required for videos which take longer to load
-                        api.off("seek.hlsjs");
-                    });
+                    api.on("seek.hlsjs stop.hlsjs", posterHack).one("ready.hlsjs", posterHack);
                 });
             }
         });
