@@ -83,10 +83,6 @@
                                 url: videoTag.currentSrc
                             });
                             player.trigger('ready', [player, video]);
-
-                            if (videoTag.paused && (video.autoplay || conf.autoplay)) {
-                                videoTag.play();
-                            }
                         });
                         bean.on(videoTag, "seeked", function () {
                             player.trigger('seek', [player, videoTag.currentTime]);
@@ -128,10 +124,7 @@
 
                         hls = new Hls(hlsconf);
 
-                        hls.on(Hls.Events.MSE_ATTACHED, function () {
-                            hls.loadSource(video.src);
-
-                        }).on(Hls.Events.ERROR, function (e, data) {
+                        hls.on(Hls.Events.ERROR, function (e, data) {
                             var fperr,
                                 errobj = {};
 
@@ -168,7 +161,13 @@
                         if (init) {
                             common.prepend(common.find(".fp-player", root)[0], videoTag);
                         }
+
+                        hls.loadSource(video.src);
                         hls.attachVideo(videoTag);
+
+                        if (videoTag.paused && (video.autoplay || conf.autoplay)) {
+                            videoTag.play();
+                        }
                     },
 
                     resume: function () {
