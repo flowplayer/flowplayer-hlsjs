@@ -83,6 +83,10 @@
                                 url: videoTag.currentSrc
                             });
                             player.trigger('ready', [player, video]);
+
+                            if (videoTag.paused && (video.autoplay || conf.autoplay)) {
+                                videoTag.play();
+                            }
                         });
                         bean.on(videoTag, "seeked", function () {
                             player.trigger('seek', [player, videoTag.currentTime]);
@@ -126,11 +130,6 @@
 
                         hls.on(Hls.Events.MSE_ATTACHED, function () {
                             hls.loadSource(video.src);
-
-                            videoTag.load();
-                            if (videoTag.paused && (video.autoplay || conf.autoplay)) {
-                                videoTag.play();
-                            }
 
                         }).on(Hls.Events.ERROR, function (e, data) {
                             var fperr,
