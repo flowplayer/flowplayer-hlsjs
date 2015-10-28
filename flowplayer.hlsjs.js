@@ -250,7 +250,7 @@
                     // the hlsjs engine works around
                     // https://github.com/flowplayer/flowplayer/issues/942
 
-                    api.off("seek.hlsjs");
+                    api.off("seek." + engineName);
 
                     if (e.type !== "ready") {
                         // assert that poster is set regardless of client of
@@ -259,7 +259,7 @@
                             var posterClass = "is-poster";
 
                             common.addClass(root, posterClass);
-                            api.one("resume", function () {
+                            api.one("resume." + engineName, function () {
                                 common.removeClass(root, posterClass);
                             });
                         }, 0);
@@ -268,10 +268,11 @@
 
             if (posterCondition) {
                 // setup once at first load
-                api.one("load", function (e, api) {
+                api.one("load." + engineName, function (e, api) {
                     // one("seek") is not reliable as it's caught only
                     // with playlists, so will be off'd in posterHack
-                    api.on("seek.hlsjs stop.hlsjs", posterHack).one("ready.hlsjs", posterHack);
+                    api.on("seek." + engineName + " stop." + engineName, posterHack)
+                        .one("ready." + engineName, posterHack);
                 });
             }
         });
