@@ -41,7 +41,7 @@
 
                         for (i = 0; i < sources.length; i += 1) {
                             source = sources[i];
-                            if (/mpegurl/i.test(source.type) && (!source.engine || source.engine === "hlsjs")) {
+                            if (/mpegurl/i.test(source.type) && (!source.engine || source.engine === engineName)) {
                                 return source;
                             }
                         }
@@ -54,7 +54,7 @@
                         if (init) {
                             common.removeNode(common.findDirect("video", root)[0] || common.find(".fp-player > video", root)[0]);
                             videoTag = common.createElement("video", {
-                                className: "fp-engine hlsjs-engine",
+                                className: "fp-engine " + engineName + "-engine",
                                 autoplay: conf.autoplay
                                     ? "autoplay"
                                     : false
@@ -217,13 +217,13 @@
             var UA = navigator.userAgent,
                 IE11 = UA.indexOf("Trident/7") > -1;
 
-            if (conf.hlsjs === false || conf.clip.hlsjs === false) {
+            if (conf[engineName] === false || conf.clip[engineName] === false) {
                 // engine disabled for player or clip
                 return false;
             }
 
             // merge hlsjs clip config at earliest opportunity
-            hlsconf = extend({}, conf.hlsjs, conf.clip.hlsjs);
+            hlsconf = extend({}, conf[engineName], conf.clip[engineName]);
 
             // support Safari only when hlsjs debugging
             // https://github.com/dailymotion/hls.js/issues/9
