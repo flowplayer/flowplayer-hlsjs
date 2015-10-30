@@ -45,7 +45,8 @@
 
                         for (i = 0; i < sources.length; i += 1) {
                             source = sources[i];
-                            if (isHlsType(source.type) && (!source.engine || source.engine === engineName)) {
+                            if (isHlsType(source.type)
+                                    && (!source.engine || source.engine === engineName)) {
                                 return source;
                             }
                         }
@@ -56,7 +57,8 @@
                             conf = player.conf;
 
                         if (init) {
-                            common.removeNode(common.findDirect("video", root)[0] || common.find(".fp-player > video", root)[0]);
+                            common.removeNode(common.findDirect("video", root)[0]
+                                    || common.find(".fp-player > video", root)[0]);
                             videoTag = common.createElement("video", {
                                 className: "fp-engine " + engineName + "-engine",
                                 autoplay: conf.autoplay
