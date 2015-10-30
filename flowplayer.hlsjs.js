@@ -63,11 +63,11 @@
                                     ? "autoplay"
                                     : false
                             });
+                            videoTag.setAttribute("x-webkit-airplay", "allow");
+
                         } else {
                             hls.destroy();
                         }
-
-                        videoTag.setAttribute("x-webkit-airplay", "allow");
 
                         bean.on(videoTag, "play", function () {
                             player.trigger('resume', [player]);
