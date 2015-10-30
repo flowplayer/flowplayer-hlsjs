@@ -27,6 +27,10 @@
         common = flowplayer.common,
         extend = flowplayer.extend,
 
+        isHlsType = function (typ) {
+            return typ.toLowerCase().indexOf("mpegurl") > -1;
+        },
+
         engineImpl = function hlsjsEngine(player, root) {
             var bean = flowplayer.bean,
                 videoTag,
@@ -41,7 +45,7 @@
 
                         for (i = 0; i < sources.length; i += 1) {
                             source = sources[i];
-                            if (/mpegurl/i.test(source.type) && (!source.engine || source.engine === engineName)) {
+                            if (isHlsType(source.type) && (!source.engine || source.engine === engineName)) {
                                 return source;
                             }
                         }
@@ -214,8 +218,7 @@
         // only load engine if it can be used
         engineImpl.engineName = engineName; // must be exposed
         engineImpl.canPlay = function (type, conf) {
-            var UA = navigator.userAgent,
-                IE11 = UA.indexOf("Trident/7") > -1;
+            var IE11 = navigator.userAgent.indexOf("Trident/7") > -1;
 
             if (conf[engineName] === false || conf.clip[engineName] === false) {
                 // engine disabled for player or clip
@@ -227,7 +230,7 @@
 
             // support Safari only when hlsjs debugging
             // https://github.com/dailymotion/hls.js/issues/9
-            return /mpegurl/i.test(type) &&
+            return isHlsType(type) &&
                     (IE11 || !flowplayer.support.browser.safari || hlsconf.debug);
         };
 
