@@ -246,7 +246,7 @@
             // detect poster condition as in core on boot
             var bc = common.css(root, 'backgroundColor'),
                 has_bg = common.css(root, 'backgroundImage') !== "none" ||
-                        (bc && bc !== "rgba(0, 0, 0, 0)" && bc !== "transparent"),
+                        (bc && bc !== "rgba(0,0,0,0)" && bc !== "transparent"),
                 posterCondition = has_bg && !api.conf.splash && !api.conf.autoplay,
 
                 posterHack = function (e) {
