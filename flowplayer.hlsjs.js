@@ -17,6 +17,7 @@
    requires:
    - Flowplayer HTML5 version 6.x or greater
    - hls.js https://github.com/dailymotion/hls.js
+   revision: $GIT_ID$
 
 */
 
