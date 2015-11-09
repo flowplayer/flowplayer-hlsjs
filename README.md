@@ -72,6 +72,7 @@ The plugin also provides the following `hljs` parameter:
 
 option   | default value | description
 :------- | :------------ | :----------
+`startLevel` | | Tells the player which clip resolution/bitrate to pick intially. Accepts and index number from `0` (lowest) to highest. Defaults to the level listed first in the master playlist, as with [generic HLS playback](https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/StreamingMediaGuide/UsingHTTPLiveStreaming/UsingHTTPLiveStreaming.html#//apple_ref/doc/uid/TP40008332-CH102-SW18). Set to `-1` or `"auto"` for automatic selection.
 `strict` | `false`       | Set to `true` if you want non fatal `hls.js` errors to trigger Flowplayer errors. Useful for debugging streams and live stream maintenance.
 
 CORS
