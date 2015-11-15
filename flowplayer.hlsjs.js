@@ -137,7 +137,7 @@
                         hls = new Hls(hlsClientConf);
 
                         hlsParams.forEach(function (key) {
-                            var value = hlsParams[key];
+                            var value = hlsconf[key];
 
                             if (value !== undefined) {
                                 switch (key) {
