@@ -139,16 +139,24 @@
                         hlsParams.forEach(function (key) {
                             var value = hlsconf[key];
 
-                            if (value !== undefined) {
-                                switch (key) {
-                                case "autoLevelCapping":
-                                case "startLevel":
-                                    if (value === "auto") {
-                                        value = -1;
-                                    }
+                            switch (key) {
+                            case "autoLevelCapping":
+                                if (value === false) {
+                                    value = -1;
+                                }
+                                break;
+                            case "startLevel":
+                                switch (value) {
+                                case "auto":
+                                    value = -1;
+                                    break;
+                                case "firstLevel":
+                                    value = undefined;
                                     break;
                                 }
+                            }
 
+                            if (value !== undefined) {
                                 hls[key] = value;
                             }
                         });
