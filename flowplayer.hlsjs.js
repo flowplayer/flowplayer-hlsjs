@@ -251,7 +251,7 @@
             }
 
             // merge hlsjs clip config at earliest opportunity
-            hlsconf = extend({}, conf[engineName], conf.clip[engineName]);
+            hlsconf = extend({}, flowplayer.conf[engineName], conf[engineName], conf.clip[engineName]);
 
             // support Safari only when hlsjs debugging
             // https://github.com/dailymotion/hls.js/issues/9
