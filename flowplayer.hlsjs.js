@@ -57,7 +57,7 @@
                         var init = !hls,
                             conf = player.conf,
                             hlsClientConf = extend({}, hlsconf),
-                            startLevel = hlsconf.startLevel;
+                            hlsParams = ["autoLevelCapping", "startLevel", "strict"];
 
                         if (init) {
                             common.removeNode(common.findDirect("video", root)[0]
@@ -131,16 +131,27 @@
                             player.trigger('volume', [player, videoTag.volume]);
                         });
 
-                        ["startLevel", "strict"].forEach(function (key) {
+                        hlsParams.forEach(function (key) {
                             delete hlsClientConf[key];
                         });
                         hls = new Hls(hlsClientConf);
 
-                        if (typeof startLevel === "number" || startLevel === "auto") {
-                            hls.startLevel = startLevel === "auto"
-                                ? -1
-                                : startLevel;
-                        }
+                        hlsParams.forEach(function (key) {
+                            var value = hlsParams[key];
+
+                            if (value !== undefined) {
+                                switch (key) {
+                                case "autoLevelCapping":
+                                case "startLevel":
+                                    if (value === "auto") {
+                                        value = -1;
+                                    }
+                                    break;
+                                }
+
+                                hls[key] = value;
+                            }
+                        });
 
                         hls.on(Hls.Events.ERROR, function (e, data) {
                             var fperr,
