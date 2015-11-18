@@ -54,11 +54,11 @@ flowplayer('#container', {
 Plugin configuration
 --------------------
 
-The plugin provides the following `hlsjs` option on the
+The plugin provides the `hlsjs` option on the
 [player](https://flowplayer.org/docs/setup.html#player-options) and 
 [clip](https://flowplayer.org/docs/setup.html#player-options) levels.
 
-The `hlsjs` option accepts all
+The `hlsjs` option is an object which accepts all
 [configuration parameters for hls.js](https://github.com/dailymotion/hls.js/blob/master/API.md#fine-tuning)
 which are passed on to the client.
 
@@ -68,7 +68,7 @@ policy.
 
 ### Plugin options
 
-The plugin also provides the following `hljs` parameter:
+Additionally the `hlsjs` configuration object accepts the following Flowplayer specific parameters:
 
 option   | default value | description
 :------- | :------------ | :----------
