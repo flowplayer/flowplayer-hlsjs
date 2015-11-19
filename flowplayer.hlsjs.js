@@ -27,6 +27,7 @@
         hlsconf,
         common = flowplayer.common,
         extend = flowplayer.extend,
+        version = flowplayer.version,
 
         isHlsType = function (typ) {
             return typ.toLowerCase().indexOf("mpegurl") > -1;
@@ -248,7 +249,7 @@
             return engine;
         };
 
-    if (Hls.isSupported()) {
+    if (Hls.isSupported() && version.indexOf("5.") !== 0) {
         // only load engine if it can be used
         engineImpl.engineName = engineName; // must be exposed
         engineImpl.canPlay = function (type, conf) {
@@ -276,34 +277,37 @@
         // poster hack
         flowplayer(function (api, root) {
             // detect poster condition as in core on boot
-            var bc = common.css(root, 'backgroundColor'),
+            var pre604 = /^6\.0\.[0-3]$/.test(version),
+                conf = api.conf,
+                bc = common.css(root, 'backgroundColor'),
                 has_bg = common.css(root, 'backgroundImage') !== "none" ||
                         (bc && bc !== "rgba(0,0,0,0)" && bc !== "transparent"),
-                posterCondition = has_bg && !api.conf.splash && !api.conf.autoplay,
+                posterCondition = has_bg && !conf.splash
+                        && (!pre604 || (pre604 && !conf.autoplay)),
 
-                posterHack = function () {
-                    //if (api.engine.engineName === engineName) {
-                    // omitting this condition which would confine the hack to
-                    // the hlsjs engine works around
-                    // https://github.com/flowplayer/flowplayer/issues/942
-
+                posterHack = function (e) {
                     // assert that poster is set regardless of client of
                     // video loading delay
                     setTimeout(function () {
                         var posterClass = "is-poster";
 
-                        common.addClass(root, posterClass);
-                        api.one("resume." + engineName, function () {
-                            api.off("ready." + engineName);
-                            api.off("seek." + engineName);
-                            common.removeClass(root, posterClass);
-                        });
+                        if (!pre604) {
+                            // must set this ourselves
+                            api.poster = true;
+                        }
+                        if (!conf.autoplay || e.type === "stop") {
+                            common.addClass(root, posterClass);
+                            api.one("resume." + engineName, function () {
+                                api.off("ready." + engineName);
+                                common.removeClass(root, posterClass);
+                            });
+                        }
                     }, 0);
                 };
 
             if (posterCondition) {
-                api.on("ready." + engineName + " stop." + engineName + " seek." + engineName,
-                        posterHack);
+                api.on("ready." + engineName + " stop." + engineName, posterHack)
+                    .one("seek." + engineName, posterHack);
             }
         });
     }
