@@ -154,6 +154,7 @@
                                     value = undefined;
                                     break;
                                 }
+                                break;
                             }
 
                             if (value !== undefined) {
