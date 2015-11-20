@@ -49,6 +49,9 @@
                             source = sources[i];
                             if (isHlsType(source.type)
                                     && (!source.engine || source.engine === engineName)) {
+                                if (typeof source.src === 'string') {
+                                    source.src = common.createAbsoluteUrl(source.src);
+                                }
                                 return source;
                             }
                         }
