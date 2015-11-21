@@ -38,6 +38,33 @@
                 videoTag,
                 hls,
 
+                pre604 = /^6\.0\.[0-3]$/.test(version),
+                bc = common.css(root, 'backgroundColor'),
+                has_bg = common.css(root, 'backgroundImage') !== "none" ||
+                        (bc && bc !== "rgba(0,0,0,0)" && bc !== "transparent"),
+                posterCondition = has_bg && !player.conf.splash
+                        && (!pre604 || (pre604 && !player.conf.autoplay)),
+
+                posterHack = function (e) {
+                    // assert that poster is set regardless of client of
+                    // video loading delay
+                    setTimeout(function () {
+                        var posterClass = "is-poster";
+
+                        if (!pre604) {
+                            // must set this ourselves
+                            player.poster = true;
+                        }
+                        if (!player.conf.autoplay || e.type === "stop") {
+                            common.addClass(root, posterClass);
+                            player.one("resume." + engineName, function () {
+                                player.off("ready." + engineName);
+                                common.removeClass(root, posterClass);
+                            });
+                        }
+                    }, 0);
+                },
+
                 engine = {
                     engineName: engineName,
 
@@ -249,6 +276,12 @@
                     }
                 };
 
+
+            if (posterCondition) {
+                player.on("ready." + engineName + " stop." + engineName, posterHack)
+                    .one("seek." + engineName, posterHack);
+            }
+
             return engine;
         };
 
@@ -276,43 +309,6 @@
         // so hlsjs is tested before html5 video hls and flash hls
         flowplayer.engines.unshift(engineImpl);
 
-
-        // poster hack
-        flowplayer(function (api, root) {
-            // detect poster condition as in core on boot
-            var pre604 = /^6\.0\.[0-3]$/.test(version),
-                conf = api.conf,
-                bc = common.css(root, 'backgroundColor'),
-                has_bg = common.css(root, 'backgroundImage') !== "none" ||
-                        (bc && bc !== "rgba(0,0,0,0)" && bc !== "transparent"),
-                posterCondition = has_bg && !conf.splash
-                        && (!pre604 || (pre604 && !conf.autoplay)),
-
-                posterHack = function (e) {
-                    // assert that poster is set regardless of client of
-                    // video loading delay
-                    setTimeout(function () {
-                        var posterClass = "is-poster";
-
-                        if (!pre604) {
-                            // must set this ourselves
-                            api.poster = true;
-                        }
-                        if (!conf.autoplay || e.type === "stop") {
-                            common.addClass(root, posterClass);
-                            api.one("resume." + engineName, function () {
-                                api.off("ready." + engineName);
-                                common.removeClass(root, posterClass);
-                            });
-                        }
-                    }, 0);
-                };
-
-            if (posterCondition) {
-                api.on("ready." + engineName + " stop." + engineName, posterHack)
-                    .one("seek." + engineName, posterHack);
-            }
-        });
     }
 
 }.apply(null, (typeof module === 'object' && module.exports)
