@@ -52,15 +52,18 @@
                     setTimeout(function () {
                         var posterClass = "is-poster";
 
-                        if (!pre604) {
-                            // must set this ourselves
-                            player.poster = true;
-                        }
                         if (!player.conf.autoplay || e.type === "stop") {
                             common.addClass(root, posterClass);
+                            if (!pre604) {
+                                // must set this ourselves
+                                player.poster = true;
+                            }
                             player.one("resume." + engineName, function () {
-                                player.off("ready." + engineName);
                                 common.removeClass(root, posterClass);
+                                player.off("seek." + engineName);
+                                if (player.poster) {
+                                    player.poster = false;
+                                }
                             });
                         }
                     }, 0);
