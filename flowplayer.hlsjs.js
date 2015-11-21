@@ -116,7 +116,12 @@
                             player.trigger('pause', [player]);
                         });
                         bean.on(videoTag, "timeupdate", function () {
-                            player.trigger('progress', [player, videoTag.currentTime]);
+                            // https://github.com/dailymotion/hls.js/issues/83
+                            if (!conf.live && videoTag.currentTime >= video.duration - 0.15) {
+                                bean.fire(videoTag, 'ended');
+                            } else {
+                                player.trigger('progress', [player, videoTag.currentTime]);
+                            }
                         });
                         bean.on(videoTag, "loadeddata", function () {
                             video = extend(video, {
