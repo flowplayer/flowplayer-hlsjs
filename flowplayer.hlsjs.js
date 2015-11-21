@@ -40,8 +40,9 @@
 
                 pre604 = /^6\.0\.[0-3]$/.test(version),
                 bc = common.css(root, 'backgroundColor'),
+                // spaces in rgba arg mandatory for recognition
                 has_bg = common.css(root, 'backgroundImage') !== "none" ||
-                        (bc && bc !== "rgba(0,0,0,0)" && bc !== "transparent"),
+                        (bc && bc !== "rgba(0, 0, 0, 0)" && bc !== "transparent"),
                 posterCondition = has_bg && !player.conf.splash
                         && (!pre604 || (pre604 && !player.conf.autoplay)),
 
