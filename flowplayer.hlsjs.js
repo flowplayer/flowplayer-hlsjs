@@ -38,35 +38,21 @@
                 videoTag,
                 hls,
 
-                pre604 = /^6\.0\.[0-3]$/.test(version),
-                bc = common.css(root, 'backgroundColor'),
-                // spaces in rgba arg mandatory for recognition
-                has_bg = common.css(root, 'backgroundImage') !== "none" ||
-                        (bc && bc !== "rgba(0, 0, 0, 0)" && bc !== "transparent"),
-                posterCondition = has_bg && !player.conf.splash
-                        && (!pre604 || (pre604 && !player.conf.autoplay)),
+                bc,
+                has_bg,
+                posterHack = function () {
+                    // abuse timeupdate to re-instate poster
+                    var posterClass = "is-poster",
+                        etype = "progress." + engineName;
 
-                posterHack = function (e) {
-                    // assert that poster is set regardless of client of
-                    // video loading delay
-                    setTimeout(function () {
-                        var posterClass = "is-poster";
-
-                        if (!player.conf.autoplay || e.type === "stop") {
-                            common.addClass(root, posterClass);
-                            if (!pre604) {
-                                // must set this ourselves
-                                player.poster = true;
-                            }
-                            player.one("resume." + engineName, function () {
-                                common.removeClass(root, posterClass);
-                                player.off("seek." + engineName);
-                                if (player.poster) {
-                                    player.poster = false;
-                                }
-                            });
-                        }
-                    }, 0);
+                    player.one(etype, function () {
+                        common.addClass(root, posterClass);
+                        player.poster = true;
+                        player.one(etype, function () {
+                            common.removeClass(root, posterClass);
+                            player.poster = false;
+                        });
+                    });
                 },
 
                 engine = {
@@ -285,10 +271,23 @@
                     }
                 };
 
-
-            if (posterCondition) {
-                player.on("ready." + engineName + " stop." + engineName, posterHack)
-                    .one("seek." + engineName, posterHack);
+            // pre 6.0.4: no boolean api.conf.poster and no poster with autoplay
+            if (/^6\.0\.[0-3]$/.test(version) &&
+                    !player.conf.splash && !player.conf.poster && !player.conf.autoplay) {
+                bc = common.css(root, 'backgroundColor');
+                // spaces in rgba arg mandatory for recognition
+                has_bg = common.css(root, 'backgroundImage') !== "none" ||
+                        (bc && bc !== "rgba(0, 0, 0, 0)" && bc !== "transparent");
+                if (has_bg) {
+                    player.conf.poster = true;
+                }
+            }
+            if (player.conf.poster) {
+                // when engine is loaded or player stopped
+                // the engine is too late to the party:
+                // poster is already removed and api.poster is false
+                // poster state must be set again
+                player.on("ready." + engineName + " stop." + engineName, posterHack);
             }
 
             return engine;
