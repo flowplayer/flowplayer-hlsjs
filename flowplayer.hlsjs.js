@@ -102,19 +102,11 @@
                             player.trigger('pause', [player]);
                         });
                         bean.on(videoTag, "timeupdate", function () {
-                            var ct = videoTag.currentTime;
-
-                            // try to be independent of MSE/hls.js duration changes
-                            if (ct >= video.duration) {
-                                bean.fire(videoTag, 'ended');
-                            } else {
-                                player.trigger('progress', [player, ct]);
-                            }
+                            player.trigger('progress', [player, videoTag.currentTime]);
                         });
                         bean.on(videoTag, "loadeddata", function () {
-                            // duration: https://github.com/dailymotion/hls.js/issues/83
                             video = extend(video, {
-                                duration: videoTag.duration - 0.45,
+                                duration: videoTag.duration,
                                 seekable: videoTag.seekable.end(null),
                                 width: videoTag.videoWidth,
                                 height: videoTag.videoHeight,
@@ -290,14 +282,7 @@
                 // the engine is too late to the party:
                 // poster is already removed and api.poster is false
                 // poster state must be set again
-                player.on("ready." + engineName + " stop." + engineName, posterHack)
-                    .on("beforeseek", function (e, api, pos) {
-                        // maybe also: https://github.com/dailymotion/hls.js/issues/83
-                        if (pos > api.video.duration - 0.2) {
-                            e.preventDefault();
-                        }
-                    });
-
+                player.on("ready." + engineName + " stop." + engineName, posterHack);
             }
 
             return engine;
