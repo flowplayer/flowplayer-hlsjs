@@ -230,7 +230,7 @@
                         }
 
                         hls.loadSource(video.src);
-                        hls.attachVideo(videoTag);
+                        hls.attachMedia(videoTag);
 
                         if (videoTag.paused && (video.autoplay || conf.autoplay)) {
                             videoTag.play();
