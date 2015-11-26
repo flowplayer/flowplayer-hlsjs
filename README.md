@@ -145,4 +145,3 @@ Known issues and constraints
   [fragmented MP4 playback](https://github.com/dailymotion/hls.js/issues/9) - for the moment the
   hlsjs engine will only be loaded in Safari for [debugging purposes](#debugging).
 - scarcely tested with live streams by lack of examples where CORS is enabled on the server
-- encrypted streams not yet supported
