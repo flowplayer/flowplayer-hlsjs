@@ -8,7 +8,7 @@ min:
 	@ mkdir -p $(DIST)
 	@ sed -ne 's/\$$GIT_ID\$$/$(GIT_ID)/; /^\/\*!/,/^\*\// p' flowplayer.hlsjs.js > $(JS).min.js
 	@ cat node_modules/hls.js/dist/hls.min.js >> $(JS).min.js
-	@ sed -e '/"use strict";/ d' flowplayer.hlsjs.js | uglifyjs --no-copyright >> $(JS).min.js
+	@ sed -e '/"use strict";/ d' flowplayer.hlsjs.js | uglifyjs --mangle -c >> $(JS).min.js
 
 all: min
 
