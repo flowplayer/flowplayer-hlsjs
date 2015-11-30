@@ -140,7 +140,7 @@
                                         }
                                     }
                                 }
-                            } catch (ignored) {}
+                            } catch (ignore) {}
 
                             video.buffer = buffer;
                             player.trigger('buffer', [player, e]);
