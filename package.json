@@ -22,6 +22,10 @@
   "peerDependencies": {
     "flowplayer": "^6.0.3"
   },
+  "devDependencies": {
+    "jslint": "^0.9.5",
+    "uglifyjs": "^2.4.10"
+  },
   "jshintConfig": {
     "undef": true
   }
