@@ -80,8 +80,8 @@ CORS
 ----
 
 The HLS streams must be loaded from a server with a
-[cross domain policy](https://flowplayer.org/docs/setup.html#cross-domain) permitting `GET`
-requests.
+[cross domain policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS)
+permitting `GET` requests.
 
 Demo
 ----
