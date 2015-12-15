@@ -37,6 +37,7 @@
             var bean = flowplayer.bean,
                 videoTag,
                 hls,
+                recover,
 
                 bc,
                 has_bg,
@@ -78,7 +79,7 @@
                         var init = !hls,
                             conf = player.conf,
                             hlsClientConf = extend({}, hlsconf),
-                            hlsParams = ["autoLevelCapping", "startLevel", "strict"];
+                            hlsParams = ["autoLevelCapping", "recover", "startLevel", "strict"];
 
                         if (init) {
                             common.removeNode(common.findDirect("video", root)[0]
@@ -166,6 +167,11 @@
                                     value = -1;
                                 }
                                 break;
+                            case "recover":
+                                recover = hlsconf.strict
+                                    ? 0
+                                    : value;
+                                break;
                             case "startLevel":
                                 switch (value) {
                                 case "auto":
@@ -178,7 +184,7 @@
                                 break;
                             }
 
-                            if (value !== undefined) {
+                            if (key !== "strict" && key !== "recover" && value !== undefined) {
                                 hls[key] = value;
                             }
                         });
@@ -187,10 +193,15 @@
                             var fperr,
                                 errobj = {};
 
-                            if (data.fatal || hlsconf.strict) {
+                            if (data.fatal || hlsconf.strict > 0) {
                                 switch (data.type) {
                                 case Hls.ErrorTypes.NETWORK_ERROR:
-                                    if (data.frag && data.frag.url) {
+                                    if (recover) {
+                                        hls.startLoad();
+                                        if (recover > 0) {
+                                            recover -= 1;
+                                        }
+                                    } else if (data.frag && data.frag.url) {
                                         errobj.url = data.frag.url;
                                         fperr = 2;
                                     } else {
@@ -198,20 +209,29 @@
                                     }
                                     break;
                                 case Hls.ErrorTypes.MEDIA_ERROR:
-                                    fperr = 3;
+                                    if (recover) {
+                                        hls.recoverMediaError();
+                                        if (recover > 0) {
+                                            recover -= 1;
+                                        }
+                                    } else {
+                                        fperr = 3;
+                                    }
                                     break;
                                 default:
                                     fperr = 5;
-                                    break;
                                 }
-                                errobj.code = fperr;
-                                if (fperr > 2) {
-                                    errobj.video = extend(video, {
-                                        src: video.src,
-                                        url: data.url || video.src
-                                    });
+
+                                if (fperr !== undefined) {
+                                    errobj.code = fperr;
+                                    if (fperr > 2) {
+                                        errobj.video = extend(video, {
+                                            src: video.src,
+                                            url: data.url || video.src
+                                        });
+                                    }
+                                    player.trigger('error', [player, errobj]);
                                 }
-                                player.trigger('error', [player, errobj]);
                             }
                             /* TODO: */
                             // log non fatals
@@ -300,7 +320,9 @@
             }
 
             // merge hlsjs clip config at earliest opportunity
-            hlsconf = extend({}, flowplayer.conf[engineName], conf[engineName], conf.clip[engineName]);
+            hlsconf = extend({
+                recover: 0
+            }, flowplayer.conf[engineName], conf[engineName], conf.clip[engineName]);
 
             // support Safari only when hlsjs debugging
             // https://github.com/dailymotion/hls.js/issues/9

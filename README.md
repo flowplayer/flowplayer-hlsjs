@@ -73,6 +73,7 @@ Additionally the `hlsjs` configuration object accepts the following Flowplayer s
 option   | default value | description
 :------- | :------------ | :----------
 `autoLevelCapping` | `-1` | Forbids the player to pick a higher clip resolution/bitrate than specified when in ABR mode. Accepts an index number from `0` (lowest) to highest. The default value `-1` means no capping, and may also be specified as boolean `false`.
+`recover` | `0` | Maximum attempts to recover from network and media errors which are considered fatal by hls.js. Set to `-1` for an infinite amount of recovery attempts. - Be careful, the player may have to be rescued from an undefined state.
 `startLevel` | | Tells the player which clip resolution/bitrate to pick initially. Accepts an index number from `0` (lowest) to highest. Defaults to the level listed first in the master playlist, as with [generic HLS playback](https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/StreamingMediaGuide/UsingHTTPLiveStreaming/UsingHTTPLiveStreaming.html#//apple_ref/doc/uid/TP40008332-CH102-SW18). Set to `-1` or `"auto"` for automatic selection. - To override a specified setting locally with the default, set this to `"firstLevel"`.
 `strict` | `false`       | Set to `true` if you want non fatal `hls.js` errors to trigger Flowplayer errors. Useful for debugging streams and live stream maintenance.
 
