@@ -18,10 +18,10 @@ debug:
 	@ sed -e 's/\$$GIT_ID\$$/$(GIT_ID)/' flowplayer.hlsjs.js > $(JS).js
 
 dist: clean all debug
-	@ cp node_modules/hls.js/dist/hls.min.js $(DIST)/
+	@ cp node_modules/hls.js/dist/hls.min.js LICENSE.md $(DIST)/
 
 zip: clean dist
-	@ cd $(DIST) && zip flowplayer.hlsjs.zip *.js
+	@ cd $(DIST) && zip flowplayer.hlsjs.zip *.js LICENSE.md
 
 clean:
 	@ rm -rf $(DIST)
