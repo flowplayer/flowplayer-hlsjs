@@ -79,7 +79,7 @@
                         var init = !hls,
                             conf = player.conf,
                             hlsClientConf = extend({}, hlsconf),
-                            hlsParams = ["autoLevelCapping", "recover", "startLevel", "strict"];
+                            hlsParams = ["anamorphic", "autoLevelCapping", "recover", "startLevel", "strict"];
 
                         if (init) {
                             common.removeNode(common.findDirect("video", root)[0]
@@ -312,7 +312,9 @@
         // only load engine if it can be used
         engineImpl.engineName = engineName; // must be exposed
         engineImpl.canPlay = function (type, conf) {
-            var IE11 = navigator.userAgent.indexOf("Trident/7") > -1;
+            var b = flowplayer.support.browser,
+                wn = window.navigator,
+                IE11 = wn.userAgent.indexOf("Trident/7") > -1;
 
             if (conf[engineName] === false || conf.clip[engineName] === false) {
                 // engine disabled for player or clip
@@ -324,10 +326,21 @@
                 recover: 0
             }, flowplayer.conf[engineName], conf[engineName], conf.clip[engineName]);
 
-            // support Safari only when hlsjs debugging
-            // https://github.com/dailymotion/hls.js/issues/9
-            return isHlsType(type) &&
-                    (IE11 || !flowplayer.support.browser.safari || hlsconf.debug);
+            if (isHlsType(type)) {
+                // allow all browsers for hlsjs debugging
+                if (hlsconf.debug) {
+                    return true;
+                }
+                // https://bugzilla.mozilla.org/show_bug.cgi?id=1244294
+                if (hlsconf.anamorphic &&
+                        wn.platform.indexOf("Win") === 0 && b.mozilla && b.version.indexOf("44.") === 0) {
+                    return false;
+                }
+
+                // https://github.com/dailymotion/hls.js/issues/9
+                return IE11 || !b.safari;
+            }
+            return false;
         };
 
         // put on top of engine stack
