@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "jslint --edition=latest --devel flowplayer.hlsjs.js",
-    "minify": "uglifyjs --mangle -c"
+    "minify": "uglifyjs -m -c"
   },
   "repository": {
     "type": "git",
