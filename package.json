@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/flowplayer/flowplayer-hlsjs",
   "dependencies": {
-    "hls.js": "git://github.com/dailymotion/hls.js#v0.4.10"
+    "hls.js": "git://github.com/dailymotion/hls.js#v0.5.0"
   },
   "peerDependencies": {
     "flowplayer": "^6.0.3"
