@@ -55,6 +55,7 @@ Plugin configuration
 --------------------
 
 The plugin provides the `hlsjs` option on the
+[global](https://flowplayer.org/docs/setup.html#global-configuration)
 [player](https://flowplayer.org/docs/setup.html#player-options) and 
 [clip](https://flowplayer.org/docs/setup.html#player-options) levels.
 
