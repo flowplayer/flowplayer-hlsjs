@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "jslint --edition=latest --devel flowplayer.hlsjs.js",
-    "minify": "uglifyjs -m -c"
+    "minify": "uglifyjs -m -c",
+    "prepare": "cd node_modules/hls.js; npm install; mkdir -p dist; npm run build; cd -"
   },
   "repository": {
     "type": "git",
@@ -19,7 +20,7 @@
   },
   "homepage": "https://github.com/flowplayer/flowplayer-hlsjs",
   "dependencies": {
-    "hls.js": "git://github.com/dailymotion/hls.js#v0.5.0"
+    "hls.js": "0.5.0"
   },
   "peerDependencies": {
     "flowplayer": "^6.0.3"

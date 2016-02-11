@@ -30,4 +30,4 @@ lint:
 	@ npm run -s lint
 
 deps:
-	@ npm install
+	@ npm install && npm run prepare
