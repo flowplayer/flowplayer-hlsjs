@@ -79,6 +79,18 @@ option   | default value | description
 `startLevel` | | Tells the player which clip resolution/bitrate to pick initially. Accepts an index number from `0` (lowest) to highest. Defaults to the level listed first in the master playlist, as with [generic HLS playback](https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/StreamingMediaGuide/UsingHTTPLiveStreaming/UsingHTTPLiveStreaming.html#//apple_ref/doc/uid/TP40008332-CH102-SW18). Set to `-1` or `"auto"` for automatic selection. - To override a specified setting locally with the default, set this to `"firstLevel"`.
 `strict` | `false`       | Set to `true` if you want non fatal `hls.js` errors to trigger Flowplayer errors. Useful for debugging streams and live stream maintenance.
 
+
+### Access to hls.js API
+
+The [hls.js API](https://github.com/dailymotion/hls.js/blob/master/API.md) can be accessed via the `engine.hlsjs` object of the Flowplayer API.
+
+Simple example:
+
+```js
+// switch to first hls level
+flowplayer(0).engine.hlsjs.nextLevel = 0;
+```
+
 CORS
 ----
 

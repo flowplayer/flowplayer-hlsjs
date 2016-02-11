@@ -157,6 +157,7 @@
                             delete hlsClientConf[key];
                         });
                         hls = new Hls(hlsClientConf);
+                        player.engine[engineName] = hls;
 
                         hlsParams.forEach(function (key) {
                             var value = hlsconf[key];
