@@ -19,7 +19,7 @@ debug: webpack
 	@ sed -e 's/\$$GIT_ID\$$/$(GIT_ID)/' flowplayer.hlsjs.js > $(JS).js
 
 dist: clean all debug
-	@ cp LICENSE.md $(DIST)/
+	@ cp node_modules/hls.js/dist/hls.js LICENSE.md $(DIST)/
 
 zip: clean dist
 	@ cd $(DIST) && zip flowplayer.hlsjs.zip *.js LICENSE.md

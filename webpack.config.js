@@ -5,7 +5,6 @@ var path = require('path')
 
 module.exports = {
   entry: {
-    'hls': ['hls.js'],
     'flowplayer.hlsjs.min': './flowplayer.hlsjs.js'
   },
   externals: {
