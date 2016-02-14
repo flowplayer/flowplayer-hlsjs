@@ -10,7 +10,7 @@
    Released under the MIT License:
    http://www.opensource.org/licenses/mit-license.php
 
-   Includes hls.min.js
+   Includes hls.js
    Copyright (c) 2015 Dailymotion (http://www.dailymotion.com)
    https://github.com/dailymotion/hls.js/blob/master/LICENSE
 
