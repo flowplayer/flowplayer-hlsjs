@@ -3,3 +3,5 @@ dist
 *~
 *.swp
 node_modules
+temp
+npm-debug.log
