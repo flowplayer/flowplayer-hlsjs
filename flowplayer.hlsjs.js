@@ -351,5 +351,5 @@
     }
 
 }.apply(null, (typeof module === 'object' && module.exports)
-    ? [require('flowplayer'), require('hls.js')['default']]
+    ? [require('flowplayer'), require('hls.js')]
     : [window.flowplayer, window.Hls]));
