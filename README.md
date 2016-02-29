@@ -56,7 +56,7 @@ Plugin configuration
 
 The plugin provides the `hlsjs` option on the
 [global](https://flowplayer.org/docs/setup.html#global-configuration)
-[player](https://flowplayer.org/docs/setup.html#player-options) and 
+[player](https://flowplayer.org/docs/setup.html#player-options) and
 [clip](https://flowplayer.org/docs/setup.html#player-options) levels.
 
 The `hlsjs` option is an object which accepts all
@@ -82,7 +82,9 @@ option   | default value | description
 
 ### Access to hls.js API
 
-The [hls.js API](https://github.com/dailymotion/hls.js/blob/master/API.md) can be accessed via the `engine.hlsjs` object of the Flowplayer API.
+The [hls.js API](https://github.com/dailymotion/hls.js/blob/master/API.md), namely the
+[quality switch control](https://github.com/dailymotion/hls.js/blob/master/API.md#quality-switch-control-api),
+can be accessed via the `engine.hlsjs` object of the Flowplayer API.
 
 Simple example:
 
@@ -90,6 +92,30 @@ Simple example:
 // switch to first hls level
 flowplayer(0).engine.hlsjs.nextLevel = 0;
 ```
+
+### Events
+
+The plugin integrates listeners to all
+[hls.js runtime events](https://github.com/dailymotion/hls.js/blob/master/API.md#runtime-events)
+into the [player API](https://flowplayer.org/docs/api.html#events). The third argument of the event
+handle functions gives access to the event's data object.
+
+Simple example:
+
+```js
+flowplayer(0).on("hlsLevelSwitch", function (e, api, data) {
+  var level = api.engine.hlsjs.levels[data.level];
+
+  console.log("level index:", data.level);
+  console.log("width:", level.width, "height:", level.height);
+});
+```
+
+Note: `hlsLevelSwitch` above refers to the `LEVEL_SWITCH` constant in the
+[hls.js documentation](https://github.com/dailymotion/hls.js/blob/master/API.md#runtime-events).
+The constants are translated into event types like so:
+
+`hls` + Captitalized contstant + Camel case for `_`Underscored letter
 
 CORS
 ----

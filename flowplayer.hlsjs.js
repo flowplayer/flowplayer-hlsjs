@@ -79,7 +79,18 @@
                         var init = !hls,
                             conf = player.conf,
                             hlsClientConf = extend({}, hlsconf),
-                            hlsParams = ["anamorphic", "autoLevelCapping", "recover", "startLevel", "strict"];
+                            hlsParams = ["anamorphic", "autoLevelCapping", "recover", "startLevel", "strict"],
+                            hlsRunTimeEvents = [
+                                "MEDIA_ATTACHING", "MEDIA_ATTACHED", "MEDIA_DETACHING", "MEDIA_DETACHED",
+                                "MANIFEST_LOADING", "MANIFEST_LOADED", "MANIFEST_PARSED",
+                                "LEVEL_LOADING", "LEVEL_LOADED", "LEVEL_UPDATED", "LEVEL_PTS_UPDATED", "LEVEL_SWITCH",
+                                "KEY_LOADING", "KEY_LOADED",
+                                "FRAG_LOADING", "FRAG_LOAD_PROGRESS", "FRAG_LOADED",
+                                "FRAG_PARSING_INIT_SEGMENT", "FRAG_PARSING_METADATA", "FRAG_PARSING_DATA", "FRAG_PARSED",
+                                "FRAG_BUFFERED", "FRAG_CHANGED",
+                                "FPS_DROP",
+                                "DESTROYING"
+                            ];
 
                         if (init) {
                             common.removeNode(common.findDirect("video", root)[0]
@@ -190,7 +201,12 @@
                             }
                         });
 
-                        hls.on(Hls.Events.ERROR, function (e, data) {
+                        hlsRunTimeEvents.forEach(function (e) {
+                            hls.on(Hls.Events[e], function (etype, data) {
+                                player.trigger(etype, [player, data]);
+                            });
+                        });
+                        hls.on(Hls.Events.ERROR, function (etype, data) {
                             var fperr,
                                 errobj = {};
 
