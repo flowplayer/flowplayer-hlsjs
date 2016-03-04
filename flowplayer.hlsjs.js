@@ -80,7 +80,7 @@
                             conf = player.conf,
                             hlsClientConf = extend({}, hlsconf),
                             hlsParams = ["anamorphic", "autoLevelCapping", "recover", "startLevel", "strict"],
-                            hlsRunTimeEvents = [
+                            hlsEvents = [
                                 "MEDIA_ATTACHING", "MEDIA_ATTACHED", "MEDIA_DETACHING", "MEDIA_DETACHED",
                                 "MANIFEST_LOADING", "MANIFEST_LOADED", "MANIFEST_PARSED",
                                 "LEVEL_LOADING", "LEVEL_LOADED", "LEVEL_UPDATED", "LEVEL_PTS_UPDATED", "LEVEL_SWITCH",
@@ -89,7 +89,8 @@
                                 "FRAG_PARSING_INIT_SEGMENT", "FRAG_PARSING_METADATA", "FRAG_PARSING_DATA", "FRAG_PARSED",
                                 "FRAG_BUFFERED", "FRAG_CHANGED",
                                 "FPS_DROP",
-                                "DESTROYING"
+                                "DESTROYING",
+                                "ERROR"
                             ];
 
                         if (init) {
@@ -201,57 +202,60 @@
                             }
                         });
 
-                        hlsRunTimeEvents.forEach(function (e) {
+                        hlsEvents.forEach(function (e) {
                             hls.on(Hls.Events[e], function (etype, data) {
+                                var fperr,
+                                    errobj = {};
+
+                                switch (e) {
+                                case "ERROR":
+                                    if (data.fatal || hlsconf.strict > 0) {
+                                        switch (data.type) {
+                                        case Hls.ErrorTypes.NETWORK_ERROR:
+                                            if (recover) {
+                                                hls.startLoad();
+                                                if (recover > 0) {
+                                                    recover -= 1;
+                                                }
+                                            } else if (data.frag && data.frag.url) {
+                                                errobj.url = data.frag.url;
+                                                fperr = 2;
+                                            } else {
+                                                fperr = 4;
+                                            }
+                                            break;
+                                        case Hls.ErrorTypes.MEDIA_ERROR:
+                                            if (recover) {
+                                                hls.recoverMediaError();
+                                                if (recover > 0) {
+                                                    recover -= 1;
+                                                }
+                                            } else {
+                                                fperr = 3;
+                                            }
+                                            break;
+                                        default:
+                                            fperr = 5;
+                                        }
+
+                                        if (fperr !== undefined) {
+                                            errobj.code = fperr;
+                                            if (fperr > 2) {
+                                                errobj.video = extend(video, {
+                                                    src: video.src,
+                                                    url: data.url || video.src
+                                                });
+                                            }
+                                            player.trigger('error', [player, errobj]);
+                                            return;
+                                        }
+                                    }
+                                    // log non fatals?
+                                    break;
+                                }
+
                                 player.trigger(etype, [player, data]);
                             });
-                        });
-                        hls.on(Hls.Events.ERROR, function (etype, data) {
-                            var fperr,
-                                errobj = {};
-
-                            if (data.fatal || hlsconf.strict > 0) {
-                                switch (data.type) {
-                                case Hls.ErrorTypes.NETWORK_ERROR:
-                                    if (recover) {
-                                        hls.startLoad();
-                                        if (recover > 0) {
-                                            recover -= 1;
-                                        }
-                                    } else if (data.frag && data.frag.url) {
-                                        errobj.url = data.frag.url;
-                                        fperr = 2;
-                                    } else {
-                                        fperr = 4;
-                                    }
-                                    break;
-                                case Hls.ErrorTypes.MEDIA_ERROR:
-                                    if (recover) {
-                                        hls.recoverMediaError();
-                                        if (recover > 0) {
-                                            recover -= 1;
-                                        }
-                                    } else {
-                                        fperr = 3;
-                                    }
-                                    break;
-                                default:
-                                    fperr = 5;
-                                }
-
-                                if (fperr !== undefined) {
-                                    errobj.code = fperr;
-                                    if (fperr > 2) {
-                                        errobj.video = extend(video, {
-                                            src: video.src,
-                                            url: data.url || video.src
-                                        });
-                                    }
-                                    player.trigger('error', [player, errobj]);
-                                }
-                            }
-                            /* TODO: */
-                            // log non fatals
                         });
 
                         if (init) {
