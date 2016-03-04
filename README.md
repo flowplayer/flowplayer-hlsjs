@@ -15,7 +15,7 @@ Usage
 In production simply load the latest plugin after the Flowplayer script:
 
 ```html
-<script src="//releases.flowplayer.org/6.0.4/flowplayer.min.js"></script>
+<script src="//releases.flowplayer.org/6.0.5/flowplayer.min.js"></script>
 <script src="//releases.flowplayer.org/hlsjs/flowplayer.hlsjs.min.js"></script>
 ```
 
@@ -171,7 +171,7 @@ run your stream in the [hls.js demo player](http://dailymotion.github.io/hls.js/
 For fine grained debugging load the unminified components and turn hlsjs debugging on:
 
 ```html
-<script src="//releases.flowplayer.org/6.0.4/flowplayer.min.js"></script>
+<script src="//releases.flowplayer.org/6.0.5/flowplayer.min.js"></script>
 <!-- unminified hls.js library -->
 <script src="//releases.flowplayer.org/hlsjs/hls.js"></script>
 <!-- separate hlsjs plugin component -->
