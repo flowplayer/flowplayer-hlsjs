@@ -67,6 +67,29 @@ Setting `hlsjs` to `false` can be used to disable the engine for a specific play
 Convenient when one knows that certain HLS streams are not served with the required [CORS](#cors)
 policy.
 
+### Manual quality selection
+
+To enable and configure manual selection of HLS levels the plugin provides the `hlsQualities` option on the global player and clip level.
+
+option   | type          | description
+:------- | :------------ | :----------
+`hlsQualities` | boolean | By default manual quality selection is disabled. Set to `true` to make all HLS levels available for manual selection.
+`hlsQualities` | array | Accepts and array of level index numbers from `0` (lowest) to highest to limit the number of HLS levels available for manual selection.
+
+The user interface is the same as for the
+<a href="https://flowplayer.org/docs/plugins.html#quality-selector">quality selector plugin</a>. The
+same CSS file must be loaded:
+
+```html
+<script src="//releases.flowplayer.org/quality-selector/flowplayer.quality-selector.min.js"></script>
+```
+
+hlsjs manual quality selection integrates smoothly with the VOD quality selector plugin: If the
+player should fail over to VOD quality selection in browsers not supporting hlsjs (for instance
+<a href="#known-issues-and-constraints">Mac OS Safari</a>, load the quality selector script after
+the hlsjs plugin and make sure that `hlsQualities` are configured on the player or global level.
+
+
 ### Plugin options
 
 Additionally the `hlsjs` configuration object accepts the following Flowplayer specific parameters:
@@ -76,6 +99,7 @@ option   | default value | description
 `anamorphic` | `false`   |Set to `true` for streams with a non-square sample aspect ratio. Some browsers do not handle these correctly, and will then not attempt to play them. *Caveat:* As these streams will not be played correctly by <a href="http://flowplayer.org/docs/setup.html#flash-hls">Flash HLS engine</a> either because Flash is agnostic of display aspect ratio, the `application/x-mpegurl` type should be set twice in the sources array, with the `engine` <a href="https://flowplayer.org/docs/setup.html#source-options">source option</a> `hlsjs` and `html5`.
 `autoLevelCapping` | `-1` | Forbids the player to pick a higher clip resolution/bitrate than specified when in ABR mode. Accepts an index number from `0` (lowest) to highest. The default value `-1` means no capping, and may also be specified as boolean `false`.
 `recover` | `0` | Maximum attempts to recover from network and media errors which are considered fatal by hls.js. Set to `-1` for an infinite amount of recovery attempts. - Be careful, the player may have to be rescued from an undefined state.
+`smoothSwitching` | `true` | Whether manual HLS quality selection should be smooth - level change with begin of next segment - or instant. Setting `false` can cause a playback pause on switch.
 `startLevel` | | Tells the player which clip resolution/bitrate to pick initially. Accepts an index number from `0` (lowest) to highest. Defaults to the level listed first in the master playlist, as with [generic HLS playback](https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/StreamingMediaGuide/UsingHTTPLiveStreaming/UsingHTTPLiveStreaming.html#//apple_ref/doc/uid/TP40008332-CH102-SW18). Set to `-1` or `"auto"` for automatic selection. - To override a specified setting locally with the default, set this to `"firstLevel"`.
 `strict` | `false`       | Set to `true` if you want non fatal `hls.js` errors to trigger Flowplayer errors. Useful for debugging streams and live stream maintenance.
 
@@ -136,10 +160,7 @@ Features
   [v0.5.7](https://github.com/dailymotion/hls.js/releases/tag/v0.5.7) - of hls.js
 - by default the engine is only loaded if the browser supports
   [MediaSource extensions](http://w3c.github.io/media-source/) reliably for playback
-
-### Upcoming
-
-Manual quality switching.
+- configurable manual HLS quality selection
 
 Debugging
 ---------
