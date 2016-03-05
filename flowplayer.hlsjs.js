@@ -72,6 +72,13 @@
                 },
 
                 qActive = "active",
+                dataQuality = function (quality) {
+                    // e.g. "Level 1" -> "level1"
+                    if (!quality) {
+                        quality = player.quality;
+                    }
+                    return quality.toLowerCase().replace(/\ /g, "");
+                },
                 removeAllQualityClasses = function () {
                     var qualities = player.qualities;
 
@@ -80,7 +87,7 @@
                     }
                     common.removeClass(root, "quality-abr");
                     qualities.forEach(function (quality) {
-                        common.removeClass(root, "quality-" + quality);
+                        common.removeClass(root, "quality-" + dataQuality(quality));
                     });
                 },
                 qClean = function () {
@@ -145,11 +152,11 @@
                     }, "Auto"));
                     player.qualities.forEach(function (q) {
                         selector.appendChild(common.createElement("li", {
-                            "data-quality": q
+                            "data-quality": dataQuality(q)
                         }, q));
                     });
 
-                    common.addClass(root, "quality-" + player.quality);
+                    common.addClass(root, "quality-" + dataQuality());
 
                     bean.on(root, "click", ".fp-quality-selector li", function (e) {
                         var choice = e.currentTarget,
@@ -180,7 +187,7 @@
                             common.toggleClass(selectors[i], qActive, active);
                         }
                         removeAllQualityClasses();
-                        common.addClass(root, "quality-" + player.quality);
+                        common.addClass(root, "quality-" + dataQuality());
                     });
                 },
 
