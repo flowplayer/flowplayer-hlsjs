@@ -57,6 +57,20 @@
                     });
                 },
 
+                getStartLevelConf = function () {
+                    var value = hlsconf.startLevel;
+
+                    switch (value) {
+                    case "auto":
+                        value = -1;
+                        break;
+                    case "firstLevel":
+                        value = undefined;
+                        break;
+                    }
+                    return value;
+                },
+
                 qActive = "active",
                 removeAllQualityClasses = function () {
                     var qualities = player.qualities;
@@ -119,6 +133,7 @@
                     player.hlsQualities.unshift(-1);
 
                     if (!player.quality || player.qualities.indexOf(player.quality) < 0) {
+                        hls.startLevel = getStartLevelConf();
                         player.quality = "abr";
                     } else {
                         hls.startLevel = qIndex();
@@ -209,8 +224,6 @@
                                 "ERROR"
                             ];
 
-                        qClean();
-
                         if (init) {
                             common.removeNode(common.findDirect("video", root)[0]
                                     || common.find(".fp-player > video", root)[0]);
@@ -245,7 +258,6 @@
                             });
                             player.trigger('ready', [player, video]);
 
-                            // manual quality selection
                             var quality = player.quality,
                                 abr = quality === "abr",
                                 selectorIndex;
@@ -319,14 +331,9 @@
                                     : value;
                                 break;
                             case "startLevel":
-                                switch (value) {
-                                case "auto":
-                                    value = -1;
-                                    break;
-                                case "firstLevel":
-                                    value = undefined;
-                                    break;
-                                }
+                                value = (player.hlsQualities && player.quality)
+                                    ? qIndex()
+                                    : getStartLevelConf();
                                 break;
                             }
 
@@ -334,6 +341,8 @@
                                 hls[key] = value;
                             }
                         });
+
+                        qClean();
 
                         hlsEvents.forEach(function (e) {
                             hls.on(Hls.Events[e], function (etype, data) {
