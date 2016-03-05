@@ -78,8 +78,9 @@
                     if (!qualities || !qualities.length) {
                         return;
                     }
+                    common.removeClass(root, "quality-abr");
                     qualities.forEach(function (quality) {
-                        common.removeClass(root, 'quality-' + quality);
+                        common.removeClass(root, "quality-" + quality);
                     });
                 },
                 qClean = function () {
