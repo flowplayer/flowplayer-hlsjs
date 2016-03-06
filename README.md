@@ -69,16 +69,28 @@ policy.
 
 ### Manual quality selection
 
-To enable and configure manual selection of HLS levels the plugin provides the `hlsQualities` option on the global player and clip level.
+To enable and configure manual selection of HLS levels the plugin provides the `hlsQualities` option
+on the global player and clip level.
 
 option   | type          | description
 :------- | :------------ | :----------
 `hlsQualities` | boolean | By default manual quality selection is disabled. Set to `true` to make all HLS levels available for manual selection.
 `hlsQualities` | array | Accepts and array of level index numbers from `0` (lowest) to highest to limit the number of HLS levels available for manual selection.
 
+`hlsQualities` can also be configured as
+[HTML data attribute](https://flowplayer.org/docs/setup.html#html-configuration) in a
+[VIDEO tag based installation](https://flowplayer.org/docs/setup.html#videotag-install); for
+example:
+
+```html
+<!-- set hlsQualities at clip level -->
+<video data-hls-qualities="1,3,6,7">
+<!-- ... -->
+```
+
 The user interface is the same as for the
-<a href="https://flowplayer.org/docs/plugins.html#quality-selector">quality selector plugin</a>. The
-same CSS file must be loaded:
+[quality selector plugin](https://flowplayer.org/docs/plugins.html#quality-selector).
+The same CSS file must be loaded:
 
 ```html
 <script src="//releases.flowplayer.org/quality-selector/flowplayer.quality-selector.min.js"></script>
@@ -86,8 +98,8 @@ same CSS file must be loaded:
 
 hlsjs manual quality selection integrates smoothly with the VOD quality selector plugin: If the
 player should fail over to VOD quality selection in browsers not supporting hlsjs (for instance
-<a href="#known-issues-and-constraints">Mac OS Safari</a>, load the quality selector script after
-the hlsjs plugin and make sure that `hlsQualities` are configured on the player or global level.
+[Mac OS Safari](#known-issues-and-constraints)), load the quality selector script after the hlsjs
+plugin and make sure that `hlsQualities` are configured on the player or global level.
 
 
 ### Plugin options
@@ -96,7 +108,7 @@ Additionally the `hlsjs` configuration object accepts the following Flowplayer s
 
 option   | default value | description
 :------- | :------------ | :----------
-`anamorphic` | `false`   |Set to `true` for streams with a non-square sample aspect ratio. Some browsers do not handle these correctly, and will then not attempt to play them. *Caveat:* As these streams will not be played correctly by <a href="http://flowplayer.org/docs/setup.html#flash-hls">Flash HLS engine</a> either because Flash is agnostic of display aspect ratio, the `application/x-mpegurl` type should be set twice in the sources array, with the `engine` <a href="https://flowplayer.org/docs/setup.html#source-options">source option</a> `hlsjs` and `html5`.
+`anamorphic` | `false`   |Set to `true` for streams with a non-square sample aspect ratio. Some browsers do not handle these correctly, and will then not attempt to play them. *Caveat:* As these streams will not be played correctly by the [Flash HLS engine](https://flowplayer.org/docs/setup.html#flash-hls) either because Flash is agnostic of display aspect ratio, the `application/x-mpegurl` type should be set twice in the sources array, with the `engine` [source option](https://flowplayer.org/docs/setup.html#source-options) `hlsjs` and `html5`.
 `autoLevelCapping` | `-1` | Forbids the player to pick a higher clip resolution/bitrate than specified when in ABR mode. Accepts an index number from `0` (lowest) to highest. The default value `-1` means no capping, and may also be specified as boolean `false`.
 `recover` | `0` | Maximum attempts to recover from network and media errors which are considered fatal by hls.js. Set to `-1` for an infinite amount of recovery attempts. - Be careful, the player may have to be rescued from an undefined state.
 `smoothSwitching` | `true` | Whether manual HLS quality selection should be smooth - level change with begin of next segment - or instant. Setting `false` can cause a playback pause on switch.
