@@ -145,6 +145,10 @@
                         player.quality = "abr";
                     } else {
                         hls.startLevel = qIndex();
+                        // disable autoLevel at earliest opportunity
+                        player.one("hlsFragChanged.qsel", function () {
+                            hls.currentLevel = hls.startLevel;
+                        });
                     }
 
                     selector.appendChild(common.createElement("li", {
@@ -267,14 +271,10 @@
                             player.trigger('ready', [player, video]);
 
                             var quality = player.quality,
-                                abr = quality === "abr",
                                 selectorIndex;
 
                             if (quality) {
-                                if (!abr) {
-                                    hls.currentLevel = hls.startLevel;
-                                }
-                                selectorIndex = abr
+                                selectorIndex = quality === "abr"
                                     ? 0
                                     : player.qualities.indexOf(quality) + 1;
                                 common.addClass(common.find(".fp-quality-selector li", root)[selectorIndex], qActive);
