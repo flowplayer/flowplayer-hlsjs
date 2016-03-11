@@ -220,8 +220,8 @@
                             hlsQualitiesConf = conf.clip.hlsQualities || conf.hlsQualities,
                             hlsClientConf = extend({}, hlsconf),
                             hlsParams = [
-                                "anamorphic", "autoLevelCapping", "recover",
-                                "smoothSwitching", "startLevel", "strict"
+                                "autoLevelCapping", "startLevel",
+                                "anamorphic", "recover", "smoothSwitching", "strict"
                             ],
                             hlsEvents = [
                                 "MEDIA_ATTACHING", "MEDIA_ATTACHED", "MEDIA_DETACHING", "MEDIA_DETACHED",
@@ -345,7 +345,7 @@
                                 break;
                             }
 
-                            if (key !== "strict" && key !== "recover" && value !== undefined) {
+                            if ((key === "autoLevelCapping" || key === "startLevel") && value !== undefined) {
                                 hls[key] = value;
                             }
                         });
