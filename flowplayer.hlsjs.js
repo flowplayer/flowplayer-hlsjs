@@ -70,6 +70,7 @@
                     }
                     return value;
                 },
+                disableAutoLevel = 0,
 
                 qActive = "active",
                 dataQuality = function (quality) {
@@ -145,10 +146,7 @@
                         player.quality = "abr";
                     } else {
                         hls.startLevel = qIndex();
-                        // disable autoLevel at earliest opportunity
-                        player.one("hlsFragChanged.qsel", function () {
-                            hls.currentLevel = hls.startLevel;
-                        });
+                        disableAutoLevel = "startLevel";
                     }
 
                     selector.appendChild(common.createElement("li", {
@@ -363,6 +361,13 @@
                                         initQualitySelection(hlsQualitiesConf, data);
                                     } else {
                                         delete player.quality;
+                                    }
+                                    break;
+
+                                case "FRAG_CHANGED":
+                                    if (disableAutoLevel) {
+                                        hls.currentLevel = hls[disableAutoLevel];
+                                        disableAutoLevel = 0;
                                     }
                                     break;
 
