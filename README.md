@@ -14,6 +14,7 @@ Usage
 
 See: https://flowplayer.org/docs/plugins.html#hlsjs
 
+- [compatibility](https://flowplayer.org/docs/plugins.html#hlsjs-compatibility)
 - [loading the assets](https://flowplayer.org/docs/plugins.html#hlsjs-assets)
 - [configuration](https://flowplayer.org/docs/plugins.html#hlsjs-configuration)
 - [hlsjs options](https://flowplayer.org/docs/plugins.html#hlsjs-options)
@@ -87,13 +88,3 @@ cd flowplayer-hlsjs
 make deps
 make
 ```
-
-Known issues and constraints
-----------------------------
-
-- Only codecs which are valid in advanced MP4 video/audio and are supported by MSE are allowed:
-  [MPEG-4 AVC](https://en.wikipedia.org/wiki/H.264/MPEG-4_AVC) for video,
-  [AAC](https://en.wikipedia.org/wiki/Advanced_Audio_Coding) for audio.
-- Safari's MSE implementation has fatal problems with
-  [fragmented MP4 playback](https://github.com/dailymotion/hls.js/issues/9) - for the moment the
-  hlsjs engine will only be loaded in Safari for [debugging purposes](#debugging).
