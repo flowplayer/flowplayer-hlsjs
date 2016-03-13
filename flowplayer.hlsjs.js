@@ -42,15 +42,19 @@
 
                 bc,
                 has_bg,
-                posterHack = function () {
+                posterHack = function (e) {
                     // abuse timeupdate to re-instate poster
-                    var posterClass = "is-poster",
-                        etype = "progress." + engineName;
+                    var posterClass = "is-poster";
 
-                    player.one(etype, function () {
+                    // not fired on ready in Firefox
+                    // must be fired on ready in webkit
+                    bean.one(videoTag, "timeupdate." + engineName, function () {
                         common.addClass(root, posterClass);
                         player.poster = true;
-                        player.one(etype, function () {
+                        // timeupdate after ready for webkit
+                        bean.one(videoTag, (e.type === "stop"
+                            ? "play."
+                            : "timeupdate.") + engineName, function () {
                             common.removeClass(root, posterClass);
                             player.poster = false;
                         });
