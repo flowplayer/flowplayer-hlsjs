@@ -223,7 +223,8 @@
                             hlsClientConf = extend({}, hlsconf),
                             hlsParams = [
                                 "autoLevelCapping", "startLevel",
-                                "anamorphic", "recover", "smoothSwitching", "strict"
+                                "adaptOnStartOnly", "smoothSwitching",
+                                "anamorphic", "recover", "strict"
                             ],
                             hlsEvents = [
                                 "MEDIA_ATTACHING", "MEDIA_ATTACHED", "MEDIA_DETACHING", "MEDIA_DETACHED",
@@ -330,6 +331,12 @@
                             var value = hlsconf[key];
 
                             switch (key) {
+                            case "adaptOnStartOnly":
+                                if (value) {
+                                    hls.startLevel = -1;
+                                    disableAutoLevel = "currentLevel";
+                                }
+                                break;
                             case "autoLevelCapping":
                                 if (value === false) {
                                     value = -1;
