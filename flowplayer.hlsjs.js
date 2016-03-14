@@ -456,12 +456,10 @@
                     },
 
                     unload: function () {
-                        // hls conditional probably not needed once
-                        // https://github.com/flowplayer/flowplayer/commit/871ff783a8f23aa603e1120f4319d4a892125b0a
-                        // is released
                         if (hls) {
                             hls.destroy();
                             hls = 0;
+                            player.off("." + engineName);
                             bean.off(videoTag);
                             common.removeNode(videoTag);
                             videoTag = 0;
