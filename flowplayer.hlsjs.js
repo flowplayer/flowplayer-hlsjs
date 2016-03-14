@@ -225,18 +225,6 @@
                                 "autoLevelCapping", "startLevel",
                                 "adaptOnStartOnly", "smoothSwitching",
                                 "anamorphic", "recover", "strict"
-                            ],
-                            hlsEvents = [
-                                "MEDIA_ATTACHING", "MEDIA_ATTACHED", "MEDIA_DETACHING", "MEDIA_DETACHED",
-                                "MANIFEST_LOADING", "MANIFEST_LOADED", "MANIFEST_PARSED",
-                                "LEVEL_LOADING", "LEVEL_LOADED", "LEVEL_UPDATED", "LEVEL_PTS_UPDATED", "LEVEL_SWITCH",
-                                "KEY_LOADING", "KEY_LOADED",
-                                "FRAG_LOADING", "FRAG_LOAD_PROGRESS", "FRAG_LOADED",
-                                "FRAG_PARSING_INIT_SEGMENT", "FRAG_PARSING_METADATA", "FRAG_PARSING_DATA", "FRAG_PARSED",
-                                "FRAG_BUFFERED", "FRAG_CHANGED",
-                                "FPS_DROP",
-                                "DESTROYING",
-                                "ERROR"
                             ];
 
                         if (init) {
@@ -361,12 +349,12 @@
 
                         qClean();
 
-                        hlsEvents.forEach(function (e) {
-                            hls.on(Hls.Events[e], function (etype, data) {
+                        Object.keys(Hls.Events).forEach(function (key) {
+                            hls.on(Hls.Events[key], function (etype, data) {
                                 var fperr,
                                     errobj = {};
 
-                                switch (e) {
+                                switch (key) {
                                 case "MANIFEST_PARSED":
                                     if (support.inlineVideo && hlsQualitiesConf) {
                                         initQualitySelection(hlsQualitiesConf, data);
