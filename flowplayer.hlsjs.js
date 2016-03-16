@@ -364,10 +364,10 @@
                                     break;
 
                                 case "FRAG_CHANGED":
-                                    if (disableAutoLevel) {
-                                        hls[hls.startLevel < 0
-                                            ? "nextLevel"
-                                            : "currentLevel"] = hls[disableAutoLevel];
+                                    if (disableAutoLevel && (hls.startLevel > -1 || player.ready)) {
+                                        hls[hls.startLevel > -1
+                                            ? "currentLevel"
+                                            : "nextLevel"] = hls[disableAutoLevel];
                                         disableAutoLevel = 0;
                                     }
                                     break;
