@@ -313,18 +313,14 @@
                         });
 
                         hlsParams.forEach(function (key) {
-                            delete hlsClientConf[key];
-                        });
-                        hls = new Hls(hlsClientConf);
-                        player.engine[engineName] = hls;
-
-                        hlsParams.forEach(function (key) {
                             var value = hlsconf[key];
+
+                            delete hlsClientConf[key];
 
                             switch (key) {
                             case "adaptOnStartOnly":
-                                if (value) {
-                                    hls.startLevel = -1;
+                                if (value && (!conf.poster || autoplay)) {
+                                    hlsClientConf.startLevel = -1;
                                     disableAutoLevel = "currentLevel";
                                 }
                                 break;
@@ -346,9 +342,18 @@
                             }
 
                             if ((key === "autoLevelCapping" || key === "startLevel") && value !== undefined) {
-                                hls[key] = value;
+                                hlsClientConf[key] = value;
                             }
                         });
+
+                        hls = new Hls(hlsClientConf);
+                        player.engine[engineName] = hls;
+
+                        // breaks poster if not set after hls init
+                        if (hlsconf.adaptOnStartOnly && conf.poster && !autoplay) {
+                            hls.startLevel = -1;
+                            disableAutoLevel = "currentLevel";
+                        }
 
                         qClean();
 
