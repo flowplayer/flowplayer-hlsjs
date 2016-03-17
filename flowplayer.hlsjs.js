@@ -428,8 +428,8 @@
                             common.prepend(common.find(".fp-player", root)[0], videoTag);
                         }
 
-                        hls.loadSource(video.src);
                         hls.attachMedia(videoTag);
+                        hls.loadSource(video.src);
 
                         if (videoTag.paused && (video.autoplay || conf.autoplay)) {
                             videoTag.play();
