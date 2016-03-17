@@ -182,12 +182,14 @@
                                 player.quality = i > 0
                                     ? player.qualities[i - 1]
                                     : "abr";
-                                if (hlsconf.smoothSwitching) {
+                                if (hlsconf.smoothSwitching && !player.paused) {
                                     hls.nextLevel = qIndex();
                                 } else {
                                     hls.currentLevel = qIndex();
+                                    if (player.paused) {
+                                        player.resume();
+                                    }
                                 }
-                                player.resume();
                                 common.addClass(choice, qActive);
                             }
                             common.toggleClass(selectors[i], qActive, active);
