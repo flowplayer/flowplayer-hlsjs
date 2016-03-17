@@ -488,7 +488,10 @@
                 // the engine is too late to the party:
                 // poster is already removed and api.poster is false
                 // poster state must be set again
-                player.on("ready." + engineName + " stop." + engineName, posterHack);
+                if (!player.conf.autoplay) {
+                    player.one("ready." + engineName, posterHack);
+                }
+                player.on("stop." + engineName, posterHack);
             }
 
             return engine;
