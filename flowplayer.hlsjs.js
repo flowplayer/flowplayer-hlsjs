@@ -221,6 +221,7 @@
                     load: function (video) {
                         var init = !hls,
                             conf = player.conf,
+                            autoplay = !!video.autoplay || conf.autoplay,
                             hlsQualitiesConf = conf.clip.hlsQualities || conf.hlsQualities,
                             hlsClientConf = extend({}, hlsconf),
                             hlsParams = [
@@ -234,7 +235,7 @@
                                     || common.find(".fp-player > video", root)[0]);
                             videoTag = common.createElement("video", {
                                 className: "fp-engine " + engineName + "-engine",
-                                autoplay: conf.autoplay
+                                autoplay: autoplay
                                     ? "autoplay"
                                     : false
                             });
@@ -431,7 +432,7 @@
                         hls.attachMedia(videoTag);
                         hls.loadSource(video.src);
 
-                        if (videoTag.paused && (video.autoplay || conf.autoplay)) {
+                        if (videoTag.paused && autoplay) {
                             videoTag.play();
                         }
                     },
