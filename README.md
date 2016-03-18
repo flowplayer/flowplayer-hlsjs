@@ -73,7 +73,7 @@ For fine grained debugging load the unminified components and turn hlsjs debuggi
 // turn on hlsjs debugging
 flowplayer.conf.hlsjs = {
   debug: true
-});
+};
 </script>
 ```
 
