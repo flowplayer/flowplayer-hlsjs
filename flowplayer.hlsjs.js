@@ -97,9 +97,7 @@
                 },
                 qClean = function () {
                     delete player.hlsQualities;
-                    player.qualities = [];
                     removeAllQualityClasses();
-                    common.find(".fp-quality-selector li", root).forEach(bean.off);
                     common.find(".fp-quality-selector", root).forEach(common.removeNode);
                 },
                 qIndex = function () {
@@ -467,14 +465,14 @@
 
                     unload: function () {
                         if (hls) {
+                            bean.off(root, "." + engineName);
+                            player.off("." + engineName);
+                            qClean();
                             hls.destroy();
                             hls = 0;
-                            player.off("." + engineName);
                             bean.off(videoTag);
                             common.removeNode(videoTag);
                             videoTag = 0;
-                            bean.off(root, "." + engineName);
-                            qClean();
                         }
                     }
                 };
