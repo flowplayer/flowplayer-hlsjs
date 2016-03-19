@@ -110,6 +110,7 @@
                         levelIndex = 0,
                         selector;
 
+                    qClean();
                     player.hlsQualities = [];
                     levels.forEach(function (level) {
                         if ((hlsQualitiesConf === true || hlsQualitiesConf.indexOf(levelIndex) > -1) &&
@@ -122,7 +123,6 @@
                         levelIndex += 1;
                     });
                     if (player.hlsQualities.length < 2) {
-                        qClean();
                         return;
                     }
 
@@ -355,8 +355,6 @@
                             disableAutoLevel = "currentLevel";
                         }
 
-                        qClean();
-
                         Object.keys(Hls.Events).forEach(function (key) {
                             hls.on(Hls.Events[key], function (etype, data) {
                                 var fperr,
@@ -364,7 +362,9 @@
 
                                 switch (key) {
                                 case "MANIFEST_PARSED":
-                                    if (support.inlineVideo && hlsQualitiesConf) {
+                                    if (support.inlineVideo &&
+                                            (hlsQualitiesConf === true ||
+                                            (hlsQualitiesConf && hlsQualitiesConf.length))) {
                                         initQualitySelection(hlsQualitiesConf, data);
                                     } else {
                                         delete player.quality;
