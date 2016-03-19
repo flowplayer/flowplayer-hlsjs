@@ -164,7 +164,7 @@
 
                     common.addClass(root, "quality-" + dataQuality());
 
-                    bean.on(root, "click", ".fp-quality-selector li", function (e) {
+                    bean.on(root, "click." + engineName, ".fp-quality-selector li", function (e) {
                         var choice = e.currentTarget,
                             selectors,
                             active,
@@ -473,6 +473,7 @@
                             bean.off(videoTag);
                             common.removeNode(videoTag);
                             videoTag = 0;
+                            bean.off(root, "." + engineName);
                             qClean();
                         }
                     }
