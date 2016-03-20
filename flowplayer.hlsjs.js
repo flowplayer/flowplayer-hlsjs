@@ -206,8 +206,7 @@
 
                         for (i = 0; i < sources.length; i += 1) {
                             source = sources[i];
-                            if (isHlsType(source.type)
-                                    && (!source.engine || source.engine === engineName)) {
+                            if (isHlsType(source.type)) {
                                 if (typeof source.src === 'string') {
                                     source.src = common.createAbsoluteUrl(source.src);
                                 }
