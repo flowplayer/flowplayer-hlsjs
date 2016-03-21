@@ -81,7 +81,12 @@
                     }
                     return value;
                 },
+
                 disableAutoLevel = 0,
+                setStickyLevel = function () {
+                    hls.nextLevel = hls[disableAutoLevel];
+                    disableAutoLevel = 0;
+                },
 
                 qActive = "active",
                 dataQuality = function (quality) {
@@ -323,7 +328,7 @@
 
                             switch (key) {
                             case "adaptOnStartOnly":
-                                if (value && (!conf.poster || autoplay)) {
+                                if (value) {
                                     hlsClientConf.startLevel = -1;
                                     disableAutoLevel = "currentLevel";
                                 }
@@ -350,14 +355,10 @@
                             }
                         });
 
+                        hlsClientConf.autoStartLoad = false;
+
                         hls = new Hls(hlsClientConf);
                         player.engine[engineName] = hls;
-
-                        // breaks poster if not set after hls init
-                        if (hlsconf.adaptOnStartOnly && conf.poster && !autoplay) {
-                            hls.startLevel = -1;
-                            disableAutoLevel = "currentLevel";
-                        }
 
                         Object.keys(Hls.Events).forEach(function (key) {
                             hls.on(Hls.Events[key], function (etype, data) {
@@ -371,14 +372,20 @@
                                     } else {
                                         delete player.quality;
                                     }
+                                    hls.startLoad();
+                                    break;
+
+                                case "FRAG_LOADED":
+                                    if (disableAutoLevel === "startLevel") {
+                                        // qsel
+                                        setStickyLevel();
+                                    }
                                     break;
 
                                 case "FRAG_CHANGED":
-                                    if (disableAutoLevel && (hls.startLevel > -1 || player.ready)) {
-                                        hls[hls.startLevel > -1
-                                            ? "currentLevel"
-                                            : "nextLevel"] = hls[disableAutoLevel];
-                                        disableAutoLevel = 0;
+                                    if (disableAutoLevel === "currentLevel" && player.ready) {
+                                        // adaptOnStartOnly
+                                        setStickyLevel();
                                     }
                                     break;
 
