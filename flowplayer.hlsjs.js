@@ -33,6 +33,13 @@
         isHlsType = function (typ) {
             return typ.toLowerCase().indexOf("mpegurl") > -1;
         },
+        hlsQualitiesSupport = function (conf) {
+            var hlsQualities = conf.clip.hlsQualities || conf.hlsQualities;
+
+            return support.inlineVideo &&
+                    (hlsQualities === true ||
+                    (hlsQualities && hlsQualities.length));
+        },
 
         engineImpl = function hlsjsEngine(player, root) {
             var bean = flowplayer.bean,
@@ -359,9 +366,7 @@
 
                                 switch (key) {
                                 case "MANIFEST_PARSED":
-                                    if (support.inlineVideo &&
-                                            (hlsQualitiesConf === true ||
-                                            (hlsQualitiesConf && hlsQualitiesConf.length))) {
+                                    if (hlsQualitiesSupport(conf)) {
                                         initQualitySelection(hlsQualitiesConf, data);
                                     } else {
                                         delete player.quality;
@@ -543,11 +548,8 @@
 
         flowplayer(function (api) {
             // to take precedence over VOD quality selector
-            // hlsQualities must be configure at player or global level
-            var hlsQualities = api.conf.hlsQualities || flowplayer.conf.hlsQualities;
-            if (hlsQualities) {
-                api.pluginQualitySelectorEnabled = engineImpl.canPlay("application/x-mpegurl", api.conf);
-            }
+            api.pluginQualitySelectorEnabled = hlsQualitiesSupport(api.conf) &&
+                    engineImpl.canPlay("application/x-mpegurl", api.conf);
         });
 
     }
