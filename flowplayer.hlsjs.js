@@ -47,26 +47,9 @@
                 hls,
                 recover,
 
+                // pre 6.0.4 poster detection
                 bc,
                 has_bg,
-                posterHack = function (e) {
-                    // abuse timeupdate to re-instate poster
-                    var posterClass = "is-poster";
-
-                    // not fired on ready in Firefox
-                    // must be fired on ready in webkit
-                    bean.one(videoTag, "timeupdate." + engineName, function () {
-                        common.addClass(root, posterClass);
-                        player.poster = true;
-                        // timeupdate after ready for webkit
-                        bean.one(videoTag, (e.type === "stop"
-                            ? "play."
-                            : "timeupdate.") + engineName, function () {
-                            common.removeClass(root, posterClass);
-                            player.poster = false;
-                        });
-                    });
-                },
 
                 getStartLevelConf = function () {
                     var value = hlsconf.startLevel;
@@ -231,6 +214,7 @@
                         var init = !hls,
                             conf = player.conf,
                             autoplay = !!video.autoplay || conf.autoplay,
+                            posterClass = "is-poster",
                             hlsQualitiesConf = conf.clip.hlsQualities || conf.hlsQualities,
                             hlsClientConf = extend({}, hlsconf),
                             hlsParams = [
@@ -255,6 +239,11 @@
                         }
 
                         bean.on(videoTag, "play", function () {
+                            // poster hack
+                            if (player.poster) {
+                                player.poster = false;
+                                common.removeClass(root, posterClass);
+                            }
                             player.trigger('resume', [player]);
                         });
                         bean.on(videoTag, "pause", function () {
@@ -320,6 +309,17 @@
                         bean.on(videoTag, "volumechange", function () {
                             player.trigger('volume', [player, videoTag.volume]);
                         });
+
+                        if (conf.poster) {
+                            // engine too late, poster already removed
+                            // abuse timeupdate to re-instate poster
+                            player.on("stop." + engineName, function () {
+                                bean.one(videoTag, "timeupdate." + engineName, function () {
+                                    player.poster = true;
+                                    common.addClass(root, posterClass);
+                                });
+                            });
+                        }
 
                         hlsParams.forEach(function (key) {
                             var value = hlsconf[key];
@@ -498,16 +498,6 @@
                 if (has_bg) {
                     player.conf.poster = true;
                 }
-            }
-            if (player.conf.poster) {
-                // when engine is loaded or player stopped
-                // the engine is too late to the party:
-                // poster is already removed and api.poster is false
-                // poster state must be set again
-                if (!player.conf.autoplay) {
-                    player.one("ready." + engineName, posterHack);
-                }
-                player.on("stop." + engineName, posterHack);
             }
 
             return engine;
