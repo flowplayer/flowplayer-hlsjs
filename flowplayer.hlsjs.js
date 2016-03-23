@@ -213,6 +213,17 @@
                     load: function (video) {
                         var init = !hls,
                             conf = player.conf,
+                            EVENTS = {
+                                ended: "finish",
+                                loadeddata: "ready",
+                                pause: "pause",
+                                play: "resume",
+                                progress: "buffer",
+                                ratechange: "speed",
+                                seeked: "seek",
+                                timeupdate: "progress",
+                                volumechange: "volume"
+                            },
                             autoplay = !!video.autoplay || conf.autoplay,
                             posterClass = "is-poster",
                             hlsQualitiesConf = conf.clip.hlsQualities || conf.hlsQualities,
@@ -238,76 +249,80 @@
                             hls.destroy();
                         }
 
-                        bean.on(videoTag, "play", function () {
-                            // poster hack
-                            if (player.poster) {
-                                player.poster = false;
-                                common.removeClass(root, posterClass);
-                            }
-                            player.trigger('resume', [player]);
-                        });
-                        bean.on(videoTag, "pause", function () {
-                            player.trigger('pause', [player]);
-                        });
-                        bean.on(videoTag, "timeupdate", function () {
-                            player.trigger('progress', [player, videoTag.currentTime]);
-                        });
-                        bean.on(videoTag, "loadeddata", function () {
-                            video = extend(video, {
-                                duration: videoTag.duration,
-                                seekable: videoTag.seekable.end(null),
-                                width: videoTag.videoWidth,
-                                height: videoTag.videoHeight,
-                                url: videoTag.currentSrc
-                            });
-                            player.trigger('ready', [player, video]);
+                        Object.keys(EVENTS).forEach(function (key) {
+                            var flow = EVENTS[key],
+                                type = key + "." + engineName,
+                                arg;
 
-                            var quality = player.quality,
-                                selectorIndex;
-
-                            if (quality) {
-                                selectorIndex = quality === "abr"
-                                    ? 0
-                                    : player.qualities.indexOf(quality) + 1;
-                                common.addClass(common.find(".fp-quality-selector li", root)[selectorIndex], qActive);
-                            }
-                        });
-                        bean.on(videoTag, "seeked", function () {
-                            player.trigger('seek', [player, videoTag.currentTime]);
-                        });
-                        bean.on(videoTag, "progress", function (e) {
-                            var ct = videoTag.currentTime,
-                                buffer = 0,
-                                buffend,
-                                buffered,
-                                last,
-                                i;
-
-                            try {
-                                buffered = videoTag.buffered;
-                                last = buffered.length - 1;
-                                buffend = 0;
-                                // cycle through time ranges to obtain buffer
-                                // nearest current time
-                                if (ct) {
-                                    for (i = last; i > -1; i -= 1) {
-                                        buffend = buffered.end(i);
-
-                                        if (buffend >= ct) {
-                                            buffer = buffend;
-                                        }
-                                    }
+                            bean.on(videoTag, type, function (e) {
+                                if (conf.debug && flow.indexOf("progress") < 0) {
+                                    console.log(type, "->", flow, e.originalEvent);
                                 }
-                            } catch (ignore) {}
+                                if (!player.ready && flow.indexOf("ready") < 0) {
+                                    return;
+                                }
 
-                            video.buffer = buffer;
-                            player.trigger('buffer', [player, e]);
-                        });
-                        bean.on(videoTag, "ended", function () {
-                            player.trigger('finish', [player]);
-                        });
-                        bean.on(videoTag, "volumechange", function () {
-                            player.trigger('volume', [player, videoTag.volume]);
+                                var ct = videoTag.currentTime,
+                                    buffer = 0,
+                                    buffend = 0,
+                                    buffered,
+                                    i,
+                                    quality = player.quality,
+                                    selectorIndex;
+
+                                switch (flow) {
+                                case "ready":
+                                    arg = extend(video, {
+                                        duration: videoTag.duration,
+                                        seekable: videoTag.seekable.end(null),
+                                        width: videoTag.videoWidth,
+                                        height: videoTag.videoHeight,
+                                        url: videoTag.currentSrc
+                                    });
+                                    break;
+                                case "resume":
+                                    if (player.poster) {
+                                        player.poster = false;
+                                        common.removeClass(root, posterClass);
+                                    }
+                                    break;
+                                case "seek":
+                                case "progress":
+                                    arg = ct;
+                                    break;
+                                case "speed":
+                                    arg = videoTag.playbackRate;
+                                    break;
+                                case "buffer":
+                                    try {
+                                        buffered = videoTag.buffered;
+                                        // cycle through time ranges to obtain buffer
+                                        // nearest current time
+                                        if (ct) {
+                                            for (i = buffered.length - 1; i > -1; i -= 1) {
+                                                buffend = buffered.end(i);
+
+                                                if (buffend >= ct) {
+                                                    buffer = buffend;
+                                                }
+                                            }
+                                        }
+                                    } catch (ignore) {}
+                                    video.buffer = buffer;
+                                    arg = e;
+                                    break;
+                                }
+
+                                player.trigger(flow, [player, arg]);
+
+                                if (flow === "ready" && quality) {
+                                    selectorIndex = quality === "abr"
+                                        ? 0
+                                        : player.qualities.indexOf(quality) + 1;
+                                    common.addClass(common.find(".fp-quality-selector li", root)[selectorIndex],
+                                            qActive);
+                                }
+                            });
                         });
 
                         if (conf.poster) {
@@ -427,7 +442,7 @@
                                                     url: data.url || video.src
                                                 });
                                             }
-                                            player.trigger('error', [player, errobj]);
+                                            player.trigger("error." + engineName, [player, errobj]);
                                             return;
                                         }
                                     }
@@ -481,7 +496,7 @@
                             qClean();
                             hls.destroy();
                             hls = 0;
-                            bean.off(videoTag);
+                            bean.off(videoTag, "." + engineName);
                             common.removeNode(videoTag);
                             videoTag = 0;
                         }
