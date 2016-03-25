@@ -262,10 +262,10 @@
                                     return;
                                 }
 
-                                var ct = videoTag.currentTime,
+                                var ct,
+                                    buffered,
                                     buffer = 0,
                                     buffend = 0,
-                                    buffered,
                                     i,
                                     quality = player.quality,
                                     selectorIndex;
@@ -288,7 +288,7 @@
                                     break;
                                 case "seek":
                                 case "progress":
-                                    arg = ct;
+                                    arg = videoTag.currentTime;
                                     break;
                                 case "speed":
                                     arg = videoTag.playbackRate;
@@ -298,13 +298,13 @@
                                     break;
                                 case "buffer":
                                     try {
-                                        buffered = videoTag.buffered;
-                                        // cycle through time ranges to obtain buffer
-                                        // nearest current time
+                                        ct = videoTag.currentTime;
                                         if (ct) {
+                                            // cycle through time ranges to obtain buffer
+                                            // nearest current time
+                                            buffered = videoTag.buffered;
                                             for (i = buffered.length - 1; i > -1; i -= 1) {
                                                 buffend = buffered.end(i);
-
                                                 if (buffend >= ct) {
                                                     buffer = buffend;
                                                 }
