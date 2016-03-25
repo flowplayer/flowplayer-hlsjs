@@ -161,6 +161,7 @@
                         var choice = e.currentTarget,
                             selectors,
                             active,
+                            paused,
                             i;
 
                         if (common.hasClass(choice, qActive)) {
@@ -175,13 +176,14 @@
                                 player.quality = i > 0
                                     ? player.qualities[i - 1]
                                     : "abr";
-                                if (hlsconf.smoothSwitching && !player.paused) {
+                                paused = player.paused;
+                                if (paused) {
+                                    player.resume();
+                                }
+                                if (hlsconf.smoothSwitching && !paused) {
                                     hls.nextLevel = qIndex();
                                 } else {
                                     hls.currentLevel = qIndex();
-                                    if (player.paused) {
-                                        player.resume();
-                                    }
                                 }
                                 common.addClass(choice, qActive);
                             }
