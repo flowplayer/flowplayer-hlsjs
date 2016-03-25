@@ -293,6 +293,9 @@
                                 case "speed":
                                     arg = videoTag.playbackRate;
                                     break;
+                                case "volume":
+                                    arg = videoTag.volume;
+                                    break;
                                 case "buffer":
                                     try {
                                         buffered = videoTag.buffered;
