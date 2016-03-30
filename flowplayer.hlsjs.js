@@ -447,8 +447,7 @@
                                                     url: data.url || video.src
                                                 });
                                             }
-                                            player.trigger("error." + engineName, [player, errobj]);
-                                            return;
+                                            player.trigger("error", [player, errobj]);
                                         }
                                     }
                                     // log non fatals?
