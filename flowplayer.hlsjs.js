@@ -341,6 +341,13 @@
                             });
                         }
 
+                        player.on("error." + engineName, function () {
+                            if (hls) {
+                                hls.destroy();
+                                hls = 0;
+                            }
+                        });
+
                         hlsParams.forEach(function (key) {
                             var value = hlsconf[key];
 
