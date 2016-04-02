@@ -226,7 +226,7 @@
                                 timeupdate: "progress",
                                 volumechange: "volume"
                             },
-                            autoplay = !!video.autoplay || conf.autoplay,
+                            autoplay = !!video.autoplay || !!conf.autoplay,
                             posterClass = "is-poster",
                             hlsQualitiesConf = video.hlsQualities || conf.hlsQualities,
                             hlsClientConf = extend({}, hlsconf),
@@ -240,12 +240,13 @@
                             common.removeNode(common.findDirect("video", root)[0]
                                     || common.find(".fp-player > video", root)[0]);
                             videoTag = common.createElement("video", {
-                                className: "fp-engine " + engineName + "-engine",
-                                autoplay: autoplay
+                                "class": "fp-engine " + engineName + "-engine",
+                                "autoplay": autoplay
                                     ? "autoplay"
-                                    : false
+                                    : false,
+                                "preload": conf.clip.preload || "metadata",
+                                "x-webkit-airplay": "allow"
                             });
-                            videoTag.setAttribute("x-webkit-airplay", "allow");
 
                         } else {
                             hls.destroy();
