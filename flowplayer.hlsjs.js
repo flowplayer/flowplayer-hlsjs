@@ -228,7 +228,7 @@
                             },
                             autoplay = !!video.autoplay || conf.autoplay,
                             posterClass = "is-poster",
-                            hlsQualitiesConf = conf.clip.hlsQualities || conf.hlsQualities,
+                            hlsQualitiesConf = video.hlsQualities || conf.hlsQualities,
                             hlsClientConf = extend({}, hlsconf),
                             hlsParams = [
                                 "autoLevelCapping", "startLevel",
