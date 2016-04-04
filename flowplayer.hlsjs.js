@@ -106,11 +106,12 @@
                     qClean();
                     player.hlsQualities = [];
                     levels.forEach(function (level) {
+                        // do not check audioCodec,
+                        // as e.g. HE_AAC is decoded as LC_AAC by hls.js on Android
                         if ((hlsQualitiesConf === true || hlsQualitiesConf.indexOf(levelIndex) > -1) &&
-                                level.videoCodec &&
-                                window.MediaSource.isTypeSupported('video/mp4;codecs=' + level.videoCodec)) {
-                            // do not check audioCodec,
-                            // as e.g. HE_AAC is decoded as LC_AAC by hls.js on Android
+                                (!level.videoCodec ||
+                                (level.videoCodec &&
+                                window.MediaSource.isTypeSupported('video/mp4;codecs=' + level.videoCodec)))) {
                             player.hlsQualities.push(levelIndex);
                         }
                         levelIndex += 1;
