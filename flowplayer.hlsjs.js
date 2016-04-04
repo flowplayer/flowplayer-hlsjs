@@ -425,7 +425,7 @@
                                     break;
 
                                 case "ERROR":
-                                    if (data.fatal || hlsconf.strict > 0) {
+                                    if (data.fatal || hlsconf.strict) {
                                         switch (data.type) {
                                         case Hls.ErrorTypes.NETWORK_ERROR:
                                             if (recover) {
