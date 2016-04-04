@@ -465,7 +465,6 @@
                                             player.trigger("error", [player, errobj]);
                                         }
                                     }
-                                    // log non fatals?
                                     break;
                                 }
 
