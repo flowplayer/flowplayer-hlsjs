@@ -271,12 +271,12 @@
 
                                     switch (flow) {
                                     case "ready":
-                                        arg = extend(video, {
+                                        arg = extend(player.video, {
                                             duration: videoTag.duration,
                                             seekable: videoTag.seekable.end(null),
                                             width: videoTag.videoWidth,
                                             height: videoTag.videoHeight,
-                                            url: videoTag.currentSrc
+                                            url: player.video.src
                                         });
                                         break;
                                     case "resume":
@@ -352,10 +352,11 @@
                             if ((player.video.src && video.src !== player.video.src) || video.index) {
                                 common.attr(videoTag, "autoplay", "autoplay");
                             }
-                            videoTag.type = video.type;
-                            videoTag.src = video.src;
 
                         }
+
+                        // #28 obtain api.video props before ready
+                        player.video = video;
 
                         hlsParams.forEach(function (key) {
                             var value = hlsconf[key];
@@ -399,7 +400,8 @@
                         Object.keys(Hls.Events).forEach(function (key) {
                             hls.on(Hls.Events[key], function (etype, data) {
                                 var fperr,
-                                    errobj = {};
+                                    errobj = {},
+                                    src = player.video.src;
 
                                 switch (key) {
                                 case "MANIFEST_PARSED":
@@ -459,8 +461,8 @@
                                             errobj.code = fperr;
                                             if (fperr > 2) {
                                                 errobj.video = extend(video, {
-                                                    src: video.src,
-                                                    url: data.url || video.src
+                                                    src: src,
+                                                    url: data.url || src
                                                 });
                                             }
                                             player.trigger("error", [player, errobj]);
