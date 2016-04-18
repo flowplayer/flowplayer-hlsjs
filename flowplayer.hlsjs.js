@@ -466,12 +466,16 @@
                                                 });
                                             }
                                             player.trigger("error", [player, errobj]);
+                                        } else {
+                                            // hlsError
+                                            player.trigger(etype, [player, data]);
                                         }
                                     }
                                     break;
                                 }
 
-                                player.trigger(etype, [player, data]);
+                                // memory leak if all these are re-triggered by api #29
+                                //player.trigger(etype, [player, data]);
                             });
                         });
 
