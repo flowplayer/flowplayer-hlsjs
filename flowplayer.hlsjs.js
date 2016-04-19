@@ -466,11 +466,10 @@
                                                 });
                                             }
                                             player.trigger("error", [player, errobj]);
-                                        } else {
-                                            // hlsError
-                                            player.trigger(etype, [player, data]);
                                         }
                                     }
+                                    // hlsError
+                                    player.trigger(etype, [player, data]);
                                     break;
                                 }
 
