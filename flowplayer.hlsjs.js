@@ -380,14 +380,9 @@
                                     ? 0
                                     : value;
                                 break;
-                            case "startLevel":
-                                value = (player.hlsQualities && player.quality)
-                                    ? qIndex()
-                                    : getStartLevelConf();
-                                break;
                             }
 
-                            if ((key === "autoLevelCapping" || key === "startLevel") && value !== undefined) {
+                            if (key === "autoLevelCapping" && value !== undefined) {
                                 hlsClientConf[key] = value;
                             }
                         });
@@ -396,6 +391,10 @@
 
                         hls = new Hls(hlsClientConf);
                         player.engine[engineName] = hls;
+
+                        // will be overridden in MANIFEST_PARSED if
+                        // hlsQualities are configured and valid
+                        hls.startLevel = getStartLevelConf();
 
                         Object.keys(Hls.Events).forEach(function (key) {
                             hls.on(Hls.Events[key], function (etype, data) {
