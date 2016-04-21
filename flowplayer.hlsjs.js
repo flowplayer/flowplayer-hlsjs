@@ -366,7 +366,7 @@
                             switch (key) {
                             case "adaptOnStartOnly":
                                 if (value) {
-                                    hlsClientConf.startLevel = -1;
+                                    hlsconf.startLevel = -1;
                                     disableAutoLevel = "currentLevel";
                                 }
                                 break;
