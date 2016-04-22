@@ -374,16 +374,13 @@
                                 if (value === false) {
                                     value = -1;
                                 }
+                                hlsClientConf[key] = value;
                                 break;
                             case "recover":
                                 recover = hlsconf.strict
                                     ? 0
                                     : value;
                                 break;
-                            }
-
-                            if (key === "autoLevelCapping" && value !== undefined) {
-                                hlsClientConf[key] = value;
                             }
                         });
 
