@@ -226,6 +226,7 @@
                                 timeupdate: "progress",
                                 volumechange: "volume"
                             },
+                            HLSEVENTS = Hls.Events,
                             autoplay = !!video.autoplay || !!conf.autoplay,
                             posterClass = "is-poster",
                             hlsQualitiesConf = video.hlsQualities || conf.hlsQualities,
@@ -393,8 +394,12 @@
                         // hlsQualities are configured and valid
                         hls.startLevel = getStartLevelConf();
 
-                        Object.keys(Hls.Events).forEach(function (key) {
-                            hls.on(Hls.Events[key], function (etype, data) {
+                        Object.keys(HLSEVENTS).forEach(function (key) {
+                            var etype = HLSEVENTS[key],
+                                listeners = hlsconf.listeners,
+                                expose = listeners && listeners.indexOf(etype) > -1;
+
+                            hls.on(etype, function (e, data) {
                                 var fperr,
                                     errobj = {},
                                     src = player.video.src;
@@ -464,13 +469,13 @@
                                             player.trigger("error", [player, errobj]);
                                         }
                                     }
-                                    // hlsError
-                                    player.trigger(etype, [player, data]);
                                     break;
                                 }
 
                                 // memory leak if all these are re-triggered by api #29
-                                //player.trigger(etype, [player, data]);
+                                if (expose) {
+                                    player.trigger(e, [player, data]);
+                                }
                             });
                         });
 
@@ -507,12 +512,14 @@
 
                     unload: function () {
                         if (hls) {
-                            bean.off(root, "." + engineName);
-                            player.off("." + engineName);
-                            qClean();
+                            var listeners = "." + engineName;
+
                             hls.destroy();
                             hls = 0;
-                            bean.off(videoTag, "." + engineName);
+                            qClean();
+                            player.off(listeners);
+                            bean.off(root, listeners);
+                            bean.off(videoTag, listeners);
                             common.removeNode(videoTag);
                             videoTag = 0;
                         }
