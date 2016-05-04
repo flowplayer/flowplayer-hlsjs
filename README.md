@@ -49,7 +49,7 @@ Features
 --------
 
 - packs a compatibility tested version - current:
-  [v0.5.29](https://github.com/dailymotion/hls.js/releases/tag/v0.5.29) - of hls.js
+  [v0.5.25](https://github.com/dailymotion/hls.js/releases/tag/v0.5.25) - of hls.js
 - by default the engine is only loaded if the browser supports
   [MediaSource extensions](http://w3c.github.io/media-source/) reliably for playback
 - configurable manual HLS quality selection
