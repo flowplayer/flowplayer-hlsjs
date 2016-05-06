@@ -162,11 +162,18 @@
                         var choice = e.currentTarget,
                             selectors,
                             active,
-                            paused,
+                            smooth = hlsconf.smoothSwitching,
+                            paused = videoTag.paused,
                             i;
 
                         if (common.hasClass(choice, qActive)) {
                             return;
+                        }
+
+                        if (!paused && !smooth) {
+                            bean.one(videoTag, "pause." + engineName, function () {
+                                common.removeClass(root, "is-paused");
+                            });
                         }
 
                         selectors = common.find(".fp-quality-selector li", root);
@@ -177,16 +184,15 @@
                                 player.quality = i > 0
                                     ? player.qualities[i - 1]
                                     : "abr";
-                                paused = player.paused;
-                                if (paused) {
-                                    player.resume();
-                                }
-                                if (hlsconf.smoothSwitching && !paused) {
+                                if (smooth) {
                                     hls.nextLevel = qIndex();
                                 } else {
                                     hls.currentLevel = qIndex();
                                 }
                                 common.addClass(choice, qActive);
+                                if (paused) {
+                                    videoTag.play();
+                                }
                             }
                             common.toggleClass(selectors[i], qActive, active);
                         }
