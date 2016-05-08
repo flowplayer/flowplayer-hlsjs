@@ -46,6 +46,7 @@ module.exports = {
     filename: '[name].js'
   },
   plugins: [
+    new webpack.optimize.OccurrenceOrderPlugin(true),
     new webpack.optimize.UglifyJsPlugin({
       include: /\.min\.js$/,
       mangle: true,
