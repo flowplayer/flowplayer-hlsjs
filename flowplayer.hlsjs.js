@@ -65,12 +65,6 @@
                     return value;
                 },
 
-                disableAutoLevel = 0,
-                setStickyLevel = function () {
-                    hls.nextLevel = hls[disableAutoLevel];
-                    disableAutoLevel = 0;
-                },
-
                 qActive = "active",
                 dataQuality = function (quality) {
                     // e.g. "Level 1" -> "level1"
@@ -144,7 +138,7 @@
                         player.quality = "abr";
                     } else {
                         hls.startLevel = qIndex();
-                        disableAutoLevel = "startLevel";
+                        hls.loadLevel = hls.startLevel;
                     }
 
                     selector.appendChild(common.createElement("li", {
@@ -285,6 +279,9 @@
                                             height: videoTag.videoHeight,
                                             url: player.video.src
                                         });
+                                        if (hlsconf.adaptOnStartOnly) {
+                                            hls.loadLevel = hls.nextLevel;
+                                        }
                                         break;
                                     case "resume":
                                         if (player.poster) {
@@ -375,7 +372,6 @@
                             case "adaptOnStartOnly":
                                 if (value) {
                                     hlsconf.startLevel = -1;
-                                    disableAutoLevel = "currentLevel";
                                 }
                                 break;
                             case "autoLevelCapping":
@@ -419,20 +415,6 @@
                                         delete player.quality;
                                     }
                                     hls.startLoad();
-                                    break;
-
-                                case "FRAG_LOADED":
-                                    if (disableAutoLevel === "startLevel") {
-                                        // qsel
-                                        setStickyLevel();
-                                    }
-                                    break;
-
-                                case "FRAG_CHANGED":
-                                    if (disableAutoLevel === "currentLevel" && player.ready) {
-                                        // adaptOnStartOnly
-                                        setStickyLevel();
-                                    }
                                     break;
 
                                 case "ERROR":
