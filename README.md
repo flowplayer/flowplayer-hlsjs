@@ -50,6 +50,8 @@ Features
 
 - packs a compatibility tested version - current:
   [v0.5.30](https://github.com/dailymotion/hls.js/releases/tag/v0.5.30) - of hls.js
+- packs [es5.js](https://github.com/inexorabletash/polyfill/blob/master/es5.js) for
+  IE8 compatibility
 - by default the engine is only loaded if the browser supports
   [MediaSource extensions](http://w3c.github.io/media-source/) reliably for playback
 - configurable manual HLS quality selection
@@ -64,6 +66,8 @@ For fine grained debugging load the unminified components and turn hlsjs debuggi
 
 ```html
 <script src="//releases.flowplayer.org/6.0.5/flowplayer.min.js"></script>
+<!-- unminified e5.js -->
+<script src="//releases.flowplayer.org/hlsjs/es5.js"></script>
 <!-- unminified hls.js library -->
 <script src="//releases.flowplayer.org/hlsjs/hls.js"></script>
 <!-- separate hlsjs plugin component -->

@@ -14,9 +14,11 @@
    Copyright (c) 2015 Dailymotion (http://www.dailymotion.com)
    https://github.com/dailymotion/hls.js/blob/master/LICENSE
 
-   requires:
-   - Flowplayer HTML5 version 6.x or greater
-   - hls.js https://github.com/dailymotion/hls.js
+   Includes es5.js
+   https://github.com/inexorabletash/polyfill/blob/master/es5.js
+   for compatibility with legacy browsers
+
+   Requires Flowplayer HTML5 version 6.x
    revision: $GIT_ID$
 
 */
@@ -575,7 +577,6 @@
             api.pluginQualitySelectorEnabled = hlsQualitiesSupport(api.conf) &&
                     engineImpl.canPlay("application/x-mpegurl", api.conf);
         });
-
     }
 
 }.apply(null, (typeof module === 'object' && module.exports)

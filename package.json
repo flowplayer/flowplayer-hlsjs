@@ -26,6 +26,7 @@
     "flowplayer": "^6.0.3"
   },
   "devDependencies": {
+    "js-polyfills": "^0.1.19",
     "babel-core": "^6.5.1",
     "babel-loader": "^6.2.2",
     "babel-preset-es2015": "^6.5.0",

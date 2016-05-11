@@ -12,7 +12,7 @@ all: webpack
 debug:
 	$(eval GIT_ID = $(shell git rev-parse --short HEAD ))
 	@ mkdir -p $(DIST)
-	@ cp node_modules/hls.js/dist/hls.js $(DIST)/
+	@ cp node_modules/hls.js/dist/hls.js node_modules/js-polyfills/es5.js $(DIST)/
 	@ sed -e 's/\$$GIT_ID\$$/$(GIT_ID)/' flowplayer.hlsjs.js > $(JS).js
 
 dist: clean all debug
