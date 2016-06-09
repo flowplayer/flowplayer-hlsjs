@@ -410,6 +410,10 @@
                                     src = player.video.src;
 
                                 switch (key) {
+                                case "MEDIA_ATTACHED":
+                                    hls.loadSource(src);
+                                    break;
+
                                 case "MANIFEST_PARSED":
                                     if (hlsQualitiesSupport(conf)) {
                                         initQualitySelection(hlsQualitiesConf, data);
@@ -471,7 +475,6 @@
                         });
 
                         hls.attachMedia(videoTag);
-                        hls.loadSource(video.src);
 
                         if (videoTag.paused && autoplay) {
                             videoTag.play();
