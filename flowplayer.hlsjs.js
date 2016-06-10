@@ -421,9 +421,6 @@
                                         delete player.quality;
                                     }
                                     hls.startLoad();
-                                    if (videoTag.paused && autoplay) {
-                                        videoTag.play();
-                                    }
                                     break;
 
                                 case "ERROR":
@@ -478,6 +475,10 @@
                         });
 
                         hls.attachMedia(videoTag);
+
+                        if (videoTag.paused && autoplay) {
+                            videoTag.play();
+                        }
                     },
 
                     resume: function () {
