@@ -282,9 +282,6 @@
                                             height: videoTag.videoHeight,
                                             url: player.video.src
                                         });
-                                        if (hlsconf.adaptOnStartOnly) {
-                                            hls.loadLevel = hls.nextLevel;
-                                        }
                                         break;
                                     case "resume":
                                         if (player.poster) {
@@ -334,6 +331,12 @@
                                     }
                                 });
                             });
+
+                            if (hlsUpdatedConf.adaptOnStartOnly) {
+                                bean.one(videoTag, "timeupdate." + engineName, function () {
+                                    hls.loadLevel = hls.loadLevel;
+                                });
+                            }
 
                             if (conf.poster) {
                                 // engine too late, poster already removed
