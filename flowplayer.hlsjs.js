@@ -53,8 +53,8 @@
                 bc,
                 has_bg,
 
-                getStartLevelConf = function () {
-                    var value = hlsconf.startLevel;
+                getStartLevelConf = function (conf) {
+                    var value = conf.startLevel;
 
                     switch (value) {
                     case "auto":
@@ -94,7 +94,7 @@
                 qIndex = function () {
                     return player.hlsQualities[player.qualities.indexOf(player.quality) + 1];
                 },
-                initQualitySelection = function (hlsQualitiesConf, data) {
+                initQualitySelection = function (hlsQualitiesConf, conf, data) {
                     var levels = data.levels,
                         levelIndex = 0,
                         selector;
@@ -136,7 +136,7 @@
                     player.hlsQualities.unshift(-1);
 
                     if (!player.quality || player.qualities.indexOf(player.quality) < 0) {
-                        hls.startLevel = getStartLevelConf();
+                        hls.startLevel = getStartLevelConf(conf);
                         player.quality = "abr";
                     } else {
                         hls.startLevel = qIndex();
@@ -158,7 +158,7 @@
                         var choice = e.currentTarget,
                             selectors,
                             active,
-                            smooth = hlsconf.smoothSwitching,
+                            smooth = conf.smoothSwitching,
                             paused = videoTag.paused,
                             i;
 
@@ -232,7 +232,8 @@
                             autoplay = !!video.autoplay || !!conf.autoplay,
                             posterClass = "is-poster",
                             hlsQualitiesConf = video.hlsQualities || conf.hlsQualities,
-                            hlsClientConf = extend({}, hlsconf),
+                            hlsUpdatedConf = extend(hlsconf, conf.hlsjs, conf.clip.hlsjs),
+                            hlsClientConf = extend({}, hlsUpdatedConf),
                             hlsParams = [
                                 "autoLevelCapping", "startLevel",
                                 "adaptOnStartOnly", "smoothSwitching",
@@ -366,14 +367,14 @@
                         player.video = video;
 
                         hlsParams.forEach(function (key) {
-                            var value = hlsconf[key];
+                            var value = hlsUpdatedConf[key];
 
                             delete hlsClientConf[key];
 
                             switch (key) {
                             case "adaptOnStartOnly":
                                 if (value) {
-                                    hlsconf.startLevel = -1;
+                                    hlsUpdatedConf.startLevel = -1;
                                 }
                                 break;
                             case "autoLevelCapping":
@@ -383,7 +384,7 @@
                                 hlsClientConf[key] = value;
                                 break;
                             case "recover":
-                                recover = hlsconf.strict
+                                recover = hlsUpdatedConf.strict
                                     ? 0
                                     : value;
                                 break;
@@ -397,11 +398,11 @@
 
                         // will be overridden in MANIFEST_PARSED if
                         // hlsQualities are configured and valid
-                        hls.startLevel = getStartLevelConf();
+                        hls.startLevel = getStartLevelConf(hlsUpdatedConf);
 
                         Object.keys(HLSEVENTS).forEach(function (key) {
                             var etype = HLSEVENTS[key],
-                                listeners = hlsconf.listeners,
+                                listeners = hlsUpdatedConf.listeners,
                                 expose = listeners && listeners.indexOf(etype) > -1;
 
                             hls.on(etype, function (e, data) {
@@ -416,7 +417,7 @@
 
                                 case "MANIFEST_PARSED":
                                     if (hlsQualitiesSupport(conf)) {
-                                        initQualitySelection(hlsQualitiesConf, data);
+                                        initQualitySelection(hlsQualitiesConf, hlsUpdatedConf, data);
                                     } else {
                                         delete player.quality;
                                     }
@@ -424,7 +425,7 @@
                                     break;
 
                                 case "ERROR":
-                                    if (data.fatal || hlsconf.strict) {
+                                    if (data.fatal || hlsUpdatedConf.strict) {
                                         switch (data.type) {
                                         case Hls.ErrorTypes.NETWORK_ERROR:
                                             if (recover) {
