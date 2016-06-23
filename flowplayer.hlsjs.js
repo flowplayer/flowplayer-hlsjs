@@ -285,8 +285,11 @@
                                         break;
                                     case "resume":
                                         if (player.poster) {
-                                            player.poster = false;
-                                            common.removeClass(root, posterClass);
+                                            // timeout needed for Firefox
+                                            setTimeout(function () {
+                                                player.poster = false;
+                                                common.removeClass(root, posterClass);
+                                            }, 10);
                                         }
                                         break;
                                     case "seek":
