@@ -49,7 +49,7 @@ Features
 --------
 
 - packs a compatibility tested version - current:
-  [v0.5.39](https://github.com/dailymotion/hls.js/releases/tag/v0.5.39) - of hls.js
+  [v0.5.40](https://github.com/dailymotion/hls.js/releases/tag/v0.5.40) - of hls.js
 - packs [es5.js](https://github.com/inexorabletash/polyfill/blob/master/es5.js) for
   IE8 compatibility
 - by default the engine is only loaded if the browser supports
