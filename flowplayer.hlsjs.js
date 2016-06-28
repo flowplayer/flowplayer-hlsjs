@@ -96,28 +96,54 @@
                 },
                 initQualitySelection = function (hlsQualitiesConf, conf, data) {
                     var levels = data.levels,
+                        hlsQualities = [],
                         levelIndex = 0,
                         selector;
 
                     qClean();
-                    player.hlsQualities = [];
-                    levels.forEach(function (level) {
-                        // do not check audioCodec,
-                        // as e.g. HE_AAC is decoded as LC_AAC by hls.js on Android
-                        if ((hlsQualitiesConf === true || hlsQualitiesConf.indexOf(levelIndex) > -1) &&
-                                (!level.videoCodec ||
-                                (level.videoCodec &&
-                                window.MediaSource.isTypeSupported('video/mp4;codecs=' + level.videoCodec)))) {
-                            player.hlsQualities.push(levelIndex);
+                    if (hlsQualitiesConf === "drive") {
+                        switch (levels.length) {
+                        case 4:
+                            hlsQualities = [1, 2, 3];
+                            break;
+                        case 5:
+                            hlsQualities = [1, 2, 3, 4];
+                            break;
+                        case 6:
+                            hlsQualities = [1, 3, 4, 5];
+                            break;
+                        case 7:
+                            hlsQualities = [1, 3, 5, 6];
+                            break;
+                        case 8:
+                            hlsQualities = [1, 3, 6, 7];
+                            break;
+                        default:
+                            if (levels.length < 3 ||
+                                    (levels[0].height && levels[2].height && levels[0].height === levels[2].height)) {
+                                return;
+                            }
+                            hlsQualities = [1, 2];
                         }
-                        levelIndex += 1;
-                    });
-                    if (player.hlsQualities.length < 2) {
-                        return;
+                    } else {
+                        levels.forEach(function (level) {
+                            // do not check audioCodec,
+                            // as e.g. HE_AAC is decoded as LC_AAC by hls.js on Android
+                            if ((hlsQualitiesConf === true || hlsQualitiesConf.indexOf(levelIndex) > -1) &&
+                                    (!level.videoCodec ||
+                                    (level.videoCodec &&
+                                    window.MediaSource.isTypeSupported('video/mp4;codecs=' + level.videoCodec)))) {
+                                hlsQualities.push(levelIndex);
+                            }
+                            levelIndex += 1;
+                        });
+                        if (hlsQualities.length < 2) {
+                            return;
+                        }
                     }
 
                     player.qualities = [];
-                    player.hlsQualities.forEach(function (levelIndex) {
+                    hlsQualities.forEach(function (levelIndex) {
                         var level = levels[levelIndex],
                             width = level.width,
                             height = level.height,
@@ -133,7 +159,8 @@
                     });
                     common.find(".fp-ui", root)[0].appendChild(selector);
 
-                    player.hlsQualities.unshift(-1);
+                    hlsQualities.unshift(-1);
+                    player.hlsQualities = hlsQualities;
 
                     if (!player.quality || player.qualities.indexOf(player.quality) < 0) {
                         hls.startLevel = getStartLevelConf(conf);
