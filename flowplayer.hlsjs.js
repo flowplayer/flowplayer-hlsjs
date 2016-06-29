@@ -259,7 +259,7 @@
                             autoplay = !!video.autoplay || !!conf.autoplay,
                             posterClass = "is-poster",
                             hlsQualitiesConf = video.hlsQualities || conf.hlsQualities,
-                            hlsUpdatedConf = extend(hlsconf, conf.hlsjs, conf.clip.hlsjs),
+                            hlsUpdatedConf = extend(hlsconf, conf.hlsjs, conf.clip.hlsjs, video.hlsjs),
                             hlsClientConf = extend({}, hlsUpdatedConf),
                             hlsParams = [
                                 "autoLevelCapping", "startLevel",
