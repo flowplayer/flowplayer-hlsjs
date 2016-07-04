@@ -618,4 +618,4 @@ var extension = function (Hls, flowplayer) {
 
 };
 if (typeof module === 'object' && module.exports) module.exports = extension.bind(undefined, require('hls.js'));
-else if (window.flowplayer) extension(window.flowplayer, window.Hls);
+else if (window.Hls && window.flowplayer) extension(window.Hls, window.flowplayer);
