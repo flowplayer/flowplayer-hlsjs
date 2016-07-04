@@ -28,7 +28,8 @@ The plugin can be used in a [browserify](http://browserify.org) and/or
 
 ```js
 var flowplayer = require('flowplayer');
-require('flowplayer-hlsjs'); // Plugin injects itself to flowplayer
+var engine = require('flowplayer-hlsjs');
+engine(flowplayer);
 
 flowplayer('#container', {
   clip: {

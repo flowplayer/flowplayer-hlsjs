@@ -23,7 +23,7 @@
 
 */
 
-(function (flowplayer, Hls) {
+var extension = function (Hls, flowplayer) {
     "use strict";
     var engineName = "hlsjs",
         hlsconf,
@@ -616,6 +616,6 @@
         });
     }
 
-}.apply(null, (typeof module === 'object' && module.exports)
-    ? [require('flowplayer'), require('hls.js')]
-    : [window.flowplayer, window.Hls]));
+};
+if (typeof module === 'object' && module.exports) module.exports = extension.bind(undefined, require('hls.js'));
+else if (window.flowplayer) extension(window.flowplayer, window.Hls);

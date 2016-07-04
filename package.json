@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "jslint --edition=latest --devel flowplayer.hlsjs.js",
-    "build": "webpack"
+    "build": "webpack",
+    "dev": "webpack --progress --colors --watch"
   },
   "repository": {
     "type": "git",
