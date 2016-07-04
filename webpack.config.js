@@ -30,7 +30,7 @@ lines.forEach(function (line) {
 });
 
 module.exports = {
-  entry: {'flowplayer.hlsjs.min': ['js-polyfills/es5.js', './flowplayer.hlsjs.js']},
+  entry: {'flowplayer.hlsjs.min': ['js-polyfills/es5.js', './standalone.js']},
   externals: {
     flowplayer: 'flowplayer'
   },

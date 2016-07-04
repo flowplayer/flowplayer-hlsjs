@@ -22,8 +22,8 @@
    revision: $GIT_ID$
 
 */
-
-var extension = function (Hls, flowplayer) {
+(function () {
+  var extension = function (Hls, flowplayer) {
     "use strict";
     var engineName = "hlsjs",
         hlsconf,
@@ -616,9 +616,10 @@ var extension = function (Hls, flowplayer) {
         });
     }
 
-};
-if (typeof module === 'object' && module.exports) {
+  };
+  if (typeof module === 'object' && module.exports) {
     module.exports = extension.bind(undefined, require('hls.js'));
-} else if (window.Hls && window.flowplayer) {
+  } else if (window.Hls && window.flowplayer) {
     extension(window.Hls, window.flowplayer);
-}
+  }
+})();
