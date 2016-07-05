@@ -89,3 +89,17 @@ cd flowplayer-hlsjs
 make deps
 make
 ```
+
+Known issues
+------------
+
+- IE8: due to loading the hls.js client library, errors which do not affect functionality are
+  reported in the console (see:
+  [issue #38](https://github.com/flowplayer/flowplayer-hlsjs/issues/38)). Workaround:
+  additionally load jquery and the es5 polyfill **in this order**:
+```html
+<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="//releases.flowplayer.org/6.0.5/flowplayer.min.js"></script>
+<script src="//releases.flowplayer.org/hlsjs/es5.js"></script>
+<script src="//releases.flowplayer.org/hlsjs/flowplayer.hlsjs.min.js"></script>
+```
