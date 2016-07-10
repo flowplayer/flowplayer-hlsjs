@@ -97,6 +97,7 @@
                     initQualitySelection = function (hlsQualitiesConf, conf, data) {
                         var levels = data.levels,
                             hlsQualities = [],
+                            qIndices = [],
                             levelIndex = 0,
                             selector;
 
@@ -126,10 +127,17 @@
                                 hlsQualities = [1, 2];
                             }
                         } else {
+                            if (typeof hlsQualitiesConf !== "boolean") {
+                                hlsQualitiesConf.forEach(function (q) {
+                                    qIndices.push(typeof q === "number"
+                                        ? q
+                                        : q.level);
+                                });
+                            }
                             levels.forEach(function (level) {
                                 // do not check audioCodec,
                                 // as e.g. HE_AAC is decoded as LC_AAC by hls.js on Android
-                                if ((hlsQualitiesConf === true || hlsQualitiesConf.indexOf(levelIndex) > -1) &&
+                                if ((hlsQualitiesConf === true || qIndices.indexOf(levelIndex) > -1) &&
                                         (!level.videoCodec ||
                                         (level.videoCodec &&
                                         window.MediaSource.isTypeSupported('video/mp4;codecs=' + level.videoCodec)))) {
@@ -143,13 +151,18 @@
                         }
 
                         player.qualities = [];
-                        hlsQualities.forEach(function (levelIndex) {
-                            var level = levels[levelIndex],
+                        hlsQualities.forEach(function (idx) {
+                            var level = levels[idx],
                                 width = level.width,
                                 height = level.height,
-                                label = (width && height)
-                                    ? Math.min(width, height) + "p"
-                                    : "Level " + (levelIndex + 1);
+                                q = qIndices.length
+                                    ? hlsQualitiesConf[qIndices.indexOf(idx)]
+                                    : idx,
+                                label = typeof q === "object"
+                                    ? q.label
+                                    : (width && height)
+                                        ? Math.min(width, height) + "p"
+                                        : "Level " + (idx + 1);
 
                             player.qualities.push(label);
                         });
