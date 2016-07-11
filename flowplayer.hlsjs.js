@@ -127,7 +127,11 @@
                                 hlsQualities = [1, 2];
                             }
                         } else {
-                            if (typeof hlsQualitiesConf !== "boolean") {
+                            if (typeof hlsQualitiesConf === "string") {
+                                hlsQualitiesConf.split(/\s*,\s*/).forEach(function (q) {
+                                    qIndices.push(parseInt(q, 10));
+                                });
+                            } else if (typeof hlsQualitiesConf !== "boolean") {
                                 hlsQualitiesConf.forEach(function (q) {
                                     qIndices.push(typeof q === "number"
                                         ? q
