@@ -467,7 +467,11 @@
 
                                     case "MANIFEST_PARSED":
                                         if (hlsQualitiesSupport(conf)) {
-                                            initQualitySelection(hlsQualitiesConf, hlsUpdatedConf, data);
+                                            if (player.video.hlsQualities !== false) {
+                                                initQualitySelection(hlsQualitiesConf, hlsUpdatedConf, data);
+                                            } else {
+                                                qClean();
+                                            }
                                         } else {
                                             delete player.quality;
                                         }
