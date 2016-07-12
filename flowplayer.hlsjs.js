@@ -458,7 +458,8 @@
                                 hls.on(etype, function (e, data) {
                                     var fperr,
                                         errobj = {},
-                                        src = player.video.src;
+                                        updatedVideo = player.video,
+                                        src = updatedVideo.src;
 
                                     switch (key) {
                                     case "MEDIA_ATTACHED":
@@ -467,7 +468,7 @@
 
                                     case "MANIFEST_PARSED":
                                         if (hlsQualitiesSupport(conf)) {
-                                            if (player.video.hlsQualities !== false) {
+                                            if (updatedVideo.hlsQualities !== false) {
                                                 initQualitySelection(hlsQualitiesConf, hlsUpdatedConf, data);
                                             } else {
                                                 qClean();
@@ -511,7 +512,7 @@
                                             if (fperr !== undefined) {
                                                 errobj.code = fperr;
                                                 if (fperr > 2) {
-                                                    errobj.video = extend(video, {
+                                                    errobj.video = extend(updatedVideo, {
                                                         src: src,
                                                         url: data.url || src
                                                     });
