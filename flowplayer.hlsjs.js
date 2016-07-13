@@ -53,6 +53,23 @@
                     bc,
                     has_bg,
 
+                    posterClass = "is-poster",
+                    addPoster = function (e, autoplay) {
+                        if (!autoplay) {
+                            common.addClass(root, posterClass);
+                            player.poster = true;
+                        }
+                    },
+                    removePoster = function (timeout) {
+                        if (player.poster) {
+                            // timeout needed for Firefox
+                            setTimeout(function () {
+                                common.removeClass(root, posterClass);
+                                player.poster = false;
+                            }, timeout);
+                        }
+                    },
+
                     getStartLevelConf = function (conf) {
                         var value = conf.startLevel;
 
@@ -274,7 +291,6 @@
                                 },
                                 HLSEVENTS = Hls.Events,
                                 autoplay = !!video.autoplay || !!conf.autoplay,
-                                posterClass = "is-poster",
                                 hlsQualitiesConf = video.hlsQualities || conf.hlsQualities,
                                 hlsUpdatedConf = extend(hlsconf, conf.hlsjs, conf.clip.hlsjs, video.hlsjs),
                                 hlsClientConf = extend({}, hlsUpdatedConf),
@@ -328,15 +344,12 @@
                                             });
                                             break;
                                         case "resume":
-                                            if (player.poster) {
-                                                // timeout needed for Firefox
-                                                setTimeout(function () {
-                                                    player.poster = false;
-                                                    common.removeClass(root, posterClass);
-                                                }, 10);
-                                            }
+                                            removePoster(100);
                                             break;
                                         case "seek":
+                                            arg = videoTag.currentTime;
+                                            removePoster(100);
+                                            break;
                                         case "progress":
                                             arg = videoTag.currentTime;
                                             break;
@@ -388,10 +401,12 @@
                                 if (conf.poster) {
                                     // engine too late, poster already removed
                                     // abuse timeupdate to re-instate poster
-                                    player.on("stop." + engineName, function () {
-                                        bean.one(videoTag, "timeupdate." + engineName, function () {
-                                            player.poster = true;
-                                            common.addClass(root, posterClass);
+                                    bean.one(videoTag, "seeked." + engineName, function () {
+                                        bean.one(videoTag, "timeupdate." + engineName, function (e) {
+                                            addPoster(e, autoplay);
+                                            player.on("stop." + engineName, function () {
+                                                bean.one(videoTag, "timeupdate." + engineName, addPoster);
+                                            });
                                         });
                                     });
                                 }
@@ -410,7 +425,6 @@
                                 if ((player.video.src && video.src !== player.video.src) || video.index) {
                                     common.attr(videoTag, "autoplay", "autoplay");
                                 }
-
                             }
 
                             // #28 obtain api.video props before ready
@@ -477,6 +491,10 @@
                                             delete player.quality;
                                         }
                                         hls.startLoad(hlsUpdatedConf.startPosition || 0);
+                                        break;
+
+                                    case "DESTROYING":
+                                        removePoster(400);
                                         break;
 
                                     case "ERROR":
