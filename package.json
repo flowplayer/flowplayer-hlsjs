@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/flowplayer/flowplayer-hlsjs",
   "dependencies": {
-    "hls.js": "0.5.41",
+    "hls.js": "0.6.2-2",
     "webworkify-webpack": "^1.0.4"
   },
   "peerDependencies": {
