@@ -297,7 +297,7 @@
                                 hlsParams = [
                                     "autoLevelCapping", "startLevel",
                                     "adaptOnStartOnly", "smoothSwitching",
-                                    "anamorphic", "recover", "startPosition", "strict"
+                                    "anamorphic", "recover", "strict"
                                 ];
 
                             if (!hls) {
@@ -490,7 +490,7 @@
                                         } else {
                                             delete player.quality;
                                         }
-                                        hls.startLoad(hlsUpdatedConf.startPosition || 0);
+                                        hls.startLoad(hlsClientConf.startPosition);
                                         break;
 
                                     case "DESTROYING":
