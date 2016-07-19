@@ -60,13 +60,13 @@
                             player.poster = true;
                         }
                     },
-                    removePoster = function (timeout) {
+                    removePoster = function () {
                         if (player.poster) {
                             // timeout needed for Firefox
                             setTimeout(function () {
                                 common.removeClass(root, posterClass);
                                 player.poster = false;
-                            }, timeout);
+                            }, 100);
                         }
                     },
 
@@ -344,11 +344,11 @@
                                             });
                                             break;
                                         case "resume":
-                                            removePoster(100);
+                                            removePoster();
                                             break;
                                         case "seek":
                                             arg = videoTag.currentTime;
-                                            removePoster(100);
+                                            removePoster();
                                             break;
                                         case "progress":
                                             arg = videoTag.currentTime;
@@ -403,7 +403,7 @@
                                     // abuse timeupdate to re-instate poster
                                     bean.one(videoTag, "seeked." + engineName, function () {
                                         bean.one(videoTag, "timeupdate." + engineName, function (e) {
-                                            addPoster(e, autoplay);
+                                            addPoster(e, autoplay || player.video.autoplay);
                                             player.on("stop." + engineName, function () {
                                                 bean.one(videoTag, "timeupdate." + engineName, addPoster);
                                             });
@@ -491,10 +491,6 @@
                                             delete player.quality;
                                         }
                                         hls.startLoad(hlsClientConf.startPosition);
-                                        break;
-
-                                    case "DESTROYING":
-                                        removePoster(400);
                                         break;
 
                                     case "ERROR":
