@@ -35,7 +35,7 @@ module.exports = {
     flowplayer: 'flowplayer'
   },
   module: {
-    noParse: [ /hls.js/ ]
+    noParse: [ /\/hls\.js\// ]
   },
   output: {
     path: path.join(__dirname, 'dist'),
