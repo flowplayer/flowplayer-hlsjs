@@ -20,12 +20,16 @@
   },
   "homepage": "https://github.com/flowplayer/flowplayer-hlsjs",
   "dependencies": {
-    "hls.js": "0.6.2-2"
+    "hls.js": "0.6.2-2",
+    "webworkify-webpack": "^1.0.4"
   },
   "peerDependencies": {
     "flowplayer": "^6.0.3"
   },
   "devDependencies": {
+    "babel-core": "^6.5.1",
+    "babel-loader": "^6.2.2",
+    "babel-preset-es2015": "^6.5.0",
     "jslint": "^0.9.5",
     "webpack": "^1.12.13"
   },
