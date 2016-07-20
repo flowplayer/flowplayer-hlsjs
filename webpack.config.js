@@ -35,9 +35,7 @@ module.exports = {
     flowplayer: 'flowplayer'
   },
   module: {
-    loaders: [
-      { test: /hls\.js/, loader: 'babel', query: { presets: ['es2015'] } }
-    ]
+    noParse: [ /hls.js/ ]
   },
   output: {
     path: path.join(__dirname, 'dist'),

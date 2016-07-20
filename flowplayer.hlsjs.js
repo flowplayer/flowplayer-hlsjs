@@ -654,7 +654,7 @@
 
     };
     if (typeof module === 'object' && module.exports) {
-        module.exports = extension.bind(undefined, require('hls.js/lib/hls.js'));
+        module.exports = extension.bind(undefined, require('hls.js'));
     } else if (window.Hls && window.flowplayer) {
         extension(window.Hls, window.flowplayer);
     }
