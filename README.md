@@ -50,7 +50,7 @@ Features
 --------
 
 - packs a compatibility tested version - current:
-  [v0.6.2-2](https://github.com/dailymotion/hls.js/releases/tag/v0.6.2-2) - of hls.js
+  [v0.6.2-3](https://github.com/dailymotion/hls.js/releases/tag/v0.6.2-3) - of hls.js
 - by default the engine is only loaded if the browser supports
   [MediaSource extensions](http://w3c.github.io/media-source/) reliably for playback
 - configurable manual HLS quality selection
@@ -66,7 +66,7 @@ For fine grained debugging load the unminified components and turn hlsjs debuggi
 ```html
 <script src="//releases.flowplayer.org/6.0.5/flowplayer.min.js"></script>
 <!-- test a hls.js release -->
-<script src="//cdn.jsdelivr.net/hls.js/0.6.2-2/hls.min.js"></script>
+<script src="//cdn.jsdelivr.net/hls.js/0.6.2-3/hls.min.js"></script>
 <!-- separate hlsjs plugin component -->
 <script src="//releases.flowplayer.org/hlsjs/flowplayer.hlsjs.js"></script>
 
