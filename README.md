@@ -59,7 +59,7 @@ Debugging
 ---------
 
 A quick way to find out whether there's a problem with the actual plugin component is to
-run your stream in the [hls.js demo player](http://dailymotion.github.io/hls.js/demo/).
+run your stream in the [hls.js demo player](http://streambox.fr/mse/hls.js-0.6.2-3/demo/).
 
 For fine grained debugging load the unminified components and turn hlsjs debugging on:
 
