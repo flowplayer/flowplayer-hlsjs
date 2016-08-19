@@ -392,12 +392,6 @@
                                     });
                                 });
 
-                                if (hlsUpdatedConf.adaptOnStartOnly) {
-                                    bean.one(videoTag, "timeupdate." + engineName, function () {
-                                        hls.loadLevel = hls.loadLevel;
-                                    });
-                                }
-
                                 if (conf.poster) {
                                     // engine too late, poster already removed
                                     // abuse timeupdate to re-instate poster
@@ -543,6 +537,12 @@
                                     }
                                 });
                             });
+
+                            if (hlsUpdatedConf.adaptOnStartOnly) {
+                                bean.one(videoTag, "timeupdate." + engineName, function () {
+                                    hls.loadLevel = hls.loadLevel;
+                                });
+                            }
 
                             hls.attachMedia(videoTag);
 
