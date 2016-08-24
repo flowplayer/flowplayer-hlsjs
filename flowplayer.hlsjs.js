@@ -62,11 +62,10 @@
                     },
                     removePoster = function () {
                         if (player.poster) {
-                            // timeout needed for Firefox
-                            setTimeout(function () {
+                            bean.one(videoTag, "timeupdate." + engineName, function () {
                                 common.removeClass(root, posterClass);
                                 player.poster = false;
-                            }, 100);
+                            });
                         }
                     },
 
