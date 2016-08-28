@@ -395,11 +395,15 @@
                                     // engine too late, poster already removed
                                     // abuse timeupdate to re-instate poster
                                     bean.one(videoTag, "seeked." + engineName, function () {
-                                        bean.one(videoTag, "timeupdate." + engineName, function (e) {
-                                            addPoster(e, autoplay || player.video.autoplay);
-                                            player.on("stop." + engineName, function () {
-                                                bean.one(videoTag, "timeupdate." + engineName, addPoster);
+                                        if (!videoTag.currentTime) {
+                                            // for Firefox -
+                                            // other browsers have established poster by now
+                                            bean.one(videoTag, "timeupdate." + engineName, function (e) {
+                                                addPoster(e, autoplay || player.video.autoplay);
                                             });
+                                        }
+                                        player.on("stop." + engineName, function () {
+                                            bean.one(videoTag, "timeupdate." + engineName, addPoster);
                                         });
                                     });
                                 }
