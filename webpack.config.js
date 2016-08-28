@@ -4,6 +4,9 @@ var fs = require('fs')
   , path = require('path')
   , webpack = require('webpack')
   , console = require('console')
+  , WrapperPlugin = require('wrapper-webpack-plugin')
+  , headerComment = fs.readFileSync('./headConditionalComment.js')
+  , footerComment = fs.readFileSync('./footConditionalComment.js')
   , exec = require('child_process').execSync
   , gitId
   , banner = ''
@@ -50,7 +53,8 @@ module.exports = {
       mangle: true,
       output: { comments: false }
     }),
-    new webpack.BannerPlugin(banner, {raw: true}),
-    new webpack.NormalModuleReplacementPlugin(/^webworkify$/, 'webworkify-webpack')
+    new webpack.NormalModuleReplacementPlugin(/^webworkify$/, 'webworkify-webpack'),
+    new WrapperPlugin({header: headerComment, footer: footerComment}),
+    new webpack.BannerPlugin(banner, {raw: true})
   ]
 };

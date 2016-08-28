@@ -31,7 +31,8 @@
     "babel-loader": "^6.2.2",
     "babel-preset-es2015": "^6.5.0",
     "jslint": "^0.9.5",
-    "webpack": "^1.12.13"
+    "webpack": "^1.12.13",
+    "wrapper-webpack-plugin": "^0.1.7"
   },
   "jshintConfig": {
     "undef": true
