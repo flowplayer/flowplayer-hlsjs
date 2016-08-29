@@ -395,9 +395,8 @@
                                     // engine too late, poster already removed
                                     // abuse timeupdate to re-instate poster
                                     bean.one(videoTag, "seeked." + engineName, function () {
-                                        if (!videoTag.currentTime) {
-                                            // for Firefox -
-                                            // other browsers have established poster by now
+                                        if (videoTag.currentTime < 0.5) {
+                                            // slow loading streams need this
                                             bean.one(videoTag, "timeupdate." + engineName, function (e) {
                                                 addPoster(e, autoplay || player.video.autoplay);
                                             });
