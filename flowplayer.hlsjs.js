@@ -240,7 +240,7 @@
                                     player.quality = i > 0
                                         ? player.qualities[i - 1]
                                         : "abr";
-                                    if (smooth) {
+                                    if (smooth && !player.poster) {
                                         hls.nextLevel = qIndex();
                                     } else {
                                         hls.currentLevel = qIndex();
