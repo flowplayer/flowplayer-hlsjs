@@ -14,10 +14,6 @@
    Copyright (c) 2015 Dailymotion (http://www.dailymotion.com)
    https://github.com/dailymotion/hls.js/blob/master/LICENSE
 
-   Includes es5.js
-   https://github.com/inexorabletash/polyfill/blob/master/es5.js
-   for compatibility with legacy browsers
-
    Requires Flowplayer HTML5 version 6.x
    revision: $GIT_ID$
 
