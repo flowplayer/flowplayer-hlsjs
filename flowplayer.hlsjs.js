@@ -48,6 +48,12 @@
                     videoTag,
                     hls,
                     recover,
+                    doRecover = function () {
+                        hls.recoverMediaError();
+                        if (recover > 0) {
+                            recover -= 1;
+                        }
+                    },
 
                     // pre 6.0.4 poster detection
                     bc,
@@ -286,7 +292,8 @@
                                     ratechange: "speed",
                                     seeked: "seek",
                                     timeupdate: "progress",
-                                    volumechange: "volume"
+                                    volumechange: "volume",
+                                    error: "error"
                                 },
                                 HLSEVENTS = Hls.Events,
                                 autoplay = !!video.autoplay || !!conf.autoplay,
@@ -328,18 +335,20 @@
                                             buffered,
                                             buffer = 0,
                                             buffend = 0,
+                                            updatedVideo = player.video,
+                                            src = updatedVideo.src,
                                             i,
                                             quality = player.quality,
                                             selectorIndex;
 
                                         switch (flow) {
                                         case "ready":
-                                            arg = extend(player.video, {
+                                            arg = extend(updatedVideo, {
                                                 duration: videoTag.duration,
                                                 seekable: videoTag.seekable.end(null),
                                                 width: videoTag.videoWidth,
                                                 height: videoTag.videoHeight,
-                                                url: player.video.src
+                                                url: src
                                             });
                                             break;
                                         case "resume":
@@ -377,9 +386,28 @@
                                             video.buffer = buffer;
                                             arg = e;
                                             break;
+                                        case "error":
+                                            if (videoTag.error.code === 3 && recover) {
+                                                arg = false;
+                                                if (conf.debug) {
+                                                    console.log("recovery." + engineName, "->", e.originalEvent);
+                                                }
+                                                doRecover();
+                                            } else {
+                                                arg = {code: videoTag.error.code};
+                                                if (arg.code > 2) {
+                                                    arg.video = extend(updatedVideo, {
+                                                        src: src,
+                                                        url: src
+                                                    });
+                                                }
+                                            }
+                                            break;
                                         }
 
-                                        player.trigger(flow, [player, arg]);
+                                        if (arg !== false) {
+                                            player.trigger(flow, [player, arg]);
+                                        }
 
                                         if (flow === "ready" && quality) {
                                             selectorIndex = quality === "abr"
@@ -494,10 +522,7 @@
                                             switch (data.type) {
                                             case Hls.ErrorTypes.NETWORK_ERROR:
                                                 if (recover) {
-                                                    hls.startLoad();
-                                                    if (recover > 0) {
-                                                        recover -= 1;
-                                                    }
+                                                    doRecover();
                                                 } else if (data.frag && data.frag.url) {
                                                     errobj.url = data.frag.url;
                                                     fperr = 2;
@@ -507,10 +532,7 @@
                                                 break;
                                             case Hls.ErrorTypes.MEDIA_ERROR:
                                                 if (recover) {
-                                                    hls.recoverMediaError();
-                                                    if (recover > 0) {
-                                                        recover -= 1;
-                                                    }
+                                                    doRecover();
                                                 } else {
                                                     fperr = 3;
                                                 }
