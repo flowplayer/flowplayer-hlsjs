@@ -45,6 +45,10 @@
                     hls,
                     recover,
                     doRecover = function () {
+                        player.one("pause." + engineName, function () {
+                            common.removeClass(root, "is-paused");
+                            common.addClass(root, "is-loading");
+                        });
                         hls.recoverMediaError();
                         if (recover > 0) {
                             recover -= 1;
