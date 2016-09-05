@@ -496,6 +496,8 @@
                                 hls.on(etype, function (e, data) {
                                     var fperr,
                                         errobj = {},
+                                        ERRORTYPES = Hls.ErrorTypes,
+                                        seekClass = "is-seeking",
                                         updatedVideo = player.video,
                                         src = updatedVideo.src;
 
@@ -520,7 +522,7 @@
                                     case "ERROR":
                                         if (data.fatal || hlsUpdatedConf.strict) {
                                             switch (data.type) {
-                                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                            case ERRORTYPES.NETWORK_ERROR:
                                                 if (recover) {
                                                     doRecover();
                                                 } else if (data.frag && data.frag.url) {
@@ -530,7 +532,7 @@
                                                     fperr = 4;
                                                 }
                                                 break;
-                                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                            case ERRORTYPES.MEDIA_ERROR:
                                                 if (recover) {
                                                     doRecover();
                                                 } else {
@@ -551,6 +553,12 @@
                                                 }
                                                 player.trigger("error", [player, errobj]);
                                             }
+
+                                        } else if (data.type === ERRORTYPES.MEDIA_ERROR) {
+                                            common.addClass(root, seekClass);
+                                            bean.one(videoTag, "timeupdate." + engineName, function () {
+                                                common.removeClass(root, seekClass);
+                                            });
                                         }
                                         break;
                                     }
