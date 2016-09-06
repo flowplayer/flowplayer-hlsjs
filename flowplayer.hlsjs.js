@@ -60,11 +60,11 @@
                     has_bg,
 
                     posterClass = "is-poster",
-                    addPoster = function (e, autoplay) {
-                        if (!autoplay) {
+                    addPoster = function () {
+                        bean.one(videoTag, "timeupdate." + engineName, function () {
                             common.addClass(root, posterClass);
                             player.poster = true;
-                        }
+                        });
                     },
                     removePoster = function () {
                         if (player.poster) {
@@ -422,17 +422,11 @@
                                 if (conf.poster) {
                                     // engine too late, poster already removed
                                     // abuse timeupdate to re-instate poster
-                                    bean.one(videoTag, "seeked." + engineName, function () {
-                                        if (videoTag.currentTime < 0.5) {
-                                            // slow loading streams need this
-                                            bean.one(videoTag, "timeupdate." + engineName, function (e) {
-                                                addPoster(e, autoplay || player.video.autoplay);
-                                            });
-                                        }
-                                        player.on("stop." + engineName, function () {
-                                            bean.one(videoTag, "timeupdate." + engineName, addPoster);
-                                        });
-                                    });
+                                    player.on("stop." + engineName, addPoster);
+                                    // re-instate initial poster for live streams
+                                    if (player.live && !autoplay && !player.video.autoplay) {
+                                        bean.one(videoTag, "seeked." + engineName, addPoster);
+                                    }
                                 }
 
                                 player.on("error." + engineName, function () {
