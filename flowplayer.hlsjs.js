@@ -39,16 +39,15 @@
                         (hlsQualities && hlsQualities.length));
             },
 
+            seekClass = "is-seeking",
             engineImpl = function hlsjsEngine(player, root) {
                 var bean = flowplayer.bean,
                     videoTag,
                     hls,
                     recover,
                     doRecover = function () {
-                        player.one("pause." + engineName, function () {
-                            common.removeClass(root, "is-paused");
-                            common.addClass(root, "is-loading");
-                        });
+                        common.removeClass(root, "is-paused");
+                        common.addClass(root, seekClass);
                         hls.recoverMediaError();
                         if (recover > 0) {
                             recover -= 1;
@@ -405,9 +404,11 @@
                                             break;
                                         }
 
-                                        if (arg !== false) {
-                                            player.trigger(flow, [player, arg]);
+                                        if (arg === false) {
+                                            return arg;
                                         }
+
+                                        player.trigger(flow, [player, arg]);
 
                                         if (flow === "ready" && quality) {
                                             selectorIndex = quality === "abr"
@@ -491,7 +492,6 @@
                                     var fperr,
                                         errobj = {},
                                         ERRORTYPES = Hls.ErrorTypes,
-                                        seekClass = "is-seeking",
                                         updatedVideo = player.video,
                                         src = updatedVideo.src;
 
