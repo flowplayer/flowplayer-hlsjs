@@ -45,10 +45,14 @@
                     videoTag,
                     hls,
                     recover,
-                    doRecover = function () {
+                    doRecover = function (networkError) {
                         common.removeClass(root, "is-paused");
                         common.addClass(root, seekClass);
-                        hls.recoverMediaError();
+                        if (networkError) {
+                            hls.startLoad();
+                        } else {
+                            hls.recoverMediaError();
+                        }
                         if (recover > 0) {
                             recover -= 1;
                         }
@@ -338,7 +342,8 @@
                                             src = updatedVideo.src,
                                             i,
                                             quality = player.quality,
-                                            selectorIndex;
+                                            selectorIndex,
+                                            errorCode;
 
                                         switch (flow) {
                                         case "ready":
@@ -386,15 +391,17 @@
                                             arg = e;
                                             break;
                                         case "error":
-                                            if (videoTag.error.code === 3 && recover) {
+                                            errorCode = videoTag.error.code;
+
+                                            if (recover && (errorCode === 2 || errorCode === 3)) {
                                                 arg = false;
                                                 if (conf.debug) {
                                                     console.log("recovery." + engineName, "->", e.originalEvent);
                                                 }
                                                 doRecover();
                                             } else {
-                                                arg = {code: videoTag.error.code};
-                                                if (arg.code > 2) {
+                                                arg = {code: errorCode};
+                                                if (errorCode > 2) {
                                                     arg.video = extend(updatedVideo, {
                                                         src: src,
                                                         url: src
@@ -518,7 +525,7 @@
                                             switch (data.type) {
                                             case ERRORTYPES.NETWORK_ERROR:
                                                 if (recover) {
-                                                    doRecover();
+                                                    doRecover(true);
                                                 } else if (data.frag && data.frag.url) {
                                                     errobj.url = data.frag.url;
                                                     fperr = 2;
@@ -534,6 +541,7 @@
                                                 }
                                                 break;
                                             default:
+                                                hls.destroy();
                                                 fperr = 5;
                                             }
 
