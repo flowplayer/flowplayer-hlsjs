@@ -558,9 +558,6 @@
 
                                         } else if (data.type === ERRORTYPES.MEDIA_ERROR) {
                                             common.addClass(root, seekClass);
-                                            bean.one(videoTag, "timeupdate." + engineName, function () {
-                                                common.removeClass(root, seekClass);
-                                            });
                                         }
                                         break;
                                     }
