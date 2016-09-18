@@ -39,7 +39,6 @@
                         (hlsQualities && hlsQualities.length));
             },
 
-            seekClass = "is-seeking",
             engineImpl = function hlsjsEngine(player, root) {
                 var bean = flowplayer.bean,
                     videoTag,
@@ -47,7 +46,7 @@
                     recover,
                     doRecover = function (networkError) {
                         common.removeClass(root, "is-paused");
-                        common.addClass(root, seekClass);
+                        common.addClass(root, "is-seeking");
                         if (networkError) {
                             hls.startLoad();
                         } else {
@@ -555,9 +554,6 @@
                                                 }
                                                 player.trigger("error", [player, errobj]);
                                             }
-
-                                        } else if (data.type === ERRORTYPES.MEDIA_ERROR) {
-                                            common.addClass(root, seekClass);
                                         }
                                         break;
                                     }
