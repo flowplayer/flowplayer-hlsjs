@@ -17,6 +17,7 @@ debug:
 
 dist: clean all debug
 	@ cp LICENSE.md $(DIST)/
+	@ cp node_modules/hls.js/dist/hls.min.js $(DIST)/
 
 release: clean debug
 	@ sed -e 's/\$$GIT_ID\$$/$(GIT_ID)/' -ne '/^\/\*!/,/^\*\//p' flowplayer.hlsjs.js > $(JS).min.js
@@ -24,6 +25,7 @@ release: clean debug
 	@ cat node_modules/hls.js/dist/hls.min.js >> $(JS).min.js
 	@ npm run -s min >> $(JS).min.js
 	@ sed -ne '/^\/\*@/,$$ p' footConditionalComment.js >> $(JS).min.js
+	@ cp node_modules/hls.js/dist/hls.min.js $(DIST)/
 
 zip: clean dist
 	@ cd $(DIST) && zip flowplayer.hlsjs.zip *.js LICENSE.md
