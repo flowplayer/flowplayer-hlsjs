@@ -648,7 +648,7 @@
                 // merge hlsjs clip config at earliest opportunity
                 hlsconf = extend({
                     smoothSwitching: true,
-                    recover: 0
+                    recover: -1
                 }, flowplayer.conf[engineName], conf[engineName], conf.clip[engineName]);
 
                 if (isHlsType(type)) {
