@@ -301,7 +301,12 @@
                                 autoplay = !!video.autoplay || !!conf.autoplay,
                                 hlsQualitiesConf = video.hlsQualities || conf.hlsQualities,
                                 hlsUpdatedConf = extend(hlsconf, conf.hlsjs, conf.clip.hlsjs, video.hlsjs),
-                                hlsClientConf = extend({}, hlsUpdatedConf);
+                                hlsClientConf = extend({}, hlsUpdatedConf),
+                                hlsParams = [
+                                    "autoLevelCapping", "startLevel",
+                                    "adaptOnStartOnly", "smoothSwitching",
+                                    "anamorphic", "recover", "strict"
+                                ];
 
                             if (!hls) {
                                 common.removeNode(common.findDirect("video", root)[0]
@@ -450,12 +455,10 @@
                             // #28 obtain api.video props before ready
                             player.video = video;
 
-                            Object.keys(hlsUpdatedConf).forEach(function (key) {
-                                if (!Hls.DefaultConfig.hasOwnProperty(key)) {
-                                    delete hlsClientConf[key];
-                                }
-
+                            hlsParams.forEach(function (key) {
                                 var value = hlsUpdatedConf[key];
+
+                                delete hlsClientConf[key];
 
                                 switch (key) {
                                 case "adaptOnStartOnly":
