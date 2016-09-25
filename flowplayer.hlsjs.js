@@ -518,7 +518,7 @@
                                         }
                                         setTimeout(function () {
                                             hls.startLoad(hlsClientConf.startPosition);
-                                        }, 1);
+                                        }, 50);
                                         break;
 
                                     case "ERROR":
