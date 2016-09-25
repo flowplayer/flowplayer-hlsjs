@@ -516,7 +516,9 @@
                                         } else {
                                             delete player.quality;
                                         }
-                                        hls.startLoad(hlsClientConf.startPosition);
+                                        setTimeout(function () {
+                                            hls.startLoad(hlsClientConf.startPosition);
+                                        }, 1);
                                         break;
 
                                     case "ERROR":
