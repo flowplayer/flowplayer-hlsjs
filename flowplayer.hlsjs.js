@@ -46,8 +46,8 @@
                     recover,
                     doRecover = function (networkError) {
                         common.removeClass(root, "is-paused");
-                        common.addClass(root, "is-seeking");
                         if (networkError) {
+                            common.addClass(root, "is-seeking");
                             hls.startLoad();
                         } else {
                             hls.recoverMediaError();
