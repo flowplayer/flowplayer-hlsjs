@@ -339,6 +339,9 @@
                                             buffend = 0,
                                             updatedVideo = player.video,
                                             src = updatedVideo.src,
+                                            loop = updatedVideo.loop,
+                                            loadLevel = hls.loadLevel,
+                                            cindex = updatedVideo.index,
                                             i,
                                             quality = player.quality,
                                             selectorIndex,
@@ -388,6 +391,33 @@
                                             } catch (ignore) {}
                                             video.buffer = buffer;
                                             arg = e;
+                                            break;
+                                        case "finish":
+                                            hls.trigger(HLSEVENTS.BUFFER_FLUSHING, {
+                                                startOffset: 0,
+                                                endOffset: updatedVideo.duration * 0.8
+                                            });
+
+                                            // do not go to a lower cached level on loop/replay
+                                            if (hls.autoLevelEnabled && loadLevel > 0) {
+                                                if (loop) {
+                                                    bean.one(videoTag, "pause." + engineName, function () {
+                                                        if ((!conf.playlist || player.video.index === cindex) && hls.currentLevel !== loadLevel) {
+                                                            common.removeClass(root, "is-paused");
+                                                        }
+                                                    });
+                                                }
+                                                bean.one(videoTag, (loop
+                                                    ? "play."
+                                                    : "timeupdate.") + engineName, function () {
+                                                    var currentLevel = hls.currentLevel;
+
+                                                    if ((!conf.playlist || player.video.index === cindex) && currentLevel < loadLevel) {
+                                                        hls.currentLevel = loadLevel;
+                                                        hls.nextLevel = -1;
+                                                    }
+                                                });
+                                            }
                                             break;
                                         case "error":
                                             errorCode = videoTag.error.code;
