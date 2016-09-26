@@ -77,6 +77,8 @@
                         }
                     },
 
+                    setReplayLevel = false,
+
                     getStartLevelConf = function (conf) {
                         var value = conf.startLevel;
 
@@ -414,7 +416,7 @@
 
                                                     if (player.video.index === cindex && currentLevel < loadLevel) {
                                                         hls.currentLevel = loadLevel;
-                                                        hls.nextLevel = -1;
+                                                        setReplayLevel = true;
                                                     }
                                                 });
                                             }
@@ -549,6 +551,13 @@
                                         setTimeout(function () {
                                             hls.startLoad(hlsClientConf.startPosition);
                                         }, 50);
+                                        break;
+
+                                    case "FRAG_LOADED":
+                                        if (setReplayLevel) {
+                                            hls.nextLevel = -1;
+                                            setReplayLevel = false;
+                                        }
                                         break;
 
                                     case "ERROR":
