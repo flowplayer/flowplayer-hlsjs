@@ -402,7 +402,7 @@
                                             if (hls.autoLevelEnabled && loadLevel > 0) {
                                                 if (loop) {
                                                     bean.one(videoTag, "pause." + engineName, function () {
-                                                        if ((!conf.playlist || player.video.index === cindex) && hls.currentLevel !== loadLevel) {
+                                                        if (player.video.index === cindex && hls.currentLevel !== loadLevel) {
                                                             common.removeClass(root, "is-paused");
                                                         }
                                                     });
@@ -412,7 +412,7 @@
                                                     : "timeupdate.") + engineName, function () {
                                                     var currentLevel = hls.currentLevel;
 
-                                                    if ((!conf.playlist || player.video.index === cindex) && currentLevel < loadLevel) {
+                                                    if (player.video.index === cindex && currentLevel < loadLevel) {
                                                         hls.currentLevel = loadLevel;
                                                         hls.nextLevel = -1;
                                                     }
