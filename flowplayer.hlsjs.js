@@ -93,6 +93,10 @@
                         return value;
                     },
 
+                    startUp = function (conf) {
+                        hls.startLoad(conf.startPosition);
+                    },
+
                     qActive = "active",
                     dataQuality = function (quality) {
                         // e.g. "Level 1" -> "level1"
@@ -548,9 +552,13 @@
                                         } else {
                                             delete player.quality;
                                         }
-                                        setTimeout(function () {
-                                            hls.startLoad(hlsClientConf.startPosition);
-                                        }, 50);
+                                        if (player.live) {
+                                            startUp(hlsClientConf);
+                                        } else {
+                                            setTimeout(function () {
+                                                startUp(hlsClientConf);
+                                            });
+                                        }
                                         break;
 
                                     case "FRAG_LOADED":
