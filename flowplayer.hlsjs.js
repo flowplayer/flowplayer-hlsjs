@@ -78,6 +78,7 @@
                     },
 
                     setReplayLevel = false,
+                    maxLevel = 0,
 
                     getStartLevelConf = function (conf) {
                         var value = conf.startLevel;
@@ -340,8 +341,8 @@
                                             buffend = 0,
                                             updatedVideo = player.video,
                                             src = updatedVideo.src,
+                                            flush = false,
                                             loop = updatedVideo.loop,
-                                            loadLevel = hls.loadLevel,
                                             cindex = updatedVideo.index,
                                             i,
                                             quality = player.quality,
@@ -394,30 +395,42 @@
                                             arg = e;
                                             break;
                                         case "finish":
-                                            hls.trigger(HLSEVENTS.BUFFER_FLUSHING, {
-                                                startOffset: 0,
-                                                endOffset: updatedVideo.duration * 0.8
-                                            });
+                                            if (hls.autoLevelEnabled) {
+                                                flush = !hls.levels[maxLevel].details;
+                                                if (!flush) {
+                                                    hls.levels[maxLevel].details.fragments.forEach(function (frag) {
+                                                        flush = !!flush || !frag.loadCounter;
+                                                    });
+                                                }
+                                                if (flush) {
+                                                    hls.trigger(HLSEVENTS.BUFFER_FLUSHING, {
+                                                        startOffset: 0,
+                                                        endOffset: updatedVideo.duration * 0.9
+                                                    });
+                                                }
 
-                                            // do not go to a lower cached level on loop/replay
-                                            if (hls.autoLevelEnabled && loadLevel > 0) {
-                                                if (loop) {
-                                                    bean.one(videoTag, "pause." + engineName, function () {
-                                                        if (player.video.index === cindex && hls.currentLevel !== loadLevel) {
-                                                            common.removeClass(root, "is-paused");
+                                                if (maxLevel) {
+                                                    // do not go to a lower cached level on loop/replay
+                                                    if (loop) {
+                                                        bean.one(videoTag, "pause." + engineName, function () {
+                                                            if (player.video.index === cindex && setReplayLevel) {
+                                                                common.removeClass(root, "is-paused");
+                                                            }
+                                                        });
+                                                    }
+                                                    bean.one(videoTag, (loop
+                                                        ? "play."
+                                                        : "timeupdate.") + engineName, function () {
+                                                        var currentLevel = hls.currentLevel;
+
+                                                        if (player.video.index === cindex) {
+                                                            if (currentLevel < maxLevel) {
+                                                                hls.currentLevel = maxLevel;
+                                                                setReplayLevel = true;
+                                                            }
                                                         }
                                                     });
                                                 }
-                                                bean.one(videoTag, (loop
-                                                    ? "play."
-                                                    : "timeupdate.") + engineName, function () {
-                                                    var currentLevel = hls.currentLevel;
-
-                                                    if (player.video.index === cindex && currentLevel < loadLevel) {
-                                                        hls.currentLevel = loadLevel;
-                                                        setReplayLevel = true;
-                                                    }
-                                                });
                                             }
                                             break;
                                         case "error":
@@ -562,6 +575,9 @@
                                         if (setReplayLevel) {
                                             hls.nextLevel = -1;
                                             setReplayLevel = false;
+                                            maxLevel = 0;
+                                        } else if (!player.live && hls.autoLevelEnabled && hls.loadLevel > maxLevel) {
+                                            maxLevel = hls.loadLevel;
                                         }
                                         break;
 
