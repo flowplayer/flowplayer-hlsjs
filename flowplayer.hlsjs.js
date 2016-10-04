@@ -80,8 +80,8 @@
                     setReplayLevel = false,
                     maxLevel = 0,
 
-                    startUp = function (conf) {
-                        hls.startLoad(conf.startPosition);
+                    startUp = function () {
+                        hls.startLoad(hls.config.startPosition);
                     },
 
                     qActive = "active",
@@ -555,11 +555,9 @@
                                             delete player.quality;
                                         }
                                         if (player.live) {
-                                            startUp(hlsClientConf);
+                                            startUp();
                                         } else {
-                                            setTimeout(function () {
-                                                startUp(hlsClientConf);
-                                            });
+                                            setTimeout(startUp);
                                         }
                                         break;
 
