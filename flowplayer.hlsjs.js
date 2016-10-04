@@ -80,20 +80,6 @@
                     setReplayLevel = false,
                     maxLevel = 0,
 
-                    getStartLevelConf = function (conf) {
-                        var value = conf.startLevel;
-
-                        switch (value) {
-                        case "auto":
-                            value = -1;
-                            break;
-                        case "firstLevel":
-                            value = undefined;
-                            break;
-                        }
-                        return value;
-                    },
-
                     startUp = function (conf) {
                         hls.startLoad(conf.startPosition);
                     },
@@ -211,7 +197,6 @@
                         player.hlsQualities = hlsQualities;
 
                         if (!player.quality || player.qualities.indexOf(player.quality) < 0) {
-                            hls.startLevel = getStartLevelConf(conf);
                             player.quality = "abr";
                         } else {
                             hls.startLevel = qIndex();
@@ -509,12 +494,23 @@
                                 switch (key) {
                                 case "adaptOnStartOnly":
                                     if (value) {
-                                        hlsUpdatedConf.startLevel = -1;
+                                        hlsClientConf.startLevel = -1;
                                     }
                                     break;
                                 case "autoLevelCapping":
                                     if (value === false) {
                                         value = -1;
+                                    }
+                                    hlsClientConf[key] = value;
+                                    break;
+                                case "startLevel":
+                                    switch (value) {
+                                    case "auto":
+                                        value = -1;
+                                        break;
+                                    case "firstLevel":
+                                        value = undefined;
+                                        break;
                                     }
                                     hlsClientConf[key] = value;
                                     break;
@@ -530,10 +526,6 @@
 
                             hls = new Hls(hlsClientConf);
                             player.engine[engineName] = hls;
-
-                            // will be overridden in MANIFEST_PARSED if
-                            // hlsQualities are configured and valid
-                            hls.startLevel = getStartLevelConf(hlsUpdatedConf);
 
                             Object.keys(HLSEVENTS).forEach(function (key) {
                                 var etype = HLSEVENTS[key],
