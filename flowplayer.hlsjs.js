@@ -536,6 +536,7 @@
                                     var fperr,
                                         errobj = {},
                                         ERRORTYPES = Hls.ErrorTypes,
+                                        ERRORDETAILS = Hls.ErrorDetails,
                                         updatedVideo = player.video,
                                         src = updatedVideo.src;
 
@@ -606,7 +607,14 @@
                                                 }
                                                 player.trigger("error", [player, errobj]);
                                             }
-                                        }
+                                        } else {
+                                            switch (data.details) {
+                                                case ERRORDETAILS.BUFFER_STALLED_ERROR:
+                                                case ERRORDETAILS.FRAG_LOOP_LOADING_ERROR:
+                                                    common.addClass(root, "is-seeking");
+                                                    break;
+                                                }
+                                            }
                                         break;
                                     }
 
