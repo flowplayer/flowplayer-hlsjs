@@ -27,6 +27,7 @@
             extend = flowplayer.extend,
             support = flowplayer.support,
             version = flowplayer.version,
+            performance = window.performance,
 
             isHlsType = function (typ) {
                 return typ.toLowerCase().indexOf("mpegurl") > -1;
@@ -43,15 +44,35 @@
                 var bean = flowplayer.bean,
                     videoTag,
                     hls,
-                    recover,
-                    doRecover = function (networkError) {
+
+                    recover, // DEPRECATED
+                    recoverMediaErrorDate,
+                    swapAudioCodecDate,
+                    recoveryClass = "is-seeking",
+                    doRecover = function (conf, etype, isNetworkError) {
+                        if (conf.debug) {
+                            console.log("recovery." + engineName, "<-", etype);
+                        }
                         common.removeClass(root, "is-paused");
-                        if (networkError) {
-                            common.addClass(root, "is-seeking");
+                        common.addClass(root, recoveryClass);
+                        if (isNetworkError) {
                             hls.startLoad();
                         } else {
-                            hls.recoverMediaError();
+                            var now = performance.now();
+                            if (!recoverMediaErrorDate || now - recoverMediaErrorDate > 3000) {
+                                recoverMediaErrorDate = performance.now();
+                                hls.recoverMediaError();
+                            } else {
+                                if (!swapAudioCodecDate || (now - swapAudioCodecDate) > 3000) {
+                                    swapAudioCodecDate = performance.now();
+                                    hls.swapAudioCodec();
+                                    hls.recoverMediaError();
+                                } else {
+                                    return 3;
+                                }
+                            }
                         }
+                        // DEPRECATED
                         if (recover > 0) {
                             recover -= 1;
                         }
@@ -421,13 +442,12 @@
                                         case "error":
                                             errorCode = videoTag.error.code;
 
-                                            if (recover && (errorCode === 2 || errorCode === 3)) {
-                                                arg = false;
-                                                if (conf.debug) {
-                                                    console.log("recovery." + engineName, "->", e.originalEvent);
-                                                }
-                                                doRecover();
-                                            } else {
+                                            if ((hlsUpdatedConf.recoverMediaError && errorCode === 3) ||
+                                                    (hlsUpdatedConf.recoverNetworkError && errorCode === 2) ||
+                                                    (hlsUpdatedConf.recover && (errorCode === 2 || errorCode === 3))) {
+                                                errorCode = doRecover(conf, flow, errorCode === 2);
+                                            }
+                                            if (errorCode !== undefined) {
                                                 arg = {code: errorCode};
                                                 if (errorCode > 2) {
                                                     arg.video = extend(updatedVideo, {
@@ -435,6 +455,8 @@
                                                         url: src
                                                     });
                                                 }
+                                            } else {
+                                                arg = false;
                                             }
                                             break;
                                         }
@@ -514,11 +536,19 @@
                                     }
                                     hlsClientConf[key] = value;
                                     break;
-                                case "recover":
-                                    recover = hlsUpdatedConf.strict
-                                        ? 0
-                                        : value;
+                                case "recover": // DEPRECATED
+                                    hlsUpdatedConf.recoverMediaError = false;
+                                    hlsUpdatedConf.recoverNetworkError = false;
+                                    recover = value;
                                     break;
+                                case "strict":
+                                    if (value) {
+                                        hlsUpdatedConf.recoverMediaError = false;
+                                        hlsUpdatedConf.recoverNetworkError = false;
+                                        recover = 0;
+                                    }
+                                    break;
+
                                 }
                             });
 
@@ -526,6 +556,8 @@
 
                             hls = new Hls(hlsClientConf);
                             player.engine[engineName] = hls;
+                            recoverMediaErrorDate = null;
+                            swapAudioCodecDate = null;
 
                             Object.keys(HLSEVENTS).forEach(function (key) {
                                 var etype = HLSEVENTS[key],
@@ -576,8 +608,9 @@
                                         if (data.fatal || hlsUpdatedConf.strict) {
                                             switch (data.type) {
                                             case ERRORTYPES.NETWORK_ERROR:
-                                                if (recover) {
-                                                    doRecover(true);
+                                                console.info(hlsUpdatedConf.recoverNetworkError || recover);
+                                                if (hlsUpdatedConf.recoverNetworkError || recover) {
+                                                    doRecover(conf, data.type, true);
                                                 } else if (data.frag && data.frag.url) {
                                                     errobj.url = data.frag.url;
                                                     fperr = 2;
@@ -586,8 +619,8 @@
                                                 }
                                                 break;
                                             case ERRORTYPES.MEDIA_ERROR:
-                                                if (recover) {
-                                                    doRecover();
+                                                if (hlsUpdatedConf.recoverMediaError || recover) {
+                                                    fperr = doRecover(conf, data.type);
                                                 } else {
                                                     fperr = 3;
                                                 }
@@ -609,12 +642,12 @@
                                             }
                                         } else {
                                             switch (data.details) {
-                                                case ERRORDETAILS.BUFFER_STALLED_ERROR:
-                                                case ERRORDETAILS.FRAG_LOOP_LOADING_ERROR:
-                                                    common.addClass(root, "is-seeking");
-                                                    break;
-                                                }
+                                            case ERRORDETAILS.BUFFER_STALLED_ERROR:
+                                            case ERRORDETAILS.FRAG_LOOP_LOADING_ERROR:
+                                                common.addClass(root, recoveryClass);
+                                                break;
                                             }
+                                        }
                                         break;
                                     }
 
@@ -708,7 +741,7 @@
                 // merge hlsjs clip config at earliest opportunity
                 hlsconf = extend({
                     smoothSwitching: true,
-                    recover: -1
+                    recoverMediaError: true
                 }, flowplayer.conf[engineName], conf[engineName], conf.clip[engineName]);
 
                 if (isHlsType(type)) {
