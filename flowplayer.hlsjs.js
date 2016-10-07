@@ -645,6 +645,9 @@
                                             case ERRORDETAILS.BUFFER_STALLED_ERROR:
                                             case ERRORDETAILS.FRAG_LOOP_LOADING_ERROR:
                                                 common.addClass(root, recoveryClass);
+                                                bean.one(videoTag, "timeupdate." + engineName, function () {
+                                                    common.removeClass(root, recoveryClass);
+                                                });
                                                 break;
                                             }
                                         }
