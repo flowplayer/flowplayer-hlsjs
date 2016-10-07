@@ -608,7 +608,6 @@
                                         if (data.fatal || hlsUpdatedConf.strict) {
                                             switch (data.type) {
                                             case ERRORTYPES.NETWORK_ERROR:
-                                                console.info(hlsUpdatedConf.recoverNetworkError || recover);
                                                 if (hlsUpdatedConf.recoverNetworkError || recover) {
                                                     doRecover(conf, data.type, true);
                                                 } else if (data.frag && data.frag.url) {
