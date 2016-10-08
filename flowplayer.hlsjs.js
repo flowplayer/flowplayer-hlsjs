@@ -33,7 +33,7 @@
                 return typ.toLowerCase().indexOf("mpegurl") > -1;
             },
             hlsQualitiesSupport = function (conf) {
-                var hlsQualities = conf.clip.hlsQualities || conf.hlsQualities;
+                var hlsQualities = (conf.clip && conf.clip.hlsQualities) || conf.hlsQualities;
 
                 return support.inlineVideo &&
                         (hlsQualities === true ||
