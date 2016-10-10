@@ -349,7 +349,6 @@
                                             src = updatedVideo.src,
                                             flush = false,
                                             loop = updatedVideo.loop,
-                                            cindex = updatedVideo.index,
                                             i,
                                             quality = player.quality,
                                             selectorIndex,
@@ -401,7 +400,7 @@
                                             arg = e;
                                             break;
                                         case "finish":
-                                            if (hls.autoLevelEnabled) {
+                                            if (hls.autoLevelEnabled && (loop || conf.playlist.length < 2 || conf.advance === false)) {
                                                 flush = !hls.levels[maxLevel].details;
                                                 if (!flush) {
                                                     hls.levels[maxLevel].details.fragments.forEach(function (frag) {
@@ -413,15 +412,11 @@
                                                         startOffset: 0,
                                                         endOffset: updatedVideo.duration * 0.9
                                                     });
-                                                }
 
-                                                if (maxLevel) {
                                                     // do not go to a lower cached level on loop/replay
                                                     if (loop) {
                                                         bean.one(videoTag, "pause." + engineName, function () {
-                                                            if (player.video.index === cindex && setReplayLevel) {
-                                                                common.removeClass(root, "is-paused");
-                                                            }
+                                                            common.removeClass(root, "is-paused");
                                                         });
                                                     }
                                                     bean.one(videoTag, (loop
@@ -429,11 +424,9 @@
                                                         : "timeupdate.") + engineName, function () {
                                                         var currentLevel = hls.currentLevel;
 
-                                                        if (player.video.index === cindex) {
-                                                            if (currentLevel < maxLevel) {
-                                                                hls.currentLevel = maxLevel;
-                                                                setReplayLevel = true;
-                                                            }
+                                                        if (currentLevel < maxLevel) {
+                                                            hls.currentLevel = maxLevel;
+                                                            setReplayLevel = true;
                                                         }
                                                     });
                                                 }
@@ -505,6 +498,8 @@
 
                             // #28 obtain api.video props before ready
                             player.video = video;
+                            maxLevel = 0;
+                            setReplayLevel = false;
 
                             Object.keys(hlsUpdatedConf).forEach(function (key) {
                                 if (!Hls.DefaultConfig.hasOwnProperty(key)) {
