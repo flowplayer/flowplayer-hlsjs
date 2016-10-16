@@ -316,6 +316,11 @@
                                 hlsUpdatedConf = extend(hlsconf, conf.hlsjs, conf.clip.hlsjs, video.hlsjs),
                                 hlsClientConf = extend({}, hlsUpdatedConf);
 
+                            // allow disabling level selection for single clips
+                            if (video.hlsQualities === false) {
+                                hlsQualitiesConf = false;
+                            }
+
                             if (!hls) {
                                 common.removeNode(common.findDirect("video", root)[0]
                                         || common.find(".fp-player > video", root)[0]);
@@ -574,7 +579,7 @@
 
                                     case "MANIFEST_PARSED":
                                         if (hlsQualitiesSupport(conf)) {
-                                            if (updatedVideo.hlsQualities !== false) {
+                                            if (hlsQualitiesConf) {
                                                 initQualitySelection(hlsQualitiesConf, hlsUpdatedConf, data);
                                             } else {
                                                 qClean();
