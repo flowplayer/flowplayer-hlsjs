@@ -668,7 +668,7 @@
 
                             hls.attachMedia(videoTag);
 
-                            if (videoTag.paused && autoplay) {
+                            if (!support.zeropreload && videoTag.paused && autoplay) {
                                 videoTag.play();
                             }
                         },
