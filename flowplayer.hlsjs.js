@@ -402,7 +402,7 @@
                                                 }
                                             } catch (ignore) {}
                                             video.buffer = buffer;
-                                            arg = e;
+                                            arg = buffer;
                                             break;
                                         case "finish":
                                             if (hls.autoLevelEnabled && (loop || conf.playlist.length < 2 || conf.advance === false)) {
