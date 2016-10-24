@@ -346,7 +346,7 @@
                                             return;
                                         }
 
-                                        var ct,
+                                        var ct = videoTag.currentTime,
                                             buffered,
                                             buffer = 0,
                                             buffend = 0,
@@ -377,7 +377,7 @@
                                             removePoster();
                                             break;
                                         case "progress":
-                                            arg = videoTag.currentTime;
+                                            arg = ct;
                                             break;
                                         case "speed":
                                             arg = videoTag.playbackRate;
@@ -387,7 +387,6 @@
                                             break;
                                         case "buffer":
                                             try {
-                                                ct = videoTag.currentTime;
                                                 buffered = videoTag.buffered;
                                                 buffer = buffered.end(null);
                                                 if (ct) {
