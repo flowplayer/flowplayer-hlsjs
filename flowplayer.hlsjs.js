@@ -373,8 +373,8 @@
                                             removePoster();
                                             break;
                                         case "seek":
-                                            arg = videoTag.currentTime;
                                             removePoster();
+                                            arg = ct;
                                             break;
                                         case "progress":
                                             arg = ct;
