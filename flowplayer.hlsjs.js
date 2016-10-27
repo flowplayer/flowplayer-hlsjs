@@ -330,6 +330,7 @@
                                         ? "autoplay"
                                         : false,
                                     "preload": conf.clip.preload || "metadata",
+                                    "volume": player.volumeLevel, // core ready stanza too late
                                     "x-webkit-airplay": "allow"
                                 });
 
