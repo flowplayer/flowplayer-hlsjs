@@ -15,7 +15,7 @@
    https://github.com/dailymotion/hls.js/blob/master/LICENSE
 
    Requires Flowplayer HTML5 version 6.x
-   revision: $GIT_ID$
+   $GIT_DESC$
 
 */
 (function () {

@@ -8,15 +8,15 @@ var fs = require('fs')
   , headerComment = fs.readFileSync('./headConditionalComment.js')
   , footerComment = fs.readFileSync('./footConditionalComment.js')
   , exec = require('child_process').execSync
-  , gitId
+  , gitDesc
   , banner = ''
   , bannerAppend = false
   , lines = fs.readFileSync('./flowplayer.hlsjs.js', 'utf8').split('\n');
 
 try {
-    gitId = exec('git rev-parse --short HEAD').toString('utf8').trim();
+    gitDesc = exec('git describe').toString('utf8').trim();
 } catch (ignore) {
-    console.warn('unable to determine git revision');
+    console.warn('unable to determine git description');
 }
 
 lines.forEach(function (line) {
@@ -24,9 +24,9 @@ lines.forEach(function (line) {
         bannerAppend = true;
     }
     if (bannerAppend) {
-        bannerAppend = line.indexOf('$GIT_ID$') < 0;
-        if (gitId) {
-            line = line.replace('$GIT_ID$', gitId);
+        bannerAppend = line.indexOf('$GIT_DESC$') < 0;
+        if (gitDesc) {
+            line = line.replace('$GIT_DESC$', gitDesc);
         }
         banner += line + (bannerAppend ? '\n' : '\n\n*/');
     }

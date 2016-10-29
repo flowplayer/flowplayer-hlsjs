@@ -10,10 +10,10 @@ webpack:
 all: webpack
 
 debug:
-	$(eval GIT_ID = $(shell git rev-parse --short HEAD ))
+	$(eval GIT_DESC = $(shell git describe ))
 	@ mkdir -p $(DIST)
 	@ cp node_modules/hls.js/dist/hls.js $(DIST)/
-	@ sed -e 's/\$$GIT_ID\$$/$(GIT_ID)/' flowplayer.hlsjs.js > $(JS).js
+	@ sed -e 's/\$$GIT_DESC\$$/$(GIT_DESC)/' flowplayer.hlsjs.js > $(JS).js
 
 dist: clean all debug
 	@ cp LICENSE.md $(DIST)/
@@ -21,7 +21,7 @@ dist: clean all debug
 
 release: clean debug
 	@ cp LICENSE.md $(DIST)/
-	@ sed -e 's/\$$GIT_ID\$$/$(GIT_ID)/' -ne '/^\/\*!/,/^\*\//p' flowplayer.hlsjs.js > $(JS).min.js
+	@ sed -e 's/\$$GIT_DESC\$$/$(GIT_DESC)/' -ne '/^\/\*!/,/^\*\//p' flowplayer.hlsjs.js > $(JS).min.js
 	@ cat headConditionalComment.js >> $(JS).min.js
 	@ cat node_modules/hls.js/dist/hls.min.js >> $(JS).min.js
 	@ npm run -s min >> $(JS).min.js
