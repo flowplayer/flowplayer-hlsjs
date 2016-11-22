@@ -602,7 +602,20 @@
                                             maxLevel = hls.loadLevel;
                                         }
                                         break;
-
+                                    case "FRAG_PARSING_METADATA":
+                                        data.samples.forEach(function(sample) {
+                                          var metadataHandler = function() {
+                                            if (videoTag.currentTime < sample.dts) return;
+                                            videoTag.removeEventListener('timeupdate', metadataHandler);
+                                            var raw = new TextDecoder('utf-8').decode(sample.data);
+                                            player.trigger('metadata', [player, {
+                                              key: raw.substr(10, 4),
+                                              data: raw.substr(21)
+                                            }]);
+                                          };
+                                          videoTag.addEventListener('timeupdate', metadataHandler);
+                                        });
+                                        break;
                                     case "ERROR":
                                         if (data.fatal || hlsUpdatedConf.strict) {
                                             switch (data.type) {
