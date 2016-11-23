@@ -608,14 +608,14 @@
                                         data.samples.forEach(function(sample) {
                                             var metadataHandler = function() {
                                                 if (videoTag.currentTime < sample.dts) return;
-                                                videoTag.removeEventListener('timeupdate', metadataHandler);
+                                                bean.off(videoTag, 'timeupdate.' + engineName, metadataHandler);
                                                 var raw = new TextDecoder('utf-8').decode(sample.data);
                                                 player.trigger('metadata', [player, {
                                                     key: raw.substr(10, 4),
                                                     data: raw.substr(21)
                                                 }]);
                                             };
-                                            videoTag.addEventListener('timeupdate', metadataHandler);
+                                            bean.on(videoTag, 'timeupdate.' + engineName, metadataHandler);
                                         });
                                         break;
                                     case "ERROR":
