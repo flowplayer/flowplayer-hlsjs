@@ -428,13 +428,13 @@
                                                     bean.one(videoTag, (loop
                                                         ? "play."
                                                         : "timeupdate.") + engineName, function () {
-                                                            var currentLevel = hls.currentLevel;
+                                                        var currentLevel = hls.currentLevel;
 
-                                                            if (currentLevel < maxLevel) {
-                                                                hls.currentLevel = maxLevel;
-                                                                setReplayLevel = true;
-                                                            }
-                                                        });
+                                                        if (currentLevel < maxLevel) {
+                                                            hls.currentLevel = maxLevel;
+                                                            setReplayLevel = true;
+                                                        }
+                                                    });
                                                 }
                                             }
                                             break;
@@ -605,11 +605,17 @@
                                         }
                                         break;
                                     case "FRAG_PARSING_METADATA":
-                                        data.samples.forEach(function(sample) {
-                                            var metadataHandler = function() {
-                                                if (videoTag.currentTime < sample.dts) return;
+                                        data.samples.forEach(function (sample) {
+                                            var metadataHandler;
+
+                                            metadataHandler = function () {
+                                                if (videoTag.currentTime < sample.dts) {
+                                                    return;
+                                                }
                                                 bean.off(videoTag, 'timeupdate.' + engineName, metadataHandler);
-                                                var raw = new TextDecoder('utf-8').decode(sample.data);
+
+                                                var raw = new window.TextDecoder('utf-8').decode(sample.data);
+
                                                 player.trigger('metadata', [player, {
                                                     key: raw.substr(10, 4),
                                                     data: raw.substr(21)
