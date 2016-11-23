@@ -1,4 +1,6 @@
 /*jslint browser: true, for: true, node: true */
+/*eslint indent: ["error", 4], no-empty: ["error", { "allowEmptyCatch": true }] */
+/*eslint-disable quotes, no-console */
 /*global window */
 
 /*!
@@ -426,13 +428,13 @@
                                                     bean.one(videoTag, (loop
                                                         ? "play."
                                                         : "timeupdate.") + engineName, function () {
-                                                        var currentLevel = hls.currentLevel;
+                                                            var currentLevel = hls.currentLevel;
 
-                                                        if (currentLevel < maxLevel) {
-                                                            hls.currentLevel = maxLevel;
-                                                            setReplayLevel = true;
-                                                        }
-                                                    });
+                                                            if (currentLevel < maxLevel) {
+                                                                hls.currentLevel = maxLevel;
+                                                                setReplayLevel = true;
+                                                            }
+                                                        });
                                                 }
                                             }
                                             break;
@@ -602,7 +604,20 @@
                                             maxLevel = hls.loadLevel;
                                         }
                                         break;
-
+                                    case "FRAG_PARSING_METADATA":
+                                        data.samples.forEach(function(sample) {
+                                            var metadataHandler = function() {
+                                                if (videoTag.currentTime < sample.dts) return;
+                                                bean.off(videoTag, 'timeupdate.' + engineName, metadataHandler);
+                                                var raw = new TextDecoder('utf-8').decode(sample.data);
+                                                player.trigger('metadata', [player, {
+                                                    key: raw.substr(10, 4),
+                                                    data: raw.substr(21)
+                                                }]);
+                                            };
+                                            bean.on(videoTag, 'timeupdate.' + engineName, metadataHandler);
+                                        });
+                                        break;
                                     case "ERROR":
                                         if (data.fatal || hlsUpdatedConf.strict) {
                                             switch (data.type) {
