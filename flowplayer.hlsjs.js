@@ -1,4 +1,6 @@
 /*jslint browser: true, for: true, node: true */
+/*eslint indent: ["error", 4], no-empty: ["error", { "allowEmptyCatch": true }] */
+/*eslint-disable quotes, no-console */
 /*global window */
 
 /*!
@@ -426,13 +428,13 @@
                                                     bean.one(videoTag, (loop
                                                         ? "play."
                                                         : "timeupdate.") + engineName, function () {
-                                                        var currentLevel = hls.currentLevel;
+                                                            var currentLevel = hls.currentLevel;
 
-                                                        if (currentLevel < maxLevel) {
-                                                            hls.currentLevel = maxLevel;
-                                                            setReplayLevel = true;
-                                                        }
-                                                    });
+                                                            if (currentLevel < maxLevel) {
+                                                                hls.currentLevel = maxLevel;
+                                                                setReplayLevel = true;
+                                                            }
+                                                        });
                                                 }
                                             }
                                             break;
@@ -604,16 +606,16 @@
                                         break;
                                     case "FRAG_PARSING_METADATA":
                                         data.samples.forEach(function(sample) {
-                                          var metadataHandler = function() {
-                                            if (videoTag.currentTime < sample.dts) return;
-                                            videoTag.removeEventListener('timeupdate', metadataHandler);
-                                            var raw = new TextDecoder('utf-8').decode(sample.data);
-                                            player.trigger('metadata', [player, {
-                                              key: raw.substr(10, 4),
-                                              data: raw.substr(21)
-                                            }]);
-                                          };
-                                          videoTag.addEventListener('timeupdate', metadataHandler);
+                                            var metadataHandler = function() {
+                                                if (videoTag.currentTime < sample.dts) return;
+                                                videoTag.removeEventListener('timeupdate', metadataHandler);
+                                                var raw = new TextDecoder('utf-8').decode(sample.data);
+                                                player.trigger('metadata', [player, {
+                                                    key: raw.substr(10, 4),
+                                                    data: raw.substr(21)
+                                                }]);
+                                            };
+                                            videoTag.addEventListener('timeupdate', metadataHandler);
                                         });
                                         break;
                                     case "ERROR":
