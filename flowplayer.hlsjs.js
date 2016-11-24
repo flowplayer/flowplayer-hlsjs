@@ -617,8 +617,16 @@
                                                 }
                                                 bean.off(videoTag, 'timeupdate.' + engineName, metadataHandler);
 
-                                                var raw = new window.TextDecoder('utf-8').decode(sample.data);
+                                                var raw,
+                                                    Decoder = window.TextDecoder;
 
+                                                if (Decoder && typeof Decoder === "function") {
+                                                    raw = new Decoder('utf-8').decode(sample.data);
+                                                } else {
+                                                    raw = decodeURIComponent(window.escape(
+                                                        String.fromCharCode.apply(null, sample.data)
+                                                    ));
+                                                }
                                                 player.trigger('metadata', [player, {
                                                     key: raw.substr(10, 4),
                                                     data: raw.substr(21)
