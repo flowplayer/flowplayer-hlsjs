@@ -605,6 +605,9 @@
                                         }
                                         break;
                                     case "FRAG_PARSING_METADATA":
+                                        if (version.indexOf("6.") === 0) {
+                                            return;
+                                        }
                                         data.samples.forEach(function (sample) {
                                             var metadataHandler;
 
