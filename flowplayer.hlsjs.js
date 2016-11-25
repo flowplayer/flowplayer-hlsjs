@@ -29,8 +29,9 @@
             extend = flowplayer.extend,
             support = flowplayer.support,
             version = flowplayer.version,
-            mse = window.MediaSource || window.WebKitMediaSource,
-            performance = window.performance,
+            win = window,
+            mse = win.MediaSource || win.WebKitMediaSource,
+            performance = win.performance,
 
             isHlsType = function (typ) {
                 return typ.toLowerCase().indexOf("mpegurl") > -1;
@@ -619,12 +620,12 @@
                                                 bean.off(videoTag, 'timeupdate.' + engineName, metadataHandler);
 
                                                 var raw,
-                                                    Decoder = window.TextDecoder;
+                                                    Decoder = win.TextDecoder;
 
                                                 if (Decoder && typeof Decoder === "function") {
                                                     raw = new Decoder('utf-8').decode(sample.data);
                                                 } else {
-                                                    raw = decodeURIComponent(window.escape(
+                                                    raw = decodeURIComponent(win.escape(
                                                         String.fromCharCode.apply(null, sample.data)
                                                     ));
                                                 }
@@ -764,7 +765,7 @@
             engineImpl.engineName = engineName; // must be exposed
             engineImpl.canPlay = function (type, conf) {
                 var b = support.browser,
-                    wn = window.navigator,
+                    wn = win.navigator,
                     IE11 = wn.userAgent.indexOf("Trident/7") > -1;
 
                 if (conf[engineName] === false || conf.clip[engineName] === false) {
