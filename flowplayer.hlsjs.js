@@ -29,6 +29,7 @@
             extend = flowplayer.extend,
             support = flowplayer.support,
             version = flowplayer.version,
+            mse = window.MediaSource || window.WebKitMediaSource,
             performance = window.performance,
 
             isHlsType = function (typ) {
@@ -184,7 +185,7 @@
                                 if ((hlsQualitiesConf === true || qIndices.indexOf(levelIndex) > -1) &&
                                         (!level.videoCodec ||
                                         (level.videoCodec &&
-                                        window.MediaSource.isTypeSupported('video/mp4;codecs=' + level.videoCodec)))) {
+                                        mse.isTypeSupported('video/mp4;codecs=' + level.videoCodec)))) {
                                     hlsQualities.push(levelIndex);
                                 }
                                 levelIndex += 1;
