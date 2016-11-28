@@ -375,10 +375,22 @@
                                             break;
                                         case "resume":
                                             removePoster();
+                                            if (!hlsUpdatedConf.bufferWhilePaused) {
+                                                hls.startLoad(ct);
+                                            }
                                             break;
                                         case "seek":
                                             removePoster();
+                                            if (!hlsUpdatedConf.bufferWhilePaused && videoTag.paused) {
+                                                hls.stopLoad();
+                                                videoTag.pause();
+                                            }
                                             arg = ct;
+                                            break;
+                                        case "pause":
+                                            if (!hlsUpdatedConf.bufferWhilePaused) {
+                                                hls.stopLoad();
+                                            }
                                             break;
                                         case "progress":
                                             arg = ct;
@@ -486,6 +498,16 @@
                                     if (player.live && !autoplay && !player.video.autoplay) {
                                         bean.one(videoTag, "seeked." + engineName, addPoster);
                                     }
+                                }
+                                if (!hlsUpdatedConf.bufferWhilePaused) {
+                                    player.on("beforeseek." + engineName, function (e, api, pos) {
+                                        if (api.paused) {
+                                            bean.one(videoTag, "seeked." + engineName, function () {
+                                                videoTag.pause();
+                                            });
+                                            hls.startLoad(pos);
+                                        }
+                                    });
                                 }
 
                                 player.on("error." + engineName, function () {
@@ -775,6 +797,7 @@
 
                 // merge hlsjs clip config at earliest opportunity
                 hlsconf = extend({
+                    bufferWhilePaused: true,
                     smoothSwitching: true,
                     recoverMediaError: true
                 }, flowplayer.conf[engineName], conf[engineName], conf.clip[engineName]);
