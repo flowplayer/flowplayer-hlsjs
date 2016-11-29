@@ -29,6 +29,7 @@
             extend = flowplayer.extend,
             support = flowplayer.support,
             version = flowplayer.version,
+            coreV6 = version.indexOf("6.") === 0,
             win = window,
             mse = win.MediaSource || win.WebKitMediaSource,
             performance = win.performance,
@@ -94,7 +95,7 @@
                         });
                     },
                     removePoster = function () {
-                        if (player.poster) {
+                        if (coreV6 && player.poster) {
                             bean.one(videoTag, "timeupdate." + engineName, function () {
                                 common.removeClass(root, posterClass);
                                 player.poster = false;
@@ -490,7 +491,7 @@
                                     });
                                 });
 
-                                if (conf.poster) {
+                                if (coreV6 && conf.poster) {
                                     // engine too late, poster already removed
                                     // abuse timeupdate to re-instate poster
                                     player.on("stop." + engineName, addPoster);
@@ -629,7 +630,7 @@
                                         }
                                         break;
                                     case "FRAG_PARSING_METADATA":
-                                        if (version.indexOf("6.") === 0) {
+                                        if (coreV6) {
                                             return;
                                         }
                                         data.samples.forEach(function (sample) {
