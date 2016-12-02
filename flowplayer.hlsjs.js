@@ -433,23 +433,10 @@
                                                         startOffset: 0,
                                                         endOffset: updatedVideo.duration * 0.9
                                                     });
-
-                                                    // do not go to a lower cached level on loop/replay
-                                                    if (loop) {
-                                                        bean.one(videoTag, "pause." + engineName, function () {
-                                                            common.removeClass(root, "is-paused");
-                                                        });
+                                                    if (hls.currentLevel < maxLevel) {
+                                                        hls.nextLevel = maxLevel;
+                                                        setReplayLevel = true;
                                                     }
-                                                    bean.one(videoTag, (loop
-                                                        ? "play."
-                                                        : "timeupdate.") + engineName, function () {
-                                                        var currentLevel = hls.currentLevel;
-
-                                                        if (currentLevel < maxLevel) {
-                                                            hls.currentLevel = maxLevel;
-                                                            setReplayLevel = true;
-                                                        }
-                                                    });
                                                 }
                                             }
                                             break;
