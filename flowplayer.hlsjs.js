@@ -437,6 +437,14 @@
                                                         hls.nextLevel = maxLevel;
                                                         setReplayLevel = true;
                                                     }
+                                                    if (!loop) {
+                                                        // hack to prevent Chrome engine from hanging
+                                                        bean.one(videoTag, "play." + engineName, function () {
+                                                            if (videoTag.currentTime >= videoTag.duration) {
+                                                                videoTag.currentTime = 0;
+                                                            }
+                                                        });
+                                                    }
                                                 }
                                             }
                                             break;
