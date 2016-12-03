@@ -110,6 +110,7 @@
                         hls.startLoad(hls.config.startPosition);
                     },
 
+                    // v6 qsel
                     qActive = "active",
                     dataQuality = function (quality) {
                         // e.g. "Level 1" -> "level1"
@@ -130,13 +131,20 @@
                         });
                     },
                     qClean = function () {
-                        delete player.hlsQualities;
-                        removeAllQualityClasses();
-                        common.find(".fp-quality-selector", root).forEach(common.removeNode);
+                        if (coreV6) {
+                            delete player.hlsQualities;
+                            removeAllQualityClasses();
+                            common.find(".fp-quality-selector", root).forEach(common.removeNode);
+                        }
                     },
                     qIndex = function () {
                         return player.hlsQualities[player.qualities.indexOf(player.quality) + 1];
                     },
+
+                    // v7 qsel
+                    lastSelectedLevel = -1,
+
+                    // v7 and v6 qsel
                     initQualitySelection = function (hlsQualitiesConf, conf, data) {
                         var levels = data.levels,
                             hlsQualities = [],
@@ -145,6 +153,7 @@
                             selector;
 
                         qClean();
+
                         if (hlsQualitiesConf === "drive") {
                             switch (levels.length) {
                             case 4:
@@ -176,9 +185,9 @@
                                 });
                             } else if (typeof hlsQualitiesConf !== "boolean") {
                                 hlsQualitiesConf.forEach(function (q) {
-                                    qIndices.push(typeof q === "number"
-                                        ? q
-                                        : q.level);
+                                    qIndices.push(isNaN(Number(q))
+                                        ? q.level
+                                        : q);
                                 });
                             }
                             levels.forEach(function (level) {
@@ -197,23 +206,63 @@
                             }
                         }
 
-                        player.qualities = [];
+                        if (coreV6) {
+                            player.qualities = [];
+                        } else {
+                            if (hlsQualitiesConf === "drive" ||
+                                    hlsQualitiesConf === true ||
+                                    hlsQualitiesConf[0] === -1) {
+                                hlsQualities.unshift(-1);
+                            }
+
+                            player.video.qualities = [];
+                        }
+
                         hlsQualities.forEach(function (idx) {
                             var level = levels[idx],
-                                width = level.width,
-                                height = level.height,
                                 q = qIndices.length
                                     ? hlsQualitiesConf[qIndices.indexOf(idx)]
                                     : idx,
-                                label = typeof q === "object"
-                                    ? q.label
-                                    : (width && height)
-                                        ? Math.min(width, height) + "p"
-                                        : "Level " + (idx + 1);
+                                label = "Level " + (idx + 1);
 
-                            player.qualities.push(label);
+                            if (idx < 0) {
+                                label = q.label || "Auto";
+                            } else if (q.label) {
+                                label = q.label;
+                            } else {
+                                if (level.width && level.height) {
+                                    label = Math.min(level.width, level.height) + "p";
+                                }
+                                if (!coreV6 && hlsQualitiesConf !== "drive" && level.bitrate) {
+                                    label += " (" + Math.round(level.bitrate / 1000) + "k)";
+                                }
+                            }
+
+                            if (coreV6) {
+                                player.qualities.push(label);
+                            } else {
+                                player.video.qualities.push({value: idx, label: label});
+                            }
                         });
 
+                        if (!coreV6) {
+                            if (lastSelectedLevel > -1 || hlsQualities.indexOf(-1) < 0) {
+                                hls.startLevel = hlsQualities.indexOf(lastSelectedLevel) < 0
+                                    ? hlsQualities[0]
+                                    : lastSelectedLevel;
+                                hls.loadLevel = hls.startLevel;
+                                player.video.quality = hls.startLevel;
+                            } else {
+                                player.video.quality = hlsQualities.indexOf(lastSelectedLevel) < 0
+                                    ? hlsQualities[0]
+                                    : lastSelectedLevel;
+                            }
+                            lastSelectedLevel = player.video.quality;
+
+                            return;
+                        }
+
+                        // v6
                         selector = common.createElement("ul", {
                             "class": "fp-quality-selector"
                         });
@@ -476,12 +525,14 @@
 
                                         player.trigger(flow, [player, arg]);
 
-                                        if (flow === "ready" && quality) {
-                                            selectorIndex = quality === "abr"
-                                                ? 0
-                                                : player.qualities.indexOf(quality) + 1;
-                                            common.addClass(common.find(".fp-quality-selector li", root)[selectorIndex],
-                                                    qActive);
+                                        if (coreV6) {
+                                            if (flow === "ready" && quality) {
+                                                selectorIndex = quality === "abr"
+                                                    ? 0
+                                                    : player.qualities.indexOf(quality) + 1;
+                                                common.addClass(common.find(".fp-quality-selector li", root)[selectorIndex],
+                                                        qActive);
+                                            }
                                         }
                                     });
                                 });
@@ -503,6 +554,17 @@
                                             });
                                             hls.startLoad(pos);
                                         }
+                                    });
+                                }
+
+                                if (!coreV6) {
+                                    player.on("quality." + engineName, function (e, api, q) {
+                                        if (hlsUpdatedConf.smoothSwitching) {
+                                            hls.nextLevel = q;
+                                        } else {
+                                            hls.currentLevel = q;
+                                        }
+                                        lastSelectedLevel = q;
                                     });
                                 }
 
@@ -599,13 +661,14 @@
                                         break;
 
                                     case "MANIFEST_PARSED":
-                                        if (hlsQualitiesSupport(conf)) {
+                                        if (hlsQualitiesSupport(conf) &&
+                                                !(!coreV6 && player.pluginQualitySelectorEnabled)) {
                                             if (hlsQualitiesConf) {
                                                 initQualitySelection(hlsQualitiesConf, hlsUpdatedConf, data);
                                             } else {
                                                 qClean();
                                             }
-                                        } else {
+                                        } else if (coreV6) {
                                             delete player.quality;
                                         }
                                         if (player.live) {
@@ -819,11 +882,13 @@
             // so hlsjs is tested before html5 video hls and flash hls
             flowplayer.engines.unshift(engineImpl);
 
-            flowplayer(function (api) {
-                // to take precedence over VOD quality selector
-                api.pluginQualitySelectorEnabled = hlsQualitiesSupport(api.conf) &&
-                        engineImpl.canPlay("application/x-mpegurl", api.conf);
-            });
+            if (coreV6) {
+                flowplayer(function (api) {
+                    // to take precedence over VOD quality selector
+                    api.pluginQualitySelectorEnabled = hlsQualitiesSupport(api.conf) &&
+                            engineImpl.canPlay("application/x-mpegurl", api.conf);
+                });
+            }
         }
 
     };
