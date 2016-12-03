@@ -396,9 +396,6 @@
                                         if (conf.debug && flow.indexOf("progress") < 0) {
                                             console.log(type, "->", flow, e.originalEvent);
                                         }
-                                        if (!player.ready && flow.indexOf("ready") < 0) {
-                                            return;
-                                        }
 
                                         var ct = videoTag.currentTime,
                                             buffered,
