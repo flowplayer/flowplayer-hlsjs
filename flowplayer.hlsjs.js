@@ -211,7 +211,7 @@
                         } else {
                             if (hlsQualitiesConf === "drive" ||
                                     hlsQualitiesConf === true ||
-                                    hlsQualitiesConf[0] === -1) {
+                                    qIndices[0] === -1) {
                                 hlsQualities.unshift(-1);
                             }
 
