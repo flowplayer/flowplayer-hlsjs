@@ -103,12 +103,7 @@
                         }
                     },
 
-                    setReplayLevel = false,
                     maxLevel = 0,
-
-                    startUp = function () {
-                        hls.startLoad(hls.config.startPosition);
-                    },
 
                     // v6 qsel
                     qActive = "active",
@@ -479,7 +474,8 @@
                                             arg = buffer;
                                             break;
                                         case "finish":
-                                            if (hls.autoLevelEnabled && (loop || conf.playlist.length < 2 || conf.advance === false)) {
+                                            if (hlsUpdatedConf.bufferWhilePaused && hls.autoLevelEnabled &&
+                                                    (loop || conf.playlist.length < 2 || conf.advance === false)) {
                                                 flush = !hls.levels[maxLevel].details;
                                                 if (!flush) {
                                                     hls.levels[maxLevel].details.fragments.forEach(function (frag) {
@@ -489,12 +485,12 @@
                                                 if (flush) {
                                                     hls.trigger(HLSEVENTS.BUFFER_FLUSHING, {
                                                         startOffset: 0,
-                                                        endOffset: updatedVideo.duration * 0.9
+                                                        endOffset: updatedVideo.duration
                                                     });
-                                                    if (hls.currentLevel < maxLevel) {
-                                                        hls.nextLevel = maxLevel;
-                                                        setReplayLevel = true;
-                                                    }
+                                                    console.info(maxLevel);
+                                                    hls.nextLoadLevel = maxLevel;
+                                                    hls.startLoad(hls.config.startPosition);
+                                                    maxLevel = 0;
                                                     if (!loop) {
                                                         // hack to prevent Chrome engine from hanging
                                                         bean.one(videoTag, "play." + engineName, function () {
@@ -596,7 +592,6 @@
                             // #28 obtain api.video props before ready
                             player.video = video;
                             maxLevel = 0;
-                            setReplayLevel = false;
 
                             Object.keys(hlsUpdatedConf).forEach(function (key) {
                                 if (!Hls.DefaultConfig.hasOwnProperty(key)) {
@@ -680,20 +675,13 @@
                                         } else if (coreV6) {
                                             delete player.quality;
                                         }
-                                        if (player.live) {
-                                            startUp();
-                                        } else {
-                                            setTimeout(startUp);
-                                        }
+                                        hls.startLoad(hls.config.startPosition);
                                         break;
 
                                     case "FRAG_LOADED":
-                                        if (setReplayLevel) {
-                                            hls.nextLevel = -1;
-                                            setReplayLevel = false;
-                                            maxLevel = 0;
-                                        } else if (!player.live && hls.autoLevelEnabled && hls.loadLevel > maxLevel) {
-                                            maxLevel = hls.loadLevel;
+                                        if (hlsUpdatedConf.bufferWhilePaused && !player.live &&
+                                                hls.autoLevelEnabled && hls.nextLoadLevel > maxLevel) {
+                                            maxLevel = hls.nextLoadLevel;
                                         }
                                         break;
                                     case "FRAG_PARSING_METADATA":
