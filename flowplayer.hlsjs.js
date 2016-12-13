@@ -376,8 +376,20 @@
                             }
 
                             if (!hls) {
-                                common.removeNode(common.findDirect("video", root)[0]
-                                        || common.find(".fp-player > video", root)[0]);
+                                videoTag = common.findDirect("video", root)[0]
+                                        || common.find(".fp-player > video", root)[0];
+
+                                if (videoTag) {
+                                    // destroy video tag
+                                    // otherwise <video autoplay> continues to play
+                                    common.find("source", videoTag).forEach(function (source) {
+                                        source.removeAttribute("src");
+                                    });
+                                    videoTag.removeAttribute("src");
+                                    videoTag.load();
+                                    common.removeNode(videoTag);
+                                }
+
                                 videoTag = common.createElement("video", {
                                     "class": "fp-engine " + engineName + "-engine",
                                     "autoplay": autoplay
