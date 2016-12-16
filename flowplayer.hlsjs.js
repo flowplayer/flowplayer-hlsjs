@@ -487,9 +487,7 @@
                                                         startOffset: 0,
                                                         endOffset: updatedVideo.duration
                                                     });
-                                                    console.info(maxLevel);
                                                     hls.nextLoadLevel = maxLevel;
-                                                    hls.startLoad(hls.config.startPosition);
                                                     maxLevel = 0;
                                                     if (!loop) {
                                                         // hack to prevent Chrome engine from hanging
