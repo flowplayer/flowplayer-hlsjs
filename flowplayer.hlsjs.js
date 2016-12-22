@@ -67,20 +67,19 @@
                             if (!recoverMediaErrorDate || now - recoverMediaErrorDate > 3000) {
                                 recoverMediaErrorDate = performance.now();
                                 hls.recoverMediaError();
-                            } else {
-                                if (!swapAudioCodecDate || (now - swapAudioCodecDate) > 3000) {
-                                    swapAudioCodecDate = performance.now();
-                                    hls.swapAudioCodec();
-                                    hls.recoverMediaError();
-                                } else {
-                                    return 3;
-                                }
+                            } else if (!swapAudioCodecDate || (now - swapAudioCodecDate) > 3000) {
+                                swapAudioCodecDate = performance.now();
+                                hls.swapAudioCodec();
+                                hls.recoverMediaError();
                             }
                         }
                         // DEPRECATED
                         if (recover > 0) {
                             recover -= 1;
                         }
+                        bean.one(videoTag, "timeupdate." + engineName, function () {
+                            common.removeClass(root, recoveryClass);
+                        });
                     },
 
                     // pre 6.0.4 poster detection
@@ -506,9 +505,8 @@
                                             if ((hlsUpdatedConf.recoverMediaError && errorCode === 3) ||
                                                     (hlsUpdatedConf.recoverNetworkError && errorCode === 2) ||
                                                     (hlsUpdatedConf.recover && (errorCode === 2 || errorCode === 3))) {
-                                                errorCode = doRecover(conf, flow, errorCode === 2);
-                                            }
-                                            if (errorCode !== undefined) {
+                                                doRecover(conf, flow, errorCode === 2);
+                                            } else {
                                                 arg = {code: errorCode};
                                                 if (errorCode > 2) {
                                                     arg.video = extend(updatedVideo, {
@@ -516,8 +514,6 @@
                                                         url: src
                                                     });
                                                 }
-                                            } else {
-                                                arg = false;
                                             }
                                             break;
                                         }
@@ -728,7 +724,7 @@
                                                 break;
                                             case ERRORTYPES.MEDIA_ERROR:
                                                 if (hlsUpdatedConf.recoverMediaError || recover) {
-                                                    fperr = doRecover(conf, data.type);
+                                                    doRecover(conf, data.type);
                                                 } else {
                                                     fperr = 3;
                                                 }
