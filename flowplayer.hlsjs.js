@@ -484,7 +484,7 @@
                                                 if (flush) {
                                                     hls.trigger(HLSEVENTS.BUFFER_FLUSHING, {
                                                         startOffset: 0,
-                                                        endOffset: updatedVideo.duration
+                                                        endOffset: updatedVideo.duration * 0.9
                                                     });
                                                     hls.nextLoadLevel = maxLevel;
                                                     maxLevel = 0;
