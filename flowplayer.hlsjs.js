@@ -500,14 +500,14 @@
                                             }
                                             break;
                                         case "error":
-                                            errorCode = videoTag.error.code;
+                                            errorCode = videoTag.error && videoTag.error.code;
 
-                                            if ((hlsUpdatedConf.recoverMediaError && errorCode === 3) ||
+                                            if ((hlsUpdatedConf.recoverMediaError && (errorCode === 3 || !errorCode)) ||
                                                     (hlsUpdatedConf.recoverNetworkError && errorCode === 2) ||
                                                     (hlsUpdatedConf.recover && (errorCode === 2 || errorCode === 3))) {
                                                 doRecover(conf, flow, errorCode === 2);
                                             } else {
-                                                arg = {code: errorCode};
+                                                arg = {code: errorCode || 3};
                                                 if (errorCode > 2) {
                                                     arg.video = extend(updatedVideo, {
                                                         src: src,
