@@ -7,7 +7,7 @@
 
    hlsjs engine plugin for Flowplayer HTML5
 
-   Copyright (c) 2015-2016, Flowplayer Drive Oy
+   Copyright (c) 2015-2017, Flowplayer Drive Oy
 
    Released under the MIT License:
    http://www.opensource.org/licenses/mit-license.php
