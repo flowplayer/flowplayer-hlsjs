@@ -536,6 +536,25 @@
                                     });
                                 });
 
+                                player.on("beforeseek." + engineName, function (e, api, pos) {
+                                    if (player.dvr) {
+                                        var buffered = videoTag.buffered,
+                                            dvrStart = (buffered.length && buffered.start(null)) || 0;
+
+                                        if (pos < dvrStart) {
+                                            player.seek(dvrStart);
+                                        }
+                                    }
+                                    if (!hlsUpdatedConf.bufferWhilePaused) {
+                                        if (api.paused) {
+                                            bean.one(videoTag, "seeked." + engineName, function () {
+                                                videoTag.pause();
+                                            });
+                                            hls.startLoad(pos);
+                                        }
+                                    }
+                                });
+
                                 if (coreV6 && conf.poster) {
                                     // engine too late, poster already removed
                                     // abuse timeupdate to re-instate poster
@@ -544,16 +563,6 @@
                                     if (player.live && !autoplay && !player.video.autoplay) {
                                         bean.one(videoTag, "seeked." + engineName, addPoster);
                                     }
-                                }
-                                if (!hlsUpdatedConf.bufferWhilePaused) {
-                                    player.on("beforeseek." + engineName, function (e, api, pos) {
-                                        if (api.paused) {
-                                            bean.one(videoTag, "seeked." + engineName, function () {
-                                                videoTag.pause();
-                                            });
-                                            hls.startLoad(pos);
-                                        }
-                                    });
                                 }
 
                                 if (!coreV6) {
