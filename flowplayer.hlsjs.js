@@ -458,7 +458,7 @@
                                             try {
                                                 buffered = videoTag.buffered;
                                                 buffer = buffered.end(null);
-                                                if (!player.video.live && ct) {
+                                                if (ct) {
                                                     // cycle through time ranges to obtain buffer
                                                     // nearest current time
                                                     for (i = buffered.length - 1; i > -1; i -= 1) {
