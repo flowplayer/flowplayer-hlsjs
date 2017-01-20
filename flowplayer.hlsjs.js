@@ -81,6 +81,7 @@
                             common.removeClass(root, recoveryClass);
                         });
                     },
+                    dvrOffset = 0,
 
                     // pre 6.0.4 poster detection
                     bc,
@@ -446,7 +447,9 @@
                                             }
                                             break;
                                         case "progress":
-                                            arg = ct;
+                                            arg = player.dvr
+                                                ? ct - dvrOffset
+                                                : ct;
                                             break;
                                         case "speed":
                                             arg = videoTag.playbackRate;
@@ -536,24 +539,16 @@
                                     });
                                 });
 
-                                player.on("beforeseek." + engineName, function (e, api, pos) {
-                                    if (player.dvr) {
-                                        var buffered = videoTag.buffered,
-                                            dvrStart = (buffered.length && buffered.start(null)) || 0;
-
-                                        if (pos < dvrStart) {
-                                            player.seek(dvrStart);
-                                        }
-                                    }
-                                    if (!hlsUpdatedConf.bufferWhilePaused) {
+                                if (!hlsUpdatedConf.bufferWhilePaused) {
+                                    player.on("beforeseek." + engineName, function (e, api, pos) {
                                         if (api.paused) {
                                             bean.one(videoTag, "seeked." + engineName, function () {
                                                 videoTag.pause();
                                             });
                                             hls.startLoad(pos);
                                         }
-                                    }
-                                });
+                                    });
+                                }
 
                                 if (coreV6 && conf.poster) {
                                     // engine too late, poster already removed
@@ -595,6 +590,7 @@
                             // #28 obtain api.video props before ready
                             player.video = video;
                             maxLevel = 0;
+                            dvrOffset = 0;
 
                             Object.keys(hlsUpdatedConf).forEach(function (key) {
                                 if (!Hls.DefaultConfig.hasOwnProperty(key)) {
@@ -718,6 +714,11 @@
                                             bean.on(videoTag, 'timeupdate.' + engineName, metadataHandler);
                                         });
                                         break;
+                                    case "LEVEL_UPDATED":
+                                        if (player.dvr) {
+                                            dvrOffset = data.details.fragments[0].start;
+                                        }
+                                        break;
                                     case "ERROR":
                                         if (data.fatal || hlsUpdatedConf.strict) {
                                             switch (data.type) {
@@ -796,7 +797,11 @@
                         },
 
                         seek: function (time) {
-                            videoTag.currentTime = time;
+                            if (player.dvr) {
+                                videoTag.currentTime = dvrOffset + time;
+                            } else {
+                                videoTag.currentTime = time;
+                            }
                         },
 
                         volume: function (level) {
