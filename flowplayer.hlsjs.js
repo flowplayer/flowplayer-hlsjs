@@ -733,7 +733,8 @@
                                         break;
                                     case "LEVEL_UPDATED":
                                         if (player.dvr) {
-                                            dvrOffset = data.details.fragments[0].start;
+                                            dvrOffset = data.details.fragments[0].start +
+                                                    (hls.config.nudgeOffset || 0.1);
                                         }
                                         break;
                                     case "ERROR":
