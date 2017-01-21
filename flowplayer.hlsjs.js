@@ -448,13 +448,13 @@
                                             break;
                                         case "progress":
                                             if (player.dvr) {
-                                                extend(player.video, {
+                                                extend(updatedVideo, {
                                                     duration: videoTag.seekable.end(null) - dvrOffset,
                                                     seekOffset: dvrOffset
                                                 });
                                                 player.trigger('dvrwindow', [player, {
                                                     start: dvrOffset,
-                                                    end: player.video.duration
+                                                    end: videoTag.seekable.end(null)
                                                 }]);
                                                 if (ct < dvrOffset) {
                                                     videoTag.currentTime = dvrOffset;
