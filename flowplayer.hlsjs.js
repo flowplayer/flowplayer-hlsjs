@@ -447,9 +447,9 @@
                                             }
                                             break;
                                         case "progress":
-                                            if (player.dvr) {
+                                            if (player.dvr && videoTag.seekable.length) {
                                                 extend(updatedVideo, {
-                                                    duration: videoTag.seekable.end(null) - dvrOffset,
+                                                    duration: videoTag.seekable.end(null),
                                                     seekOffset: dvrOffset
                                                 });
                                                 player.trigger('dvrwindow', [player, {
