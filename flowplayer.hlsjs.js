@@ -447,9 +447,20 @@
                                             }
                                             break;
                                         case "progress":
-                                            arg = player.dvr
-                                                ? ct - dvrOffset
-                                                : ct;
+                                            if (player.dvr) {
+                                                extend(updatedVideo, {
+                                                    duration: videoTag.seekable.end(null) - dvrOffset,
+                                                    seekOffset: dvrOffset
+                                                });
+                                                player.trigger('dvrwindow', [player, {
+                                                    start: dvrOffset,
+                                                    end: updatedVideo.duration
+                                                }]);
+                                                if (ct < dvrOffset) {
+                                                    videoTag.currentTime = dvrOffset;
+                                                }
+                                            }
+                                            arg = ct;
                                             break;
                                         case "speed":
                                             arg = videoTag.playbackRate;
@@ -547,6 +558,12 @@
                                             });
                                             hls.startLoad(pos);
                                         }
+                                    });
+                                }
+
+                                if (player.dvr) {
+                                    player.on("dvrwindow", function (e, api) {
+                                        api.sliders.timeline.disable(false);
                                     });
                                 }
 
@@ -797,11 +814,7 @@
                         },
 
                         seek: function (time) {
-                            if (player.dvr) {
-                                videoTag.currentTime = dvrOffset + time;
-                            } else {
-                                videoTag.currentTime = time;
-                            }
+                            videoTag.currentTime = time;
                         },
 
                         volume: function (level) {
@@ -823,6 +836,7 @@
                                 hls = 0;
                                 qClean();
                                 player.off(listeners);
+                                player.off("dvrwindow");
                                 bean.off(root, listeners);
                                 bean.off(videoTag, listeners);
                                 common.removeNode(videoTag);
