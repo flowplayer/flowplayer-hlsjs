@@ -405,7 +405,8 @@
                                         }
 
                                         var ct = videoTag.currentTime,
-                                            buffered,
+                                            seekable = videoTag.seekable,
+                                            buffered = videoTag.buffered,
                                             buffer = 0,
                                             buffend = 0,
                                             updatedVideo = player.video,
@@ -421,7 +422,7 @@
                                         case "ready":
                                             arg = extend(updatedVideo, {
                                                 duration: videoTag.duration,
-                                                seekable: videoTag.seekable.end(null),
+                                                seekable: seekable.length && seekable.end(null),
                                                 width: videoTag.videoWidth,
                                                 height: videoTag.videoHeight,
                                                 url: src
@@ -447,14 +448,14 @@
                                             }
                                             break;
                                         case "progress":
-                                            if (player.dvr && videoTag.seekable.length) {
+                                            if (player.dvr && seekable.length) {
                                                 extend(updatedVideo, {
-                                                    duration: videoTag.seekable.end(null),
+                                                    duration: seekable.end(null),
                                                     seekOffset: dvrOffset
                                                 });
                                                 player.trigger('dvrwindow', [player, {
                                                     start: dvrOffset,
-                                                    end: videoTag.seekable.end(null)
+                                                    end: seekable.end(null)
                                                 }]);
                                                 if (ct < dvrOffset) {
                                                     videoTag.currentTime = dvrOffset;
@@ -470,9 +471,8 @@
                                             break;
                                         case "buffer":
                                             try {
-                                                buffered = videoTag.buffered;
-                                                buffer = buffered.end(null);
-                                                if (ct) {
+                                                buffer = buffered.length && buffered.end(null);
+                                                if (ct && buffer) {
                                                     // cycle through time ranges to obtain buffer
                                                     // nearest current time
                                                     for (i = buffered.length - 1; i > -1; i -= 1) {
