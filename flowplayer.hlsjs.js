@@ -737,7 +737,9 @@
                                         }
                                         break;
                                     case "ERROR":
-                                        if (data.fatal || hlsUpdatedConf.strict) {
+                                        if ((data.fatal &&
+                                                !(ERRORDETAILS.BUFFER_STALLED_ERROR && videoTag.playbackRate > 1)) ||
+                                                hlsUpdatedConf.strict) {
                                             switch (data.type) {
                                             case ERRORTYPES.NETWORK_ERROR:
                                                 if (hlsUpdatedConf.recoverNetworkError || recover) {
