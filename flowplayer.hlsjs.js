@@ -866,10 +866,6 @@
             // only load engine if it can be used
             engineImpl.engineName = engineName; // must be exposed
             engineImpl.canPlay = function (type, conf) {
-                var b = support.browser,
-                    wn = win.navigator,
-                    IE11 = wn.userAgent.indexOf("Trident/7") > -1;
-
                 if (conf[engineName] === false || conf.clip[engineName] === false) {
                     // engine disabled for player or clip
                     return false;
@@ -882,21 +878,8 @@
                     recoverMediaError: true
                 }, flowplayer.conf[engineName], conf[engineName], conf.clip[engineName]);
 
-                if (isHlsType(type)) {
-                    // allow all browsers for hlsjs debugging
-                    if (hlsconf.debug) {
-                        return true;
-                    }
-                    // https://bugzilla.mozilla.org/show_bug.cgi?id=1244294
-                    if (hlsconf.anamorphic &&
-                            wn.platform.indexOf("Win") === 0 && b.mozilla && b.version.indexOf("44.") === 0) {
-                        return false;
-                    }
-
-                    // https://github.com/dailymotion/hls.js/issues/9
-                    return IE11 || !b.safari;
-                }
-                return false;
+                // https://github.com/dailymotion/hls.js/issues/9
+                return isHlsType(type) && (!support.browser.safari || hlsconf.safari);
             };
 
             // put on top of engine stack
