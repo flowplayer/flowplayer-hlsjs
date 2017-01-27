@@ -82,6 +82,7 @@
                         });
                     },
                     dvrOffset = 0,
+                    dvrSync = 0,
 
                     // pre 6.0.4 poster detection
                     bc,
@@ -406,6 +407,7 @@
 
                                         var ct = videoTag.currentTime,
                                             seekable = videoTag.seekable,
+                                            end,
                                             buffered = videoTag.buffered,
                                             buffer = 0,
                                             buffend = 0,
@@ -422,7 +424,7 @@
                                         case "ready":
                                             arg = extend(updatedVideo, {
                                                 duration: videoTag.duration,
-                                                seekable: seekable.length && seekable.end(null),
+                                                seekable: seekable.length && seekable.end(null) - dvrSync,
                                                 width: videoTag.videoWidth,
                                                 height: videoTag.videoHeight,
                                                 url: src
@@ -449,13 +451,14 @@
                                             break;
                                         case "progress":
                                             if (player.dvr && seekable.length) {
+                                                end = seekable.end(null) - dvrSync;
                                                 extend(updatedVideo, {
-                                                    duration: seekable.end(null),
-                                                    seekOffset: dvrOffset
+                                                    seekOffset: dvrOffset,
+                                                    duration: end
                                                 });
                                                 player.trigger('dvrwindow', [player, {
                                                     start: dvrOffset,
-                                                    end: seekable.end(null)
+                                                    end: end
                                                 }]);
                                                 if (ct < dvrOffset) {
                                                     videoTag.currentTime = dvrOffset;
@@ -606,8 +609,11 @@
 
                             // #28 obtain api.video props before ready
                             player.video = video;
+
+                            // reset
                             maxLevel = 0;
                             dvrOffset = 0;
+                            dvrSync = 0;
 
                             Object.keys(hlsUpdatedConf).forEach(function (key) {
                                 if (!Hls.DefaultConfig.hasOwnProperty(key)) {
@@ -673,7 +679,9 @@
                                         ERRORTYPES = Hls.ErrorTypes,
                                         ERRORDETAILS = Hls.ErrorDetails,
                                         updatedVideo = player.video,
-                                        src = updatedVideo.src;
+                                        src = updatedVideo.src,
+                                        hlsconfig = hls.config,
+                                        startFrag;
 
                                     switch (key) {
                                     case "MEDIA_ATTACHED":
@@ -691,7 +699,7 @@
                                         } else if (coreV6) {
                                             delete player.quality;
                                         }
-                                        hls.startLoad(hls.config.startPosition);
+                                        hls.startLoad(hlsconfig.startPosition);
                                         break;
 
                                     case "FRAG_LOADED":
@@ -733,7 +741,10 @@
                                         break;
                                     case "LEVEL_UPDATED":
                                         if (player.dvr) {
-                                            dvrOffset = data.details.fragments[0].start + hls.config.nudgeOffset;
+                                            startFrag = data.details.fragments[0];
+                                            dvrOffset = startFrag.start + hlsconfig.nudgeOffset;
+                                            dvrSync = hlsconfig.liveSyncDuration ||
+                                                    startFrag.duration * hlsconfig.liveSyncDurationCount;
                                         }
                                         break;
                                     case "ERROR":
