@@ -83,6 +83,14 @@
                     },
                     dvrOffset = 0,
                     dvrSync = 0,
+                    dvrWindow = function (levelDetails) {
+                        var hlsconfig = hls.config;
+
+                        dvrOffset = levelDetails.fragments[0].start;
+                        dvrSync = hlsconfig.liveSyncDuration !== undefined
+                            ? hlsconfig.liveSyncDuration
+                            : hlsconfig.liveSyncDurationCount * levelDetails.targetduration;
+                    },
 
                     // pre 6.0.4 poster detection
                     bc,
@@ -679,9 +687,7 @@
                                         ERRORTYPES = Hls.ErrorTypes,
                                         ERRORDETAILS = Hls.ErrorDetails,
                                         updatedVideo = player.video,
-                                        src = updatedVideo.src,
-                                        hlsconfig = hls.config,
-                                        startFrag;
+                                        src = updatedVideo.src;
 
                                     switch (key) {
                                     case "MEDIA_ATTACHED":
@@ -699,7 +705,7 @@
                                         } else if (coreV6) {
                                             delete player.quality;
                                         }
-                                        hls.startLoad(hlsconfig.startPosition);
+                                        hls.startLoad(hls.config.startPosition);
                                         break;
 
                                     case "FRAG_LOADED":
@@ -741,10 +747,7 @@
                                         break;
                                     case "LEVEL_UPDATED":
                                         if (player.dvr) {
-                                            startFrag = data.details.fragments[0];
-                                            dvrOffset = startFrag.start + hlsconfig.nudgeOffset;
-                                            dvrSync = hlsconfig.liveSyncDuration ||
-                                                    startFrag.duration * hlsconfig.liveSyncDurationCount;
+                                            dvrWindow(data.details);
                                         }
                                         break;
                                     case "ERROR":
