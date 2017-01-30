@@ -78,6 +78,9 @@
                             recover -= 1;
                         }
                         bean.one(videoTag, "timeupdate." + engineName, function () {
+                            if (videoTag.paused) {
+                                videoTag.play();
+                            }
                             common.removeClass(root, recoveryClass);
                         });
                     },
@@ -539,6 +542,8 @@
                                                         url: src
                                                     });
                                                 }
+                                                hls.destroy();
+                                                hls = 0;
                                             }
                                             break;
                                         }
@@ -598,13 +603,6 @@
                                         lastSelectedLevel = q;
                                     });
                                 }
-
-                                player.on("error." + engineName, function () {
-                                    if (hls) {
-                                        hls.destroy();
-                                        hls = 0;
-                                    }
-                                });
 
                                 common.prepend(common.find(".fp-player", root)[0], videoTag);
 
