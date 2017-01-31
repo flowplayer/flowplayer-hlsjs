@@ -565,7 +565,6 @@
 
                                 player.on("error." + engineName, function () {
                                     if (hls) {
-                                        console.info("DESTROY");
                                         hls.destroy();
                                         hls = 0;
                                     }
