@@ -54,6 +54,7 @@
                     recoverMediaErrorDate,
                     swapAudioCodecDate,
                     recoveryClass = "is-seeking",
+                    posterClass = "is-poster",
                     doRecover = function (conf, etype, isNetworkError) {
                         if (conf.debug) {
                             console.log("recovery." + engineName, "<-", etype);
@@ -77,8 +78,10 @@
                         if (recover > 0) {
                             recover -= 1;
                         }
-                        bean.one(videoTag, "timeupdate." + engineName, function () {
+                        bean.one(videoTag, "seeked." + engineName, function () {
                             if (videoTag.paused) {
+                                common.removeClass(root, posterClass);
+                                player.poster = false;
                                 videoTag.play();
                             }
                             common.removeClass(root, recoveryClass);
@@ -99,7 +102,6 @@
                     bc,
                     has_bg,
 
-                    posterClass = "is-poster",
                     addPoster = function () {
                         bean.one(videoTag, "timeupdate." + engineName, function () {
                             common.addClass(root, posterClass);
@@ -534,22 +536,19 @@
                                                     (hlsUpdatedConf.recoverNetworkError && errorCode === 2) ||
                                                     (hlsUpdatedConf.recover && (errorCode === 2 || errorCode === 3))) {
                                                 doRecover(conf, flow, errorCode === 2);
-                                            } else {
-                                                arg = {code: errorCode || 3};
-                                                if (errorCode > 2) {
-                                                    arg.video = extend(updatedVideo, {
-                                                        src: src,
-                                                        url: src
-                                                    });
-                                                }
-                                                hls.destroy();
-                                                hls = 0;
+                                                return false;
                                             }
-                                            break;
-                                        }
 
-                                        if (arg === false) {
-                                            return arg;
+                                            arg = {code: errorCode || 3};
+                                            if (errorCode > 2) {
+                                                arg.video = extend(updatedVideo, {
+                                                    src: src,
+                                                    url: src
+                                                });
+                                            }
+                                            hls.destroy();
+                                            hls = 0;
+                                            break;
                                         }
 
                                         player.trigger(flow, [player, arg]);
