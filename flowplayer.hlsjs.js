@@ -583,7 +583,7 @@
                                 }
 
                                 if (player.dvr) {
-                                    player.on("dvrwindow", function (e, api) {
+                                    player.on("dvrwindow." + engineName, function (e, api) {
                                         api.sliders.timeline.disable(false);
                                     });
                                 }
@@ -852,7 +852,6 @@
                                 hls = 0;
                                 qClean();
                                 player.off(listeners);
-                                player.off("dvrwindow");
                                 bean.off(root, listeners);
                                 bean.off(videoTag, listeners);
                                 common.removeNode(videoTag);
