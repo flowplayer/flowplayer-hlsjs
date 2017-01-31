@@ -546,8 +546,6 @@
                                                     url: src
                                                 });
                                             }
-                                            hls.destroy();
-                                            hls = 0;
                                             break;
                                         }
 
@@ -563,6 +561,14 @@
                                             }
                                         }
                                     });
+                                });
+
+                                player.on("error." + engineName, function () {
+                                    if (hls) {
+                                        console.info("DESTROY");
+                                        hls.destroy();
+                                        hls = 0;
+                                    }
                                 });
 
                                 if (!hlsUpdatedConf.bufferWhilePaused) {
@@ -582,16 +588,6 @@
                                     });
                                 }
 
-                                if (coreV6 && conf.poster) {
-                                    // engine too late, poster already removed
-                                    // abuse timeupdate to re-instate poster
-                                    player.on("stop." + engineName, addPoster);
-                                    // re-instate initial poster for live streams
-                                    if (player.live && !autoplay && !player.video.autoplay) {
-                                        bean.one(videoTag, "seeked." + engineName, addPoster);
-                                    }
-                                }
-
                                 if (!coreV6) {
                                     player.on("quality." + engineName, function (e, api, q) {
                                         if (hlsUpdatedConf.smoothSwitching) {
@@ -601,6 +597,16 @@
                                         }
                                         lastSelectedLevel = q;
                                     });
+
+                                } else if (conf.poster) {
+                                    // v6 only
+                                    // engine too late, poster already removed
+                                    // abuse timeupdate to re-instate poster
+                                    player.on("stop." + engineName, addPoster);
+                                    // re-instate initial poster for live streams
+                                    if (player.live && !autoplay && !player.video.autoplay) {
+                                        bean.one(videoTag, "seeked." + engineName, addPoster);
+                                    }
                                 }
 
                                 common.prepend(common.find(".fp-player", root)[0], videoTag);
@@ -768,7 +774,6 @@
                                                 }
                                                 break;
                                             default:
-                                                hls.destroy();
                                                 fperr = 5;
                                             }
 
