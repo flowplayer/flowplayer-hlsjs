@@ -412,7 +412,7 @@
                                             seekable = videoTag.seekable,
                                             updatedVideo = player.video,
                                             seekOffset = updatedVideo.seekOffset,
-                                            liveSyncPosition = hls.liveSyncPosition,
+                                            liveSyncPosition = player.dvr && hls.liveSyncPosition,
                                             buffered = videoTag.buffered,
                                             buffer = 0,
                                             buffend = 0,
@@ -455,9 +455,7 @@
                                             break;
                                         case "progress":
                                             if (player.dvr && liveSyncPosition) {
-                                                extend(updatedVideo, {
-                                                    duration: liveSyncPosition
-                                                });
+                                                updatedVideo.duration = liveSyncPosition;
                                                 player.trigger('dvrwindow', [player, {
                                                     start: seekOffset,
                                                     end: liveSyncPosition
@@ -567,12 +565,6 @@
                                             });
                                             hls.startLoad(pos);
                                         }
-                                    });
-                                }
-
-                                if (player.dvr) {
-                                    player.on("dvrwindow." + engineName, function (e, api) {
-                                        api.sliders.timeline.disable(false);
                                     });
                                 }
 
@@ -816,11 +808,7 @@
                         },
 
                         seek: function (time) {
-                            var seekOffset = player.video.seekOffset;
-
-                            videoTag.currentTime = (player.dvr && time < seekOffset)
-                                ? seekOffset
-                                : time;
+                            videoTag.currentTime = time;
                         },
 
                         volume: function (level) {
