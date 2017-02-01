@@ -87,7 +87,6 @@
                             common.removeClass(root, recoveryClass);
                         });
                     },
-                    dvrOffset = 0,
 
                     // pre 6.0.4 poster detection
                     bc,
@@ -411,11 +410,12 @@
 
                                         var ct = videoTag.currentTime,
                                             seekable = videoTag.seekable,
+                                            updatedVideo = player.video,
+                                            seekOffset = updatedVideo.seekOffset,
                                             liveSyncPosition = hls.liveSyncPosition,
                                             buffered = videoTag.buffered,
                                             buffer = 0,
                                             buffend = 0,
-                                            updatedVideo = player.video,
                                             src = updatedVideo.src,
                                             flush = false,
                                             loop = updatedVideo.loop,
@@ -456,15 +456,14 @@
                                         case "progress":
                                             if (player.dvr && liveSyncPosition) {
                                                 extend(updatedVideo, {
-                                                    seekOffset: dvrOffset,
                                                     duration: liveSyncPosition
                                                 });
                                                 player.trigger('dvrwindow', [player, {
-                                                    start: dvrOffset,
+                                                    start: seekOffset,
                                                     end: liveSyncPosition
                                                 }]);
-                                                if (ct < dvrOffset) {
-                                                    videoTag.currentTime = dvrOffset;
+                                                if (ct < seekOffset) {
+                                                    videoTag.currentTime = seekOffset;
                                                 }
                                             }
                                             arg = ct;
@@ -612,7 +611,6 @@
 
                             // reset
                             maxLevel = 0;
-                            dvrOffset = 0;
 
                             Object.keys(hlsUpdatedConf).forEach(function (key) {
                                 if (!Hls.DefaultConfig.hasOwnProperty(key)) {
@@ -738,7 +736,7 @@
                                         break;
                                     case "LEVEL_UPDATED":
                                         if (player.dvr) {
-                                            dvrOffset = data.details.fragments[0].start;
+                                            player.video.seekOffset = data.details.fragments[0].start + hls.config.nudgeOffset;
                                         }
                                         break;
                                     case "ERROR":
@@ -818,7 +816,11 @@
                         },
 
                         seek: function (time) {
-                            videoTag.currentTime = time;
+                            var seekOffset = player.video.seekOffset;
+
+                            videoTag.currentTime = (player.dvr && time < seekOffset)
+                                ? seekOffset
+                                : time;
                         },
 
                         volume: function (level) {
