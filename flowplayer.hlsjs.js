@@ -88,15 +88,6 @@
                         });
                     },
                     dvrOffset = 0,
-                    dvrSync = 0,
-                    dvrWindow = function (levelDetails) {
-                        var hlsconfig = hls.config;
-
-                        dvrOffset = levelDetails.fragments[0].start;
-                        dvrSync = hlsconfig.liveSyncDuration !== undefined
-                            ? hlsconfig.liveSyncDuration
-                            : hlsconfig.liveSyncDurationCount * levelDetails.targetduration;
-                    },
 
                     // pre 6.0.4 poster detection
                     bc,
@@ -420,7 +411,7 @@
 
                                         var ct = videoTag.currentTime,
                                             seekable = videoTag.seekable,
-                                            end,
+                                            liveSyncPosition = hls.liveSyncPosition,
                                             buffered = videoTag.buffered,
                                             buffer = 0,
                                             buffend = 0,
@@ -437,7 +428,7 @@
                                         case "ready":
                                             arg = extend(updatedVideo, {
                                                 duration: videoTag.duration,
-                                                seekable: seekable.length && seekable.end(null) - dvrSync,
+                                                seekable: seekable.length && seekable.end(null),
                                                 width: videoTag.videoWidth,
                                                 height: videoTag.videoHeight,
                                                 url: src
@@ -463,15 +454,14 @@
                                             }
                                             break;
                                         case "progress":
-                                            if (player.dvr && seekable.length) {
-                                                end = seekable.end(null) - dvrSync;
+                                            if (player.dvr && liveSyncPosition) {
                                                 extend(updatedVideo, {
                                                     seekOffset: dvrOffset,
-                                                    duration: end
+                                                    duration: liveSyncPosition
                                                 });
                                                 player.trigger('dvrwindow', [player, {
                                                     start: dvrOffset,
-                                                    end: end
+                                                    end: liveSyncPosition
                                                 }]);
                                                 if (ct < dvrOffset) {
                                                     videoTag.currentTime = dvrOffset;
@@ -623,7 +613,6 @@
                             // reset
                             maxLevel = 0;
                             dvrOffset = 0;
-                            dvrSync = 0;
 
                             Object.keys(hlsUpdatedConf).forEach(function (key) {
                                 if (!Hls.DefaultConfig.hasOwnProperty(key)) {
@@ -749,7 +738,7 @@
                                         break;
                                     case "LEVEL_UPDATED":
                                         if (player.dvr) {
-                                            dvrWindow(data.details);
+                                            dvrOffset = data.details.fragments[0].start;
                                         }
                                         break;
                                     case "ERROR":
