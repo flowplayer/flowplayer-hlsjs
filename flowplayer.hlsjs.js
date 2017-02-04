@@ -522,8 +522,9 @@
                                             if ((hlsUpdatedConf.recoverMediaError && (errorCode === 3 || !errorCode)) ||
                                                     (hlsUpdatedConf.recoverNetworkError && errorCode === 2) ||
                                                     (hlsUpdatedConf.recover && (errorCode === 2 || errorCode === 3))) {
+                                                e.preventDefault();
                                                 doRecover(conf, flow, errorCode === 2);
-                                                return false;
+                                                return;
                                             }
 
                                             arg = {code: errorCode || 3};
@@ -765,16 +766,8 @@
                                                 }
                                                 player.trigger("error", [player, errobj]);
                                             }
-                                        } else {
-                                            switch (data.details) {
-                                            case ERRORDETAILS.BUFFER_STALLED_ERROR:
-                                            case ERRORDETAILS.FRAG_LOOP_LOADING_ERROR:
-                                                common.addClass(root, recoveryClass);
-                                                bean.one(videoTag, "timeupdate." + engineName, function () {
-                                                    common.removeClass(root, recoveryClass);
-                                                });
-                                                break;
-                                            }
+                                        } else if (data.details === ERRORDETAILS.FRAG_LOOP_LOADING_ERROR) {
+                                            common.addClass(root, recoveryClass);
                                         }
                                         break;
                                     }
