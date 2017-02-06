@@ -366,7 +366,7 @@
                                 HLSEVENTS = Hls.Events,
                                 autoplay = !!video.autoplay || !!conf.autoplay,
                                 hlsQualitiesConf = video.hlsQualities || conf.hlsQualities,
-                                hlsUpdatedConf = extend(hlsconf, conf.hlsjs, conf.clip.hlsjs, video.hlsjs),
+                                hlsUpdatedConf = extend(hlsconf, conf.hlsjs, video.hlsjs),
                                 hlsClientConf = extend({}, hlsUpdatedConf);
 
                             // allow disabling level selection for single clips
@@ -851,7 +851,7 @@
             engineImpl.engineName = engineName; // must be exposed
             engineImpl.canPlay = function (type, conf) {
                 if (conf[engineName] === false || conf.clip[engineName] === false) {
-                    // engine disabled for player or clip
+                    // engine disabled for player
                     return false;
                 }
 
@@ -860,7 +860,7 @@
                     bufferWhilePaused: true,
                     smoothSwitching: true,
                     recoverMediaError: true
-                }, flowplayer.conf[engineName], conf[engineName], conf.clip[engineName]);
+                }, conf[engineName], conf.clip[engineName]);
 
                 // https://github.com/dailymotion/hls.js/issues/9
                 return isHlsType(type) && (!support.browser.safari || hlsconf.safari);
