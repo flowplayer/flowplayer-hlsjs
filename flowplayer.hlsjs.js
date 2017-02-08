@@ -534,6 +534,8 @@
                                                     url: src
                                                 });
                                             }
+                                            hls.destroy();
+                                            hls = 0;
                                             break;
                                         }
 
@@ -549,13 +551,6 @@
                                             }
                                         }
                                     });
-                                });
-
-                                player.on("error." + engineName, function () {
-                                    if (hls) {
-                                        hls.destroy();
-                                        hls = 0;
-                                    }
                                 });
 
                                 if (!hlsUpdatedConf.bufferWhilePaused) {
@@ -764,7 +759,11 @@
                                                         url: data.url || src
                                                     });
                                                 }
-                                                player.trigger("error", [player, errobj]);
+                                                hls.destroy();
+                                                hls = 0;
+                                                setTimeout(function () {
+                                                    player.trigger("error", [player, errobj]);
+                                                });
                                             }
                                         } else if (data.details === ERRORDETAILS.FRAG_LOOP_LOADING_ERROR) {
                                             common.addClass(root, recoveryClass);
