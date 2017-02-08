@@ -87,6 +87,21 @@
                             common.removeClass(root, recoveryClass);
                         });
                     },
+                    handleError = function (errorCode, src, url) {
+                        var errobj = {code: errorCode};
+
+                        if (errorCode > 2) {
+                            errobj.video = extend(player.video, {
+                                src: src,
+                                url: url || src
+                            });
+                        }
+                        if (hls) {
+                            hls.destroy();
+                            hls = 0;
+                        }
+                        return errobj;
+                    },
 
                     // pre 6.0.4 poster detection
                     bc,
@@ -527,15 +542,7 @@
                                                 return;
                                             }
 
-                                            arg = {code: errorCode || 3};
-                                            if (errorCode > 2) {
-                                                arg.video = extend(updatedVideo, {
-                                                    src: src,
-                                                    url: src
-                                                });
-                                            }
-                                            hls.destroy();
-                                            hls = 0;
+                                            arg = handleError(errorCode, src);
                                             break;
                                         }
 
@@ -752,17 +759,11 @@
                                             }
 
                                             if (fperr !== undefined) {
-                                                errobj.code = fperr;
-                                                if (fperr > 2) {
-                                                    errobj.video = extend(updatedVideo, {
-                                                        src: src,
-                                                        url: data.url || src
-                                                    });
-                                                }
-                                                hls.destroy();
-                                                hls = 0;
+                                                errobj = handleError(fperr, src, data.url);
                                                 setTimeout(function () {
-                                                    player.trigger("error", [player, errobj]);
+                                                    if (!player.error) {
+                                                        player.trigger("error", [player, errobj]);
+                                                    }
                                                 });
                                             }
                                         } else if (data.details === ERRORDETAILS.FRAG_LOOP_LOADING_ERROR) {
