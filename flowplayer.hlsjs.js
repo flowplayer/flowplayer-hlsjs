@@ -715,15 +715,15 @@
                                                     Decoder = win.TextDecoder;
 
                                                 if (Decoder && typeof Decoder === "function") {
-                                                    raw = new Decoder('utf-8').decode(sample.data);
+                                                    raw = new Decoder('utf-8').decode(sample.unit);
                                                 } else {
                                                     raw = decodeURIComponent(win.escape(
-                                                        String.fromCharCode.apply(null, sample.data)
+                                                        String.fromCharCode.apply(null, sample.unit)
                                                     ));
                                                 }
                                                 player.trigger('metadata', [player, {
                                                     key: raw.substr(10, 4),
-                                                    data: raw.substr(21)
+                                                    data: raw
                                                 }]);
                                             };
                                             bean.on(videoTag, 'timeupdate.' + engineName, metadataHandler);
