@@ -717,7 +717,7 @@
                                                 if (Decoder && typeof Decoder === "function") {
                                                     raw = new Decoder('utf-8').decode(sample.unit);
                                                 } else {
-                                                    raw = decodeURIComponent(win.escape(
+                                                    raw = decodeURIComponent(encodeURIComponent(
                                                         String.fromCharCode.apply(null, sample.unit)
                                                     ));
                                                 }
