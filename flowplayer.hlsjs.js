@@ -556,6 +556,12 @@
                                     });
                                 });
 
+                                player.on("error." + engineName, function () {
+                                    if (hls) {
+                                        player.engine.unload();
+                                    }
+                                });
+
                                 if (!hlsUpdatedConf.bufferWhilePaused) {
                                     player.on("beforeseek." + engineName, function (e, api, pos) {
                                         if (api.paused) {
@@ -756,11 +762,7 @@
 
                                             if (fperr !== undefined) {
                                                 errobj = handleError(fperr, src, data.url);
-                                                setTimeout(function () {
-                                                    if (!player.error) {
-                                                        player.trigger("error", [player, errobj]);
-                                                    }
-                                                });
+                                                player.trigger("error", [player, errobj]);
                                             }
                                         } else if (data.details === ERRORDETAILS.FRAG_LOOP_LOADING_ERROR) {
                                             common.addClass(root, recoveryClass);
@@ -773,12 +775,6 @@
                                         player.trigger(e, [player, data]);
                                     }
                                 });
-                            });
-
-                            player.on("error." + engineName, function () {
-                                if (hls) {
-                                    player.engine.unload();
-                                }
                             });
 
                             if (hlsUpdatedConf.adaptOnStartOnly) {
