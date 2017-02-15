@@ -96,10 +96,6 @@
                                 url: url || src
                             });
                         }
-                        if (hls) {
-                            hls.destroy();
-                            hls = 0;
-                        }
                         return errobj;
                     },
 
@@ -777,6 +773,12 @@
                                         player.trigger(e, [player, data]);
                                     }
                                 });
+                            });
+
+                            player.on("error." + engineName, function () {
+                                if (hls) {
+                                    player.engine.unload();
+                                }
                             });
 
                             if (hlsUpdatedConf.adaptOnStartOnly) {
