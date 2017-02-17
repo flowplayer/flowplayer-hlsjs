@@ -37,11 +37,6 @@ module.exports = {
   externals: {
     flowplayer: 'flowplayer'
   },
-  module: {
-    loaders: [
-      { test: /\/hls\.js\/.+/, loader: 'babel', query: { presets: ['es2015'] } }
-    ]
-  },
   output: {
     path: path.join(__dirname, 'dist'),
     filename: '[name].js'
@@ -53,7 +48,6 @@ module.exports = {
       mangle: true,
       output: { comments: false }
     }),
-    new webpack.NormalModuleReplacementPlugin(/^webworkify$/, 'webworkify-webpack'),
     new WrapperPlugin({header: headerComment, footer: footerComment}),
     new webpack.BannerPlugin(banner, {raw: true})
   ]
