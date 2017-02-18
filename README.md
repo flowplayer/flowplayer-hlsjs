@@ -20,6 +20,14 @@ See: https://flowplayer.org/docs/plugins.html#hlsjs
 - [hlsjs options](https://flowplayer.org/docs/plugins.html#hlsjs-options)
 - [hlsjs API](https://flowplayer.org/docs/plugins.html#hlsjs-api)
 
+### Installation
+
+The plugin can be installed with:
+
+```
+npm install --save flowplayer/flowplayer-hlsjs
+```
+
 ### CommonJS
 
 The plugin can be used in a [browserify](http://browserify.org) and/or
