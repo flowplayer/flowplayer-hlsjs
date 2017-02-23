@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/flowplayer/flowplayer-hlsjs",
   "dependencies": {
-    "hls.js": "git://github.com/dailymotion/hls.js#3f2dce0121dac7714d167bea4bfd81f740e9aab0",
+    "hls.js": "0.7.1",
     "webworkify-webpack": "^1.0.4"
   },
   "peerDependencies": {
