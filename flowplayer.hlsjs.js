@@ -693,10 +693,10 @@
                                         } else if (coreV6) {
                                             delete player.quality;
                                         }
-                                        if (brwsr.safari && !videoTag.paused) {
+                                        if (brwsr.safari && autoplay) {
                                             // hack to avoid "heaving" in Safari
-                                            // at least in splash setups and playlist transitions
-                                            bean.one(videoTag, "canplaythrough." + engineName, function () {
+                                            // at least mostly in splash setups and playlist transitions
+                                            bean.on(videoTag, "canplaythrough." + engineName, function () {
                                                 common.addClass(root, loadingClass);
                                                 bean.one(videoTag, "timeupdate." + engineName, function () {
                                                     common.removeClass(root, loadingClass);
