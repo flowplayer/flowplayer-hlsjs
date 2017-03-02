@@ -28,6 +28,7 @@
             common = flowplayer.common,
             extend = flowplayer.extend,
             support = flowplayer.support,
+            brwsr = support.browser,
             version = flowplayer.version,
             coreV6 = version.indexOf("6.") === 0,
             win = window,
@@ -673,6 +674,7 @@
                                         ERRORTYPES = Hls.ErrorTypes,
                                         ERRORDETAILS = Hls.ErrorDetails,
                                         updatedVideo = player.video,
+                                        loadingClass = "is-loading",
                                         src = updatedVideo.src;
 
                                     switch (key) {
@@ -690,6 +692,16 @@
                                             }
                                         } else if (coreV6) {
                                             delete player.quality;
+                                        }
+                                        if (brwsr.safari && !videoTag.paused) {
+                                            // hack to avoid "heaving" in Safari
+                                            // at least in splash setups and playlist transitions
+                                            bean.one(videoTag, "canplaythrough." + engineName, function () {
+                                                common.addClass(root, loadingClass);
+                                                bean.one(videoTag, "timeupdate." + engineName, function () {
+                                                    common.removeClass(root, loadingClass);
+                                                });
+                                            });
                                         }
                                         hls.startLoad(hls.config.startPosition);
                                         break;
@@ -861,7 +873,7 @@
                 }, conf[engineName], conf.clip[engineName]);
 
                 // https://github.com/dailymotion/hls.js/issues/9
-                return isHlsType(type) && (!support.browser.safari || hlsconf.safari);
+                return isHlsType(type) && (!brwsr.safari || hlsconf.safari);
             };
 
             // put on top of engine stack
