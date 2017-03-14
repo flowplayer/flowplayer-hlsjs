@@ -6,8 +6,7 @@ playback of [HLS](https://flowplayer.org/docs/setup.html#hls) streams in browser
 support playback of HLS in a VIDEO tag, and without the need for
 [Flash](https://flowplayer.org/docs/setup.html#flash-hls).
 
-The plugin relies on the [hls.js](https://github.com/dailymotion/hls.js) client, courtesy of
-[dailymotion](http://www.dailymotion.com).
+The plugin relies on the [hls.js](https://github.com/video-dev/hls.js) client library.
 
 Usage
 -----
@@ -58,7 +57,7 @@ Features
 --------
 
 - packs a compatibility tested version - current:
-  [v0.7.3](https://github.com/dailymotion/hls.js/releases/tag/v0.7.3) - of hls.js
+  [v0.7.3](https://github.com/video-dev/hls.js/releases/tag/v0.7.3) - of hls.js
 - by default the engine is only loaded if the browser supports
   [MediaSource extensions](http://w3c.github.io/media-source/) reliably for playback
 - configurable manual HLS quality selection

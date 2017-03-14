@@ -13,8 +13,8 @@
    http://www.opensource.org/licenses/mit-license.php
 
    Includes hls.js
-   Copyright (c) 2015 Dailymotion (http://www.dailymotion.com)
-   https://github.com/dailymotion/hls.js/blob/master/LICENSE
+   Copyright (c) 2017 Dailymotion (http://www.dailymotion.com)
+   https://github.com/video-dev/hls.js/blob/master/LICENSE
 
    Requires Flowplayer HTML5 version 6.x
    $GIT_DESC$
