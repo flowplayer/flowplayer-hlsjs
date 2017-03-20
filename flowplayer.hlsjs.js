@@ -693,6 +693,16 @@
                                         } else if (coreV6) {
                                             delete player.quality;
                                         }
+                                        if (autoplay && brwsr.safari) {
+                                            // hack to avoid "heaving" in Safari
+                                            // at least mostly in splash setups and playlist transitions
+                                            bean.one(videoTag, "canplaythrough." + engineName, function () {
+                                                common.addClass(root, loadingClass);
+                                                bean.one(videoTag, "timeupdate." + engineName, function () {
+                                                    common.removeClass(root, loadingClass);
+                                                });
+                                            });
+                                        }
                                         hls.startLoad(hls.config.startPosition);
                                         break;
 
@@ -768,6 +778,9 @@
                                             }
                                         } else if (data.details === ERRORDETAILS.FRAG_LOOP_LOADING_ERROR) {
                                             common.addClass(root, recoveryClass);
+                                            bean.one(videoTag, "timeupdate." + engineName, function () {
+                                                common.removeClass(root, recoveryClass);
+                                            });
                                         }
                                         break;
                                     }
@@ -782,16 +795,6 @@
                             if (hlsUpdatedConf.adaptOnStartOnly) {
                                 bean.one(videoTag, "timeupdate." + engineName, function () {
                                     hls.loadLevel = hls.loadLevel;
-                                });
-                            }
-                            if (autoplay && brwsr.safari) {
-                                // hack to avoid "heaving" in Safari
-                                // at least mostly in splash setups and playlist transitions
-                                bean.on(videoTag, "canplaythrough." + engineName, function () {
-                                    common.addClass(root, loadingClass);
-                                    bean.one(videoTag, "timeupdate." + engineName, function () {
-                                        common.removeClass(root, loadingClass);
-                                    });
                                 });
                             }
 
