@@ -748,6 +748,9 @@
                                             player.video.seekOffset = data.details.fragments[0].start + hls.config.nudgeOffset;
                                         }
                                         break;
+                                    case "BUFFER_APPENDED":
+                                        common.removeClass(root, recoveryClass);
+                                        break;
                                     case "ERROR":
                                         if (data.fatal || hlsUpdatedConf.strict) {
                                             switch (data.type) {
@@ -776,11 +779,9 @@
                                                 errobj = handleError(fperr, src, data.url);
                                                 player.trigger("error", [player, errobj]);
                                             }
-                                        } else if (data.details === ERRORDETAILS.FRAG_LOOP_LOADING_ERROR) {
+                                        } else if (data.details === ERRORDETAILS.FRAG_LOOP_LOADING_ERROR ||
+                                                data.details === ERRORDETAILS.BUFFER_STALLED_ERROR) {
                                             common.addClass(root, recoveryClass);
-                                            bean.one(videoTag, "timeupdate." + engineName, function () {
-                                                common.removeClass(root, recoveryClass);
-                                            });
                                         }
                                         break;
                                     }
