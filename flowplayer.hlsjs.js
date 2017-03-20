@@ -430,8 +430,6 @@
                                             buffer = 0,
                                             buffend = 0,
                                             src = updatedVideo.src,
-                                            flush = false,
-                                            loop = updatedVideo.loop,
                                             i,
                                             quality = player.quality,
                                             selectorIndex,
@@ -504,29 +502,8 @@
                                             break;
                                         case "finish":
                                             if (hlsUpdatedConf.bufferWhilePaused && hls.autoLevelEnabled &&
-                                                    (loop || conf.playlist.length < 2 || conf.advance === false)) {
-                                                flush = !hls.levels[maxLevel].details;
-                                                if (!flush) {
-                                                    hls.levels[maxLevel].details.fragments.forEach(function (frag) {
-                                                        flush = !!flush || !frag.loadCounter;
-                                                    });
-                                                }
-                                                if (flush) {
-                                                    hls.trigger(HLSEVENTS.BUFFER_FLUSHING, {
-                                                        startOffset: 0,
-                                                        endOffset: updatedVideo.duration * 0.9
-                                                    });
-                                                    hls.nextLoadLevel = maxLevel;
-                                                    maxLevel = 0;
-                                                    if (!loop) {
-                                                        // hack to prevent Chrome engine from hanging
-                                                        bean.one(videoTag, "play." + engineName, function () {
-                                                            if (videoTag.currentTime >= videoTag.duration) {
-                                                                videoTag.currentTime = 0;
-                                                            }
-                                                        });
-                                                    }
-                                                }
+                                                    (updatedVideo.loop || conf.playlist.length < 2 || conf.advance === false)) {
+                                                hls.nextLoadLevel = maxLevel;
                                             }
                                             break;
                                         case "error":
