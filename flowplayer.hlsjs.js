@@ -779,7 +779,15 @@
                             hls.attachMedia(videoTag);
 
                             if (autoplay && videoTag.paused) {
-                                videoTag.play();
+                                var playPromise = videoTag.play();
+                                if (playPromise !== undefined) {
+                                    playPromise.catch(function () {
+                                        player.unload();
+                                        if (!coreV6) {
+                                            player.message("Please click the play button", 3000);
+                                        }
+                                    });
+                                }
                             }
                         },
 
