@@ -1,6 +1,6 @@
 {
   "name": "flowplayer-hlsjs",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Flowplayer HLS.js plugin",
   "main": "flowplayer.hlsjs.js",
   "scripts": {
