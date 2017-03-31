@@ -634,8 +634,6 @@
                                 }
                             });
 
-                            hlsClientConf.autoStartLoad = false;
-
                             hls = new Hls(hlsClientConf);
                             player.engine[engineName] = hls;
                             recoverMediaErrorDate = null;
@@ -680,7 +678,6 @@
                                                 });
                                             });
                                         }
-                                        hls.startLoad(hls.config.startPosition);
                                         break;
 
                                     case "FRAG_LOADED":
