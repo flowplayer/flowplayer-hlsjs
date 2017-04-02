@@ -775,7 +775,7 @@
 
                             hls.attachMedia(videoTag);
 
-                            if (autoplay && videoTag.paused) {
+                            if (!support.firstframe && autoplay && videoTag.paused) {
                                 var playPromise = videoTag.play();
                                 if (playPromise !== undefined) {
                                     playPromise.catch(function () {
