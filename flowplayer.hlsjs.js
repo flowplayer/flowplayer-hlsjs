@@ -542,7 +542,7 @@
                                 });
 
                                 if (!hlsUpdatedConf.bufferWhilePaused) {
-                                    player.on("beforeseek." + engineName, function (e, api, pos) {
+                                    player.on("beforeseek." + engineName, function (_e, api, pos) {
                                         if (api.paused) {
                                             bean.one(videoTag, "seeked." + engineName, function () {
                                                 videoTag.pause();
@@ -553,7 +553,7 @@
                                 }
 
                                 if (!coreV6) {
-                                    player.on("quality." + engineName, function (e, api, q) {
+                                    player.on("quality." + engineName, function (_e, _api, q) {
                                         if (hlsUpdatedConf.smoothSwitching) {
                                             hls.nextLevel = q;
                                         } else {
