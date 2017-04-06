@@ -699,14 +699,14 @@
                                                 }
                                                 bean.off(videoTag, 'timeupdate.' + engineName, metadataHandler);
 
-                                                var raw,
+                                                var raw = sample.unit || sample.data,
                                                     Decoder = win.TextDecoder;
 
                                                 if (Decoder && typeof Decoder === "function") {
-                                                    raw = new Decoder('utf-8').decode(sample.unit);
+                                                    raw = new Decoder('utf-8').decode(raw);
                                                 } else {
                                                     raw = decodeURIComponent(encodeURIComponent(
-                                                        String.fromCharCode.apply(null, sample.unit)
+                                                        String.fromCharCode.apply(null, raw)
                                                     ));
                                                 }
                                                 player.trigger('metadata', [player, {
