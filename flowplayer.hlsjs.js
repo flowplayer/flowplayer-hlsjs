@@ -425,7 +425,7 @@
                                             seekable = videoTag.seekable,
                                             updatedVideo = player.video,
                                             seekOffset = updatedVideo.seekOffset,
-                                            liveSyncPosition = player.dvr && hls.liveSyncPosition,
+                                            liveSyncPosition = player.live && hls.liveSyncPosition,
                                             buffered = videoTag.buffered,
                                             buffer = 0,
                                             buffend = 0,
@@ -465,14 +465,16 @@
                                             }
                                             break;
                                         case "progress":
-                                            if (player.dvr && liveSyncPosition) {
+                                            if (liveSyncPosition) {
                                                 updatedVideo.duration = liveSyncPosition;
-                                                player.trigger('dvrwindow', [player, {
-                                                    start: seekOffset,
-                                                    end: liveSyncPosition
-                                                }]);
-                                                if (ct < seekOffset) {
-                                                    videoTag.currentTime = seekOffset;
+                                                if (player.dvr) {
+                                                    player.trigger('dvrwindow', [player, {
+                                                        start: seekOffset,
+                                                        end: liveSyncPosition
+                                                    }]);
+                                                    if (ct < seekOffset) {
+                                                        videoTag.currentTime = seekOffset;
+                                                    }
                                                 }
                                             }
                                             arg = ct;
@@ -718,7 +720,7 @@
                                         });
                                         break;
                                     case "LEVEL_UPDATED":
-                                        if (player.dvr) {
+                                        if (player.live) {
                                             player.video.seekOffset = data.details.fragments[0].start + hls.config.nudgeOffset;
                                         }
                                         break;
