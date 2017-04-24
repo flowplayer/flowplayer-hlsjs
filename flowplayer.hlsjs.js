@@ -499,7 +499,7 @@
                                                     }
                                                 }
                                             } catch (ignore) {}
-                                            video.buffer = buffer;
+                                            updatedVideo.buffer = buffer;
                                             arg = buffer;
                                             break;
                                         case "finish":
