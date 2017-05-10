@@ -73,7 +73,7 @@ For fine grained debugging load the unminified components and turn hlsjs debuggi
 ```html
 <script src="//releases.flowplayer.org/7.0.2/flowplayer.min.js"></script>
 <!-- test a hls.js release -->
-<script src="//cdn.jsdelivr.net/hls.js/0.7.7/hls.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/hls.js/0.7.7/hls.min.js"></script>
 <!-- separate hlsjs plugin component -->
 <script src="//releases.flowplayer.org/hlsjs/flowplayer.hlsjs.js"></script>
 
