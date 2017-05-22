@@ -121,6 +121,92 @@
 
                     maxLevel = 0,
 
+                    audioGroups,
+                    audioUXGroup,
+                    selectAudioTrack = function (audioTrack) {
+                        common.find(".fp-audio", root)[0].innerHTML = audioTrack.lang || audioTrack.name;
+                        common.find(".fp-audio-menu a", root).forEach(function (el) {
+                            var adata = el.getAttribute("data-audio"),
+                                isSelected = adata === audioTrack.name;
+
+                            common.toggleClass(el, "fp-selected", isSelected);
+                            common.toggleClass(el, "fp-color", isSelected);
+                        });
+                    },
+                    removeAudioMenu = function () {
+                        common.find(".fp-audio-menu", root).forEach(common.removeNode);
+                        common.find(".fp-audio", root).forEach(common.removeNode);
+                    },
+                    initAudio = function (data) {
+                        audioGroups = [];
+                        audioUXGroup = [];
+                        data.levels.forEach(function (level) {
+                            var agroup = level.attrs.AUDIO;
+
+                            if (agroup && audioGroups.indexOf(agroup) < 0 &&
+                                    mse.isTypeSupported("video/mp4;codecs=" + level.videoCodec + "," + level.audioCodec)) {
+                                audioGroups.push(agroup);
+                            }
+                        });
+                        if (audioGroups.length) {
+                            // create sample group
+                            audioUXGroup = data.audioTracks.filter(function (audioTrack) {
+                                return audioTrack.groupId === audioGroups[0];
+                            });
+                        }
+                        if (!support.inlineVideo || coreV6 || audioUXGroup.length < 2) {
+                            return;
+                        }
+
+                        // audio menu
+                        bean.on(root, "click." + engineName, ".fp-audio", function () {
+                            var menu = common.find(".fp-audio-menu", root)[0];
+
+                            if (common.hasClass(menu, "fp-active")) {
+                                player.hideMenu();
+                            } else {
+                                player.showMenu(menu);
+                            }
+                        });
+                        bean.on(root, "click." + engineName, ".fp-audio-menu a", function (e) {
+                            var adata = e.target.getAttribute("data-audio"),
+                                gid = hls.audioTracks[hls.audioTrack].groupId,
+                                // confine choice to current group
+                                atrack = hls.audioTracks.filter(function (at) {
+                                    return at.groupId === gid && (at.name === adata || at.lang === adata);
+                                })[0];
+                            hls.audioTrack = atrack.id;
+                            selectAudioTrack(atrack);
+                        });
+
+                        player.on("ready." + engineName, function () {
+                            removeAudioMenu();
+                            if (!hls || !audioUXGroup || audioUXGroup.length < 2) {
+                                return;
+                            }
+
+                            var ui = common.find(".fp-ui", root)[0],
+                                controlbar = common.find(".fp-controls", ui)[0],
+                                currentAudioTrack = hls.audioTracks[hls.audioTrack],
+                                menu = common.createElement("div", {
+                                    className: "fp-menu fp-audio-menu",
+                                    css: {width: "7em"}
+                                }, "<strong>Audio</strong>");
+
+                            audioUXGroup.forEach(function (audioTrack) {
+                                menu.appendChild(common.createElement("a", {
+                                    "data-audio": audioTrack.name
+                                }, audioTrack.name));
+                            });
+                            ui.appendChild(menu);
+                            controlbar.appendChild(common.createElement("strong", {
+                                className: "fp-audio"
+                            }, currentAudioTrack));
+
+                            selectAudioTrack(currentAudioTrack);
+                        });
+                    },
+
                     // v6 qsel
                     qActive = "active",
                     dataQuality = function (quality) {
@@ -678,6 +764,10 @@
                                         }
                                         break;
 
+                                    case "MANIFEST_LOADED":
+                                        initAudio(data);
+                                        break;
+
                                     case "MEDIA_ATTACHED":
                                         hls.loadSource(src);
                                         break;
@@ -820,6 +910,7 @@
                                 hls.destroy();
                                 hls = 0;
                                 qClean();
+                                removeAudioMenu();
                                 player.off(listeners);
                                 bean.off(root, listeners);
                                 bean.off(videoTag, listeners);
