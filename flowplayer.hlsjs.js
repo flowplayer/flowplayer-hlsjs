@@ -655,10 +655,6 @@
                                         src = updatedVideo.src;
 
                                     switch (key) {
-                                    case "MEDIA_ATTACHED":
-                                        hls.loadSource(src);
-                                        break;
-
                                     case "MANIFEST_PARSED":
                                         if (hlsQualitiesSupport(conf) &&
                                                 !(!coreV6 && player.pluginQualitySelectorEnabled)) {
@@ -680,6 +676,10 @@
                                                 });
                                             });
                                         }
+                                        break;
+
+                                    case "MEDIA_ATTACHED":
+                                        hls.loadSource(src);
                                         break;
 
                                     case "FRAG_LOADED":
