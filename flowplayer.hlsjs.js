@@ -123,6 +123,20 @@
 
                     audioGroups,
                     audioUXGroup,
+                    audioAutoSwitch = function (level) {
+                        if (audioGroups && audioGroups.length > 1) {
+                            var tracks = hls.audioTracks.filter(function (atrack) {
+                                    return atrack.autoselect &&
+                                            atrack.groupId === hls.levels[level].attrs.AUDIO &&
+                                            atrack.name === hls.audioTracks[hls.audioTrack].name;
+                                }),
+                                audioTrackId = tracks.length && tracks[0].id;
+
+                            if (audioTrackId !== undefined && audioTrackId !== hls.audioTrack) {
+                                hls.audioTrack = audioTrackId;
+                            }
+                        }
+                    },
                     selectAudioTrack = function (audioTrack) {
                         common.find(".fp-audio", root)[0].innerHTML = audioTrack.lang || audioTrack.name;
                         common.find(".fp-audio-menu a", root).forEach(function (el) {
@@ -154,6 +168,8 @@
                                 return audioTrack.groupId === audioGroups[0];
                             });
                         }
+                        console.info(audioGroups);
+                        console.info(audioUXGroup);
                         if (!support.inlineVideo || coreV6 || audioUXGroup.length < 2) {
                             return;
                         }
@@ -812,6 +828,15 @@
                                     case "LEVEL_UPDATED":
                                         if (player.live) {
                                             player.video.seekOffset = data.details.fragments[0].start + hls.config.nudgeOffset;
+                                        }
+                                        break;
+                                    case "LEVEL_SWITCHED":
+                                        if (hlsUpdatedConf.audioABR) {
+                                            player.one("buffer." + engineName, function (_e, api, buffer) {
+                                                if (buffer > api.video.time) {
+                                                    audioAutoSwitch(data.level);
+                                                }
+                                            });
                                         }
                                         break;
                                     case "BUFFER_APPENDED":
