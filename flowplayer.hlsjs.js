@@ -168,8 +168,6 @@
                                 return audioTrack.groupId === audioGroups[0];
                             });
                         }
-                        console.info(audioGroups);
-                        console.info(audioUXGroup);
                         if (!support.inlineVideo || coreV6 || audioUXGroup.length < 2) {
                             return;
                         }
