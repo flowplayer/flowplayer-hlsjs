@@ -126,8 +126,10 @@
                     audioAutoSwitch = function (level) {
                         if (audioGroups && audioGroups.length > 1) {
                             var tracks = hls.audioTracks.filter(function (atrack) {
-                                    return atrack.autoselect &&
-                                            atrack.groupId === hls.levels[level].attrs.AUDIO &&
+                                    var attrs = hls.levels[level].attrs;
+
+                                    return atrack.autoselect && attrs &&
+                                            atrack.groupId === attrs.AUDIO &&
                                             atrack.name === hls.audioTracks[hls.audioTrack].name;
                                 }),
                                 audioTrackId = tracks.length && tracks[0].id;
@@ -155,7 +157,7 @@
                         audioGroups = [];
                         audioUXGroup = [];
                         data.levels.forEach(function (level) {
-                            var agroup = level.attrs.AUDIO;
+                            var agroup = level.attrs && level.attrs.AUDIO;
 
                             if (agroup && audioGroups.indexOf(agroup) < 0 &&
                                     mse.isTypeSupported("video/mp4;codecs=" + level.videoCodec + "," + level.audioCodec)) {
