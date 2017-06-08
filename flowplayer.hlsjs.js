@@ -206,7 +206,7 @@
                                 currentAudioTrack = hls.audioTracks[hls.audioTrack],
                                 menu = common.createElement("div", {
                                     className: "fp-menu fp-audio-menu",
-                                    css: {width: "7em"}
+                                    css: {width: "auto"}
                                 }, "<strong>Audio</strong>");
 
                             audioUXGroup.forEach(function (audioTrack) {
