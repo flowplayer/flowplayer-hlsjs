@@ -229,19 +229,20 @@
                         // e.g. "Level 1" -> "level1"
                         if (!quality) {
                             quality = player.quality;
+                        } else if (player.qualities.indexOf(quality) < 0) {
+                            quality = "abr";
                         }
                         return quality.toLowerCase().replace(/\ /g, "");
                     },
                     removeAllQualityClasses = function () {
                         var qualities = player.qualities;
 
-                        if (!qualities || !qualities.length) {
-                            return;
+                        if (qualities) {
+                            common.removeClass(root, "quality-abr");
+                            qualities.forEach(function (quality) {
+                                common.removeClass(root, "quality-" + dataQuality(quality));
+                            });
                         }
-                        common.removeClass(root, "quality-abr");
-                        qualities.forEach(function (quality) {
-                            common.removeClass(root, "quality-" + dataQuality(quality));
-                        });
                     },
                     qClean = function () {
                         if (coreV6) {
@@ -260,12 +261,14 @@
                     // v7 and v6 qsel
                     initQualitySelection = function (hlsQualitiesConf, conf, data) {
                         var levels = data.levels,
-                            hlsQualities = [],
-                            qIndices = [],
-                            levelIndex = 0,
+                            hlsQualities,
+                            qualities,
                             selector;
 
                         qClean();
+                        if (!hlsQualitiesConf || levels.length < 2) {
+                            return;
+                        }
 
                         if (hlsQualitiesConf === "drive") {
                             switch (levels.length) {
@@ -291,50 +294,43 @@
                                 }
                                 hlsQualities = [1, 2];
                             }
+                            hlsQualities.unshift(-1);
+                        } else if (typeof hlsQualitiesConf === "boolean") {
+                            hlsQualities = levels.map(function (level) {
+                                return levels.indexOf(level);
+                            });
+                            hlsQualities.unshift(-1);
+                        } else if (typeof hlsQualitiesConf === "string") {
+                            hlsQualities = hlsQualitiesConf.split(/\s*,\s*/).map(Number);
                         } else {
-                            if (typeof hlsQualitiesConf === "string") {
-                                hlsQualitiesConf.split(/\s*,\s*/).forEach(function (q) {
-                                    qIndices.push(parseInt(q, 10));
-                                });
-                            } else if (typeof hlsQualitiesConf !== "boolean") {
-                                hlsQualitiesConf.forEach(function (q) {
-                                    qIndices.push(isNaN(Number(q))
-                                        ? q.level
-                                        : q);
-                                });
-                            }
-                            levels.forEach(function (level) {
+                            hlsQualities = hlsQualitiesConf.map(function (q) {
+                                return isNaN(Number(q))
+                                    ? q.level
+                                    : q;
+                            });
+                        }
+                        if (coreV6 && hlsQualities.indexOf(-1) < 0) {
+                            hlsQualities.unshift(-1);
+                        }
+
+                        hlsQualities.filter(function (q) {
+                            if (q > -1) {
+                                var level = levels[q];
+
                                 // do not check audioCodec,
                                 // as e.g. HE_AAC is decoded as LC_AAC by hls.js on Android
-                                if ((hlsQualitiesConf === true || qIndices.indexOf(levelIndex) > -1) &&
-                                        (!level.videoCodec ||
+                                return !level.videoCodec ||
                                         (level.videoCodec &&
-                                        mse.isTypeSupported('video/mp4;codecs=' + level.videoCodec)))) {
-                                    hlsQualities.push(levelIndex);
-                                }
-                                levelIndex += 1;
-                            });
-                            if (hlsQualities.length < 2) {
-                                return;
+                                        mse.isTypeSupported('video/mp4;codecs=' + level.videoCodec));
+                            } else {
+                                return q === -1;
                             }
-                        }
+                        });
 
-                        if (coreV6) {
-                            player.qualities = [];
-                        } else {
-                            if (hlsQualitiesConf === "drive" ||
-                                    hlsQualitiesConf === true ||
-                                    qIndices.indexOf(-1) > -1) {
-                                hlsQualities.unshift(-1);
-                            }
-
-                            player.video.qualities = [];
-                        }
-
-                        hlsQualities.forEach(function (idx) {
+                        qualities = hlsQualities.map(function (idx) {
                             var level = levels[idx],
-                                q = qIndices.length
-                                    ? hlsQualitiesConf[qIndices.indexOf(idx)]
+                                q = typeof hlsQualitiesConf === "object"
+                                    ? hlsQualitiesConf[hlsQualities.indexOf(idx)]
                                     : idx,
                                 label = "Level " + (idx + 1);
 
@@ -352,13 +348,13 @@
                             }
 
                             if (coreV6) {
-                                player.qualities.push(label);
-                            } else {
-                                player.video.qualities.push({value: idx, label: label});
+                                return label;
                             }
+                            return {value: idx, label: label};
                         });
 
                         if (!coreV6) {
+                            player.video.qualities = qualities;
                             if (lastSelectedLevel > -1 || hlsQualities.indexOf(-1) < 0) {
                                 hls.startLevel = hlsQualities.indexOf(lastSelectedLevel) < 0
                                     ? hlsQualities[0]
@@ -371,30 +367,26 @@
                                     : lastSelectedLevel;
                             }
                             lastSelectedLevel = player.video.quality;
-
                             return;
                         }
 
                         // v6
+                        player.hlsQualities = hlsQualities;
+                        player.qualities = qualities.slice(1);
+
                         selector = common.createElement("ul", {
                             "class": "fp-quality-selector"
                         });
                         common.find(".fp-ui", root)[0].appendChild(selector);
 
-                        hlsQualities.unshift(-1);
-                        player.hlsQualities = hlsQualities;
-
-                        if (!player.quality || player.qualities.indexOf(player.quality) < 0) {
+                        if (!player.quality || qualities.indexOf(player.quality) < 1) {
                             player.quality = "abr";
                         } else {
                             hls.startLevel = qIndex();
                             hls.loadLevel = hls.startLevel;
                         }
 
-                        selector.appendChild(common.createElement("li", {
-                            "data-quality": "abr"
-                        }, "Auto"));
-                        player.qualities.forEach(function (q) {
+                        qualities.forEach(function (q) {
                             selector.appendChild(common.createElement("li", {
                                 "data-quality": dataQuality(q)
                             }, q));
@@ -404,11 +396,9 @@
 
                         bean.on(root, "click." + engineName, ".fp-quality-selector li", function (e) {
                             var choice = e.currentTarget,
-                                selectors,
-                                active,
+                                items = common.find(".fp-quality-selector li", root),
                                 smooth = conf.smoothSwitching,
-                                paused = videoTag.paused,
-                                i;
+                                paused = videoTag.paused;
 
                             if (common.hasClass(choice, qActive)) {
                                 return;
@@ -420,13 +410,13 @@
                                 });
                             }
 
-                            selectors = common.find(".fp-quality-selector li", root);
+                            items.forEach(function (item) {
+                                var active = item === choice,
+                                    idx = items.indexOf(item);
 
-                            for (i = 0; i < selectors.length; i += 1) {
-                                active = selectors[i] === choice;
                                 if (active) {
-                                    player.quality = i > 0
-                                        ? player.qualities[i - 1]
+                                    player.quality = idx > 0
+                                        ? player.qualities[idx - 1]
                                         : "abr";
                                     if (smooth && !player.poster) {
                                         hls.nextLevel = qIndex();
@@ -438,8 +428,8 @@
                                         videoTag.play();
                                     }
                                 }
-                                common.toggleClass(selectors[i], qActive, active);
-                            }
+                                common.toggleClass(item, qActive, active);
+                            });
                             removeAllQualityClasses();
                             common.addClass(root, "quality-" + dataQuality());
                         });
@@ -760,11 +750,7 @@
                                     case "MANIFEST_PARSED":
                                         if (hlsQualitiesSupport(conf) &&
                                                 !(!coreV6 && player.pluginQualitySelectorEnabled)) {
-                                            if (hlsQualitiesConf) {
-                                                initQualitySelection(hlsQualitiesConf, hlsUpdatedConf, data);
-                                            } else {
-                                                qClean();
-                                            }
+                                            initQualitySelection(hlsQualitiesConf, hlsUpdatedConf, data);
                                         } else if (coreV6) {
                                             delete player.quality;
                                         }
