@@ -295,19 +295,24 @@
                                 hlsQualities = [1, 2];
                             }
                             hlsQualities.unshift(-1);
-                        } else if (typeof hlsQualitiesConf === "boolean") {
-                            hlsQualities = levels.map(function (level) {
-                                return levels.indexOf(level);
-                            });
-                            hlsQualities.unshift(-1);
-                        } else if (typeof hlsQualitiesConf === "string") {
-                            hlsQualities = hlsQualitiesConf.split(/\s*,\s*/).map(Number);
                         } else {
-                            hlsQualities = hlsQualitiesConf.map(function (q) {
-                                return isNaN(Number(q))
-                                    ? q.level
-                                    : q;
-                            });
+                            switch (typeof hlsQualitiesConf) {
+                            case "object":
+                                hlsQualities = hlsQualitiesConf.map(function (q) {
+                                    return isNaN(Number(q))
+                                        ? q.level
+                                        : q;
+                                });
+                                break;
+                            case "string":
+                                hlsQualities = hlsQualitiesConf.split(/\s*,\s*/).map(Number);
+                                break;
+                            default:
+                                hlsQualities = levels.map(function (level) {
+                                    return levels.indexOf(level);
+                                });
+                                hlsQualities.unshift(-1);
+                            }
                         }
                         if (coreV6 && hlsQualities.indexOf(-1) < 0) {
                             hlsQualities.unshift(-1);
@@ -346,7 +351,6 @@
                                     label += " (" + Math.round(level.bitrate / 1000) + "k)";
                                 }
                             }
-
                             if (coreV6) {
                                 return label;
                             }
