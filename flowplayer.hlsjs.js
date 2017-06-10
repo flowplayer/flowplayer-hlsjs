@@ -263,6 +263,11 @@
                         var levels = data.levels,
                             hlsQualities,
                             qualities,
+                            getLevel = function (q) {
+                                return isNaN(Number(q))
+                                    ? q.level
+                                    : q;
+                            },
                             selector;
 
                         qClean();
@@ -298,11 +303,7 @@
                         } else {
                             switch (typeof hlsQualitiesConf) {
                             case "object":
-                                hlsQualities = hlsQualitiesConf.map(function (q) {
-                                    return isNaN(Number(q))
-                                        ? q.level
-                                        : q;
-                                });
+                                hlsQualities = hlsQualitiesConf.map(getLevel);
                                 break;
                             case "string":
                                 hlsQualities = hlsQualitiesConf.split(/\s*,\s*/).map(Number);
@@ -318,8 +319,8 @@
                             hlsQualities.unshift(-1);
                         }
 
-                        hlsQualities.filter(function (q) {
-                            if (q > -1) {
+                        hlsQualities = hlsQualities.filter(function (q) {
+                            if (q > -1 && q < levels.length) {
                                 var level = levels[q];
 
                                 // do not check audioCodec,
@@ -335,9 +336,11 @@
                         qualities = hlsQualities.map(function (idx) {
                             var level = levels[idx],
                                 q = typeof hlsQualitiesConf === "object"
-                                    ? hlsQualitiesConf[hlsQualities.indexOf(idx)]
+                                    ? hlsQualitiesConf.filter(function (q) {
+                                        return getLevel(q) === idx;
+                                    })[0]
                                     : idx,
-                                label = "Level " + (idx + 1);
+                                label = "Level " + (hlsQualities.indexOf(idx) + 1);
 
                             if (idx < 0) {
                                 label = q.label || "Auto";
