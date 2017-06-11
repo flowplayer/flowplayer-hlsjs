@@ -476,7 +476,6 @@
                                 },
                                 HLSEVENTS = Hls.Events,
                                 autoplay = !!video.autoplay || !!conf.autoplay,
-                                loadingClass = "is-loading",
                                 hlsQualitiesConf = video.hlsQualities || conf.hlsQualities,
                                 hlsUpdatedConf = extend(hlsconf, conf.hlsjs, video.hlsjs),
                                 hlsClientConf = extend({}, hlsUpdatedConf);
@@ -761,26 +760,13 @@
                                         } else if (coreV6) {
                                             delete player.quality;
                                         }
-                                        if (autoplay && brwsr.safari) {
-                                            // hack to avoid "heaving" in Safari
-                                            // at least mostly in splash setups and playlist transitions
-                                            bean.one(videoTag, "canplaythrough." + engineName, function () {
-                                                common.addClass(root, loadingClass);
-                                                bean.one(videoTag, "timeupdate." + engineName, function () {
-                                                    common.removeClass(root, loadingClass);
-                                                });
-                                            });
-                                        }
                                         break;
-
                                     case "MANIFEST_LOADED":
                                         initAudio(data);
                                         break;
-
                                     case "MEDIA_ATTACHED":
                                         hls.loadSource(src);
                                         break;
-
                                     case "FRAG_LOADED":
                                         if (hlsUpdatedConf.bufferWhilePaused && !player.live &&
                                                 hls.autoLevelEnabled && hls.nextLoadLevel > maxLevel) {
@@ -885,7 +871,7 @@
 
                             hls.attachMedia(videoTag);
 
-                            if (!support.firstframe && autoplay && videoTag.paused) {
+                            if ((!support.firstframe || brwsr.safari) && autoplay && videoTag.paused) {
                                 var playPromise = videoTag.play();
                                 if (playPromise !== undefined) {
                                     playPromise.catch(function () {
