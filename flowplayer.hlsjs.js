@@ -504,9 +504,7 @@
                                     "class": "fp-engine " + engineName + "-engine",
                                     "autoplay": autoplay
                                         ? "autoplay"
-                                        : false,
-                                    "volume": player.volumeLevel, // core ready stanza too late
-                                    "x-webkit-airplay": "allow"
+                                        : false
                                 });
 
                                 Object.keys(EVENTS).forEach(function (key) {
