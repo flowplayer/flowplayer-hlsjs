@@ -363,15 +363,13 @@
                         if (!coreV6) {
                             player.video.qualities = qualities;
                             if (lastSelectedLevel > -1 || hlsQualities.indexOf(-1) < 0) {
-                                hls.startLevel = hlsQualities.indexOf(lastSelectedLevel) < 0
+                                hls.loadLevel = hlsQualities.indexOf(lastSelectedLevel) < 0
                                     ? hlsQualities[0]
                                     : lastSelectedLevel;
-                                hls.loadLevel = hls.startLevel;
-                                player.video.quality = hls.startLevel;
+                                hls.config.startLevel = hls.loadLevel;
+                                player.video.quality = hls.loadLevel;
                             } else {
-                                player.video.quality = hlsQualities.indexOf(lastSelectedLevel) < 0
-                                    ? hlsQualities[0]
-                                    : lastSelectedLevel;
+                                player.video.quality = -1;
                             }
                             lastSelectedLevel = player.video.quality;
                             return;
@@ -389,8 +387,8 @@
                         if (!player.quality || qualities.indexOf(player.quality) < 1) {
                             player.quality = "abr";
                         } else {
-                            hls.startLevel = qIndex();
-                            hls.loadLevel = hls.startLevel;
+                            hls.loadLevel = qIndex();
+                            hls.config.startLevel = hls.loadLevel;
                         }
 
                         qualities.forEach(function (q) {
