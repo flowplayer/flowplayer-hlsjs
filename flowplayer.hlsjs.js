@@ -443,18 +443,14 @@
                         engineName: engineName,
 
                         pick: function (sources) {
-                            var i,
-                                source;
+                            var source = sources.filter(function (s) {
+                                return isHlsType(s.type);
+                            })[0];
 
-                            for (i = 0; i < sources.length; i += 1) {
-                                source = sources[i];
-                                if (isHlsType(source.type)) {
-                                    if (typeof source.src === 'string') {
-                                        source.src = common.createAbsoluteUrl(source.src);
-                                    }
-                                    return source;
-                                }
+                            if (typeof source.src === "string") {
+                                source.src = common.createAbsoluteUrl(source.src);
                             }
+                            return source;
                         },
 
                         load: function (video) {
@@ -520,10 +516,9 @@
                                             seekOffset = updatedVideo.seekOffset,
                                             liveSyncPosition = player.live && hls.liveSyncPosition,
                                             buffered = videoTag.buffered,
-                                            buffer = 0,
-                                            buffend = 0,
-                                            src = updatedVideo.src,
                                             i,
+                                            buffends = [],
+                                            src = updatedVideo.src,
                                             quality = player.quality,
                                             selectorIndex,
                                             errorCode;
@@ -579,21 +574,13 @@
                                             arg = videoTag.volume;
                                             break;
                                         case "buffer":
-                                            try {
-                                                buffer = buffered.length && buffered.end(null);
-                                                if (ct && buffer) {
-                                                    // cycle through time ranges to obtain buffer
-                                                    // nearest current time
-                                                    for (i = buffered.length - 1; i > -1; i -= 1) {
-                                                        buffend = buffered.end(i);
-                                                        if (buffend >= ct) {
-                                                            buffer = buffend;
-                                                        }
-                                                    }
-                                                }
-                                            } catch (ignore) {}
-                                            updatedVideo.buffer = buffer;
-                                            arg = buffer;
+                                            for (i = 0; i < buffered.length; i += 1) {
+                                                buffends.push(buffered.end(i));
+                                            }
+                                            arg = buffends.filter(function (b) {
+                                                return b >= ct;
+                                            }).sort()[0];
+                                            updatedVideo.buffer = arg;
                                             break;
                                         case "finish":
                                             if (hlsUpdatedConf.bufferWhilePaused && hls.autoLevelEnabled &&
