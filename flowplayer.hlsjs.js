@@ -309,8 +309,8 @@
                                 hlsQualities = hlsQualitiesConf.split(/\s*,\s*/).map(Number);
                                 break;
                             default:
-                                hlsQualities = levels.map(function (level) {
-                                    return levels.indexOf(level);
+                                hlsQualities = levels.map(function (_level, i) {
+                                    return i;
                                 });
                                 hlsQualities.unshift(-1);
                             }
@@ -333,14 +333,14 @@
                             }
                         });
 
-                        qualities = hlsQualities.map(function (idx) {
+                        qualities = hlsQualities.map(function (idx, i) {
                             var level = levels[idx],
                                 q = typeof hlsQualitiesConf === "object"
                                     ? hlsQualitiesConf.filter(function (q) {
                                         return getLevel(q) === idx;
                                     })[0]
                                     : idx,
-                                label = "Level " + (hlsQualities.indexOf(idx) + 1);
+                                label = "Level " + (i + 1);
 
                             if (idx < 0) {
                                 label = q.label || "Auto";
@@ -415,13 +415,12 @@
                                 });
                             }
 
-                            items.forEach(function (item) {
-                                var active = item === choice,
-                                    idx = items.indexOf(item);
+                            items.forEach(function (item, i) {
+                                var active = item === choice;
 
                                 if (active) {
-                                    player.quality = idx > 0
-                                        ? player.qualities[idx - 1]
+                                    player.quality = i > 0
+                                        ? player.qualities[i - 1]
                                         : "abr";
                                     if (smooth && !player.poster) {
                                         hls.nextLevel = qIndex();
