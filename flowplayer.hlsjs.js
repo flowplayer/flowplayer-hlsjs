@@ -127,12 +127,13 @@
                     audioUXGroup,
                     audioAutoSwitch = function (level) {
                         if (audioGroups && audioGroups.length > 1) {
-                            var tracks = hls.audioTracks.filter(function (atrack) {
+                            var audioTracks = hls.audioTracks,
+                                tracks = audioTracks.filter(function (atrack) {
                                     var attrs = hls.levels[level].attrs;
 
                                     return atrack.autoselect && attrs &&
                                             atrack.groupId === attrs.AUDIO &&
-                                            atrack.name === hls.audioTracks[hls.audioTrack].name;
+                                            atrack.name === audioTracks[hls.audioTrack].name;
                                 }),
                                 audioTrackId = tracks.length && tracks[0].id;
 
@@ -156,11 +157,12 @@
                         common.find(".fp-audio", root).forEach(common.removeNode);
                     },
                     initAudio = function (data) {
-                        var atracks = data.audioTracks,
-                            hlsAtracks = hls.audioTracks,
+                        var parsedAudioTracks = data.audioTracks,
+                            loadedAudioTracks = hls.audioTracks,
                             errobj;
 
-                        if (atracks && atracks.length && (!hlsAtracks || !hlsAtracks.length)) {
+                        if (parsedAudioTracks && parsedAudioTracks.length &&
+                                (!loadedAudioTracks || !loadedAudioTracks.length)) {
                             errobj = handleError(player.conf.errors.length - 1, player.video.src);
                             player.trigger('error', [player, errobj]);
                             return;
@@ -177,7 +179,7 @@
                         });
                         if (audioGroups.length) {
                             // create sample group
-                            audioUXGroup = atracks.filter(function (audioTrack) {
+                            audioUXGroup = parsedAudioTracks.filter(function (audioTrack) {
                                 return audioTrack.groupId === audioGroups[0];
                             });
                         }
@@ -197,9 +199,10 @@
                         });
                         bean.on(root, "click." + engineName, ".fp-audio-menu a", function (e) {
                             var adata = e.target.getAttribute("data-audio"),
-                                gid = hls.audioTracks[hls.audioTrack].groupId,
+                                audioTracks = hls.audioTracks,
+                                gid = audioTracks[hls.audioTrack].groupId,
                                 // confine choice to current group
-                                atrack = hls.audioTracks.filter(function (at) {
+                                atrack = audioTracks.filter(function (at) {
                                     return at.groupId === gid && (at.name === adata || at.lang === adata);
                                 })[0];
                             hls.audioTrack = atrack.id;
