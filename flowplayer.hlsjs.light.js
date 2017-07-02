@@ -5,18 +5,18 @@
 
 /*!
 
-   hlsjs engine plugin for Flowplayer HTML5
+   hlsjs engine plugin (light) for Flowplayer HTML5
 
    Copyright (c) 2015-2017, Flowplayer Drive Oy
 
    Released under the MIT License:
    http://www.opensource.org/licenses/mit-license.php
 
-   Includes hls.js
+   Includes hls.light.js
    Copyright (c) 2017 Dailymotion (http://www.dailymotion.com)
    https://github.com/video-dev/hls.js/blob/master/LICENSE
 
-   Requires Flowplayer HTML5 version 6 or greater
+   Requires Flowplayer HTML5 version 7 or greater
    $GIT_DESC$
 
 */
@@ -28,9 +28,6 @@
             common = flowplayer.common,
             extend = flowplayer.extend,
             support = flowplayer.support,
-            brwsr = support.browser,
-            version = flowplayer.version,
-            coreV6 = version.indexOf("6.") === 0,
             win = window,
             mse = win.MediaSource || win.WebKitMediaSource,
             performance = win.performance,
@@ -102,189 +99,17 @@
                         return errobj;
                     },
 
-                    // pre 6.0.4 poster detection
-                    bc,
-                    has_bg,
-
-                    addPoster = function () {
-                        bean.one(videoTag, "timeupdate." + engineName, function () {
-                            common.addClass(root, posterClass);
-                            player.poster = true;
-                        });
-                    },
-                    removePoster = function () {
-                        if (coreV6 && player.poster) {
-                            bean.one(videoTag, "timeupdate." + engineName, function () {
-                                common.removeClass(root, posterClass);
-                                player.poster = false;
-                            });
-                        }
-                    },
-
                     maxLevel = 0,
-
-                    audioGroups,
-                    audioUXGroup,
-                    audioAutoSwitch = function (level) {
-                        if (audioGroups && audioGroups.length > 1) {
-                            var audioTracks = hls.audioTracks,
-                                tracks = audioTracks.filter(function (atrack) {
-                                    var attrs = hls.levels[level].attrs;
-
-                                    return atrack.autoselect && attrs &&
-                                            atrack.groupId === attrs.AUDIO &&
-                                            atrack.name === audioTracks[hls.audioTrack].name;
-                                }),
-                                audioTrackId = tracks.length && tracks[0].id;
-
-                            if (audioTrackId !== undefined && audioTrackId !== hls.audioTrack) {
-                                hls.audioTrack = audioTrackId;
-                            }
-                        }
-                    },
-                    selectAudioTrack = function (audioTrack) {
-                        common.find(".fp-audio", root)[0].innerHTML = audioTrack.lang || audioTrack.name;
-                        common.find(".fp-audio-menu a", root).forEach(function (el) {
-                            var adata = el.getAttribute("data-audio"),
-                                isSelected = adata === audioTrack.name;
-
-                            common.toggleClass(el, "fp-selected", isSelected);
-                            common.toggleClass(el, "fp-color", isSelected);
-                        });
-                    },
-                    removeAudioMenu = function () {
-                        common.find(".fp-audio-menu", root).forEach(common.removeNode);
-                        common.find(".fp-audio", root).forEach(common.removeNode);
-                    },
-                    initAudio = function (data) {
-                        var parsedAudioTracks = data.audioTracks,
-                            loadedAudioTracks = hls.audioTracks,
-                            errobj;
-
-                        if (parsedAudioTracks && parsedAudioTracks.length &&
-                                (!loadedAudioTracks || !loadedAudioTracks.length)) {
-                            errobj = handleError(player.conf.errors.length - 1, player.video.src);
-                            player.trigger('error', [player, errobj]);
-                            return;
-                        }
-                        audioGroups = [];
-                        audioUXGroup = [];
-                        data.levels.forEach(function (level) {
-                            var agroup = level.attrs && level.attrs.AUDIO;
-
-                            if (agroup && audioGroups.indexOf(agroup) < 0 &&
-                                    mse.isTypeSupported("video/mp4;codecs=" + level.videoCodec + "," + level.audioCodec)) {
-                                audioGroups.push(agroup);
-                            }
-                        });
-                        if (audioGroups.length) {
-                            // create sample group
-                            audioUXGroup = parsedAudioTracks.filter(function (audioTrack) {
-                                return audioTrack.groupId === audioGroups[0];
-                            });
-                        }
-                        if (!support.inlineVideo || coreV6 || audioUXGroup.length < 2) {
-                            return;
-                        }
-
-                        // audio menu
-                        bean.on(root, "click." + engineName, ".fp-audio", function () {
-                            var menu = common.find(".fp-audio-menu", root)[0];
-
-                            if (common.hasClass(menu, "fp-active")) {
-                                player.hideMenu();
-                            } else {
-                                player.showMenu(menu);
-                            }
-                        });
-                        bean.on(root, "click." + engineName, ".fp-audio-menu a", function (e) {
-                            var adata = e.target.getAttribute("data-audio"),
-                                audioTracks = hls.audioTracks,
-                                gid = audioTracks[hls.audioTrack].groupId,
-                                // confine choice to current group
-                                atrack = audioTracks.filter(function (at) {
-                                    return at.groupId === gid && (at.name === adata || at.lang === adata);
-                                })[0];
-                            hls.audioTrack = atrack.id;
-                            selectAudioTrack(atrack);
-                        });
-
-                        player.on("ready." + engineName, function () {
-                            removeAudioMenu();
-                            if (!hls || !audioUXGroup || audioUXGroup.length < 2) {
-                                return;
-                            }
-
-                            var ui = common.find(".fp-ui", root)[0],
-                                controlbar = common.find(".fp-controls", ui)[0],
-                                currentAudioTrack = hls.audioTracks[hls.audioTrack],
-                                menu = common.createElement("div", {
-                                    className: "fp-menu fp-audio-menu",
-                                    css: {width: "auto"}
-                                }, "<strong>Audio</strong>");
-
-                            audioUXGroup.forEach(function (audioTrack) {
-                                menu.appendChild(common.createElement("a", {
-                                    "data-audio": audioTrack.name
-                                }, audioTrack.name));
-                            });
-                            ui.appendChild(menu);
-                            controlbar.appendChild(common.createElement("strong", {
-                                className: "fp-audio"
-                            }, currentAudioTrack));
-
-                            selectAudioTrack(currentAudioTrack);
-                        });
-                    },
-
-                    // v6 qsel
-                    qActive = "active",
-                    dataQuality = function (quality) {
-                        // e.g. "Level 1" -> "level1"
-                        if (!quality) {
-                            quality = player.quality;
-                        } else if (player.qualities.indexOf(quality) < 0) {
-                            quality = "abr";
-                        }
-                        return quality.toLowerCase().replace(/\ /g, "");
-                    },
-                    removeAllQualityClasses = function () {
-                        var qualities = player.qualities;
-
-                        if (qualities) {
-                            common.removeClass(root, "quality-abr");
-                            qualities.forEach(function (quality) {
-                                common.removeClass(root, "quality-" + dataQuality(quality));
-                            });
-                        }
-                    },
-                    qClean = function () {
-                        if (coreV6) {
-                            delete player.hlsQualities;
-                            removeAllQualityClasses();
-                            common.find(".fp-quality-selector", root).forEach(common.removeNode);
-                        }
-                    },
-                    qIndex = function () {
-                        return player.hlsQualities[player.qualities.indexOf(player.quality) + 1];
-                    },
-
-                    // v7 qsel
                     lastSelectedLevel = -1,
-
-                    // v7 and v6 qsel
-                    initQualitySelection = function (hlsQualitiesConf, conf, data) {
+                    initQualitySelection = function (hlsQualitiesConf, data) {
                         var levels = data.levels,
                             hlsQualities,
-                            qualities,
                             getLevel = function (q) {
                                 return isNaN(Number(q))
                                     ? q.level
                                     : q;
-                            },
-                            selector;
+                            };
 
-                        qClean();
                         if (!hlsQualitiesConf || levels.length < 2) {
                             return;
                         }
@@ -329,9 +154,6 @@
                                 hlsQualities.unshift(-1);
                             }
                         }
-                        if (coreV6 && hlsQualities.indexOf(-1) < 0) {
-                            hlsQualities.unshift(-1);
-                        }
 
                         hlsQualities = hlsQualities.filter(function (q) {
                             if (q > -1 && q < levels.length) {
@@ -347,7 +169,7 @@
                             }
                         });
 
-                        qualities = hlsQualities.map(function (idx, i) {
+                        player.video.qualities = hlsQualities.map(function (idx, i) {
                             var level = levels[idx],
                                 q = typeof hlsQualitiesConf === "object"
                                     ? hlsQualitiesConf.filter(function (q) {
@@ -364,93 +186,23 @@
                                 if (level.width && level.height) {
                                     label = Math.min(level.width, level.height) + "p";
                                 }
-                                if (!coreV6 && hlsQualitiesConf !== "drive" && level.bitrate) {
+                                if (hlsQualitiesConf !== "drive" && level.bitrate) {
                                     label += " (" + Math.round(level.bitrate / 1000) + "k)";
                                 }
-                            }
-                            if (coreV6) {
-                                return label;
                             }
                             return {value: idx, label: label};
                         });
 
-                        if (!coreV6) {
-                            player.video.qualities = qualities;
-                            if (lastSelectedLevel > -1 || hlsQualities.indexOf(-1) < 0) {
-                                hls.loadLevel = hlsQualities.indexOf(lastSelectedLevel) < 0
-                                    ? hlsQualities[0]
-                                    : lastSelectedLevel;
-                                hls.config.startLevel = hls.loadLevel;
-                                player.video.quality = hls.loadLevel;
-                            } else {
-                                player.video.quality = -1;
-                            }
-                            lastSelectedLevel = player.video.quality;
-                            return;
-                        }
-
-                        // v6
-                        player.hlsQualities = hlsQualities;
-                        player.qualities = qualities.slice(1);
-
-                        selector = common.createElement("ul", {
-                            "class": "fp-quality-selector"
-                        });
-                        common.find(".fp-ui", root)[0].appendChild(selector);
-
-                        if (!player.quality || qualities.indexOf(player.quality) < 1) {
-                            player.quality = "abr";
-                        } else {
-                            hls.loadLevel = qIndex();
+                        if (lastSelectedLevel > -1 || hlsQualities.indexOf(-1) < 0) {
+                            hls.loadLevel = hlsQualities.indexOf(lastSelectedLevel) < 0
+                                ? hlsQualities[0]
+                                : lastSelectedLevel;
                             hls.config.startLevel = hls.loadLevel;
+                            player.video.quality = hls.loadLevel;
+                        } else {
+                            player.video.quality = -1;
                         }
-
-                        qualities.forEach(function (q) {
-                            selector.appendChild(common.createElement("li", {
-                                "data-quality": dataQuality(q)
-                            }, q));
-                        });
-
-                        common.addClass(root, "quality-" + dataQuality());
-
-                        bean.on(root, "click." + engineName, ".fp-quality-selector li", function (e) {
-                            var choice = e.currentTarget,
-                                items = common.find(".fp-quality-selector li", root),
-                                smooth = conf.smoothSwitching,
-                                paused = videoTag.paused;
-
-                            if (common.hasClass(choice, qActive)) {
-                                return;
-                            }
-
-                            if (!paused && !smooth) {
-                                bean.one(videoTag, "pause." + engineName, function () {
-                                    common.removeClass(root, "is-paused");
-                                });
-                            }
-
-                            items.forEach(function (item, i) {
-                                var active = item === choice;
-
-                                if (active) {
-                                    player.quality = i > 0
-                                        ? player.qualities[i - 1]
-                                        : "abr";
-                                    if (smooth && !player.poster) {
-                                        hls.nextLevel = qIndex();
-                                    } else {
-                                        hls.currentLevel = qIndex();
-                                    }
-                                    common.addClass(choice, qActive);
-                                    if (paused) {
-                                        videoTag.play();
-                                    }
-                                }
-                                common.toggleClass(item, qActive, active);
-                            });
-                            removeAllQualityClasses();
-                            common.addClass(root, "quality-" + dataQuality());
-                        });
+                        lastSelectedLevel = player.video.quality;
                     },
 
                     engine = {
@@ -534,8 +286,6 @@
                                             i,
                                             buffends = [],
                                             src = updatedVideo.src,
-                                            quality = player.quality,
-                                            selectorIndex,
                                             errorCode;
 
                                         switch (flow) {
@@ -549,13 +299,11 @@
                                             });
                                             break;
                                         case "resume":
-                                            removePoster();
                                             if (!hlsUpdatedConf.bufferWhilePaused) {
                                                 hls.startLoad(ct);
                                             }
                                             break;
                                         case "seek":
-                                            removePoster();
                                             if (!hlsUpdatedConf.bufferWhilePaused && videoTag.paused) {
                                                 hls.stopLoad();
                                                 videoTag.pause();
@@ -619,16 +367,6 @@
                                         }
 
                                         player.trigger(flow, [player, arg]);
-
-                                        if (coreV6) {
-                                            if (flow === "ready" && quality) {
-                                                selectorIndex = quality === "abr"
-                                                    ? 0
-                                                    : player.qualities.indexOf(quality) + 1;
-                                                common.addClass(common.find(".fp-quality-selector li", root)[selectorIndex],
-                                                        qActive);
-                                            }
-                                        }
                                     });
                                 });
 
@@ -649,26 +387,14 @@
                                     });
                                 }
 
-                                if (!coreV6) {
-                                    player.on("quality." + engineName, function (_e, _api, q) {
-                                        if (hlsUpdatedConf.smoothSwitching) {
-                                            hls.nextLevel = q;
-                                        } else {
-                                            hls.currentLevel = q;
-                                        }
-                                        lastSelectedLevel = q;
-                                    });
-
-                                } else if (conf.poster) {
-                                    // v6 only
-                                    // engine too late, poster already removed
-                                    // abuse timeupdate to re-instate poster
-                                    player.on("stop." + engineName, addPoster);
-                                    // re-instate initial poster for live streams
-                                    if (player.live && !autoplay && !player.video.autoplay) {
-                                        bean.one(videoTag, "seeked." + engineName, addPoster);
+                                player.on("quality." + engineName, function (_e, _api, q) {
+                                    if (hlsUpdatedConf.smoothSwitching) {
+                                        hls.nextLevel = q;
+                                    } else {
+                                        hls.currentLevel = q;
                                     }
-                                }
+                                    lastSelectedLevel = q;
+                                });
 
                                 common.prepend(common.find(".fp-player", root)[0], videoTag);
 
@@ -751,15 +477,17 @@
 
                                     switch (key) {
                                     case "MANIFEST_PARSED":
-                                        if (hlsQualitiesSupport(conf) &&
-                                                !(!coreV6 && player.pluginQualitySelectorEnabled)) {
-                                            initQualitySelection(hlsQualitiesConf, hlsUpdatedConf, data);
-                                        } else if (coreV6) {
-                                            delete player.quality;
+                                        if (hlsQualitiesSupport(conf) && !player.pluginQualitySelectorEnabled) {
+                                            initQualitySelection(hlsQualitiesConf, data);
                                         }
                                         break;
                                     case "MANIFEST_LOADED":
-                                        initAudio(data);
+                                        if (data.audioTracks && data.audioTracks.length &&
+                                                (!hls.audioTracks || !hls.audioTracks.length)) {
+                                            errobj = handleError(player.conf.errors.length - 1, updatedVideo.src);
+                                            player.trigger('error', [player, errobj]);
+                                            
+                                        }
                                         break;
                                     case "MEDIA_ATTACHED":
                                         hls.loadSource(src);
@@ -771,9 +499,6 @@
                                         }
                                         break;
                                     case "FRAG_PARSING_METADATA":
-                                        if (coreV6) {
-                                            return;
-                                        }
                                         data.samples.forEach(function (sample) {
                                             var metadataHandler;
 
@@ -804,15 +529,6 @@
                                     case "LEVEL_UPDATED":
                                         if (player.live) {
                                             player.video.seekOffset = data.details.fragments[0].start + hls.config.nudgeOffset;
-                                        }
-                                        break;
-                                    case "LEVEL_SWITCHED":
-                                        if (hlsUpdatedConf.audioABR) {
-                                            player.one("buffer." + engineName, function (_e, api, buffer) {
-                                                if (buffer > api.video.time) {
-                                                    audioAutoSwitch(data.level);
-                                                }
-                                            });
                                         }
                                         break;
                                     case "BUFFER_APPENDED":
@@ -873,9 +589,7 @@
                                 if (playPromise !== undefined) {
                                     playPromise.catch(function () {
                                         player.unload();
-                                        if (!coreV6) {
-                                            player.message("Please click the play button", 3000);
-                                        }
+                                        player.message("Please click the play button", 3000);
                                     });
                                 }
                             }
@@ -910,8 +624,6 @@
 
                                 hls.destroy();
                                 hls = 0;
-                                qClean();
-                                removeAudioMenu();
                                 player.off(listeners);
                                 bean.off(root, listeners);
                                 bean.off(videoTag, listeners);
@@ -923,22 +635,10 @@
                         }
                     };
 
-                // pre 6.0.4: no boolean api.conf.poster and no poster with autoplay
-                if (/^6\.0\.[0-3]$/.test(version) &&
-                        !player.conf.splash && !player.conf.poster && !player.conf.autoplay) {
-                    bc = common.css(root, 'backgroundColor');
-                    // spaces in rgba arg mandatory for recognition
-                    has_bg = common.css(root, 'backgroundImage') !== "none" ||
-                            (bc && bc !== "rgba(0, 0, 0, 0)" && bc !== "transparent");
-                    if (has_bg) {
-                        player.conf.poster = true;
-                    }
-                }
-
                 return engine;
             };
 
-        if (Hls.isSupported() && version.indexOf("5.") !== 0) {
+        if (Hls.isSupported() && parseInt(flowplayer.version.split(".")[0]) > 6) {
             // only load engine if it can be used
             engineImpl.engineName = engineName; // must be exposed
             engineImpl.canPlay = function (type, conf) {
@@ -955,20 +655,12 @@
                 }, conf[engineName], conf.clip[engineName]);
 
                 // https://github.com/dailymotion/hls.js/issues/9
-                return isHlsType(type) && (!brwsr.safari || hlsconf.safari);
+                return isHlsType(type) && (!support.browser.safari || hlsconf.safari);
             };
 
             // put on top of engine stack
             // so hlsjs is tested before html5 video hls and flash hls
             flowplayer.engines.unshift(engineImpl);
-
-            if (coreV6) {
-                flowplayer(function (api) {
-                    // to take precedence over VOD quality selector
-                    api.pluginQualitySelectorEnabled = hlsQualitiesSupport(api.conf) &&
-                            engineImpl.canPlay("application/x-mpegurl", api.conf);
-                });
-            }
         }
 
     };

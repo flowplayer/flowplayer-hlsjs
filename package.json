@@ -5,10 +5,11 @@
   "main": "flowplayer.hlsjs.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "jslint --edition=latest --devel flowplayer.hlsjs.js",
+    "lint": "jslint --edition=latest --devel flowplayer.hlsjs.js flowplayer.hlsjs.light.js",
     "build": "webpack",
     "dev": "webpack --progress --colors --watch",
-    "min": "uglifyjs -m -c < flowplayer.hlsjs.js"
+    "min": "uglifyjs -m -c < flowplayer.hlsjs.js",
+    "light": "uglifyjs -m -c < flowplayer.hlsjs.light.js"
   },
   "repository": {
     "type": "git",
