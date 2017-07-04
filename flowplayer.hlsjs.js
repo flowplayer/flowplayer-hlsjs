@@ -955,7 +955,8 @@
                 }, conf[engineName], conf.clip[engineName]);
 
                 // https://github.com/dailymotion/hls.js/issues/9
-                return isHlsType(type) && (!brwsr.safari || hlsconf.safari);
+                return isHlsType(type) &&
+                        (!brwsr.safari || (brwsr.safari && !support.dataload) || hlsconf.safari);
             };
 
             // put on top of engine stack
