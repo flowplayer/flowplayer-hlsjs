@@ -486,7 +486,6 @@
                                                 (!hls.audioTracks || !hls.audioTracks.length)) {
                                             errobj = handleError(player.conf.errors.length - 1, updatedVideo.src);
                                             player.trigger('error', [player, errobj]);
-                                            
                                         }
                                         break;
                                     case "MEDIA_ATTACHED":
