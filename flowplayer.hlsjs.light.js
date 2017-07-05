@@ -28,6 +28,7 @@
             common = flowplayer.common,
             extend = flowplayer.extend,
             support = flowplayer.support,
+            brwsr = support.browser,
             win = window,
             mse = win.MediaSource || win.WebKitMediaSource,
             performance = win.performance,
@@ -584,7 +585,8 @@
                             hls.attachMedia(videoTag);
 
                             // Android Chrome only
-                            if (support.android && support.dataload && autoplay && videoTag.paused) {
+                            if (!support.firstframe && support.dataload && !brwsr.mozilla &&
+                                    autoplay && videoTag.paused) {
                                 var playPromise = videoTag.play();
                                 if (playPromise !== undefined) {
                                     playPromise.catch(function () {
@@ -655,8 +657,6 @@
                 }, conf[engineName], conf.clip[engineName]);
 
                 // https://github.com/dailymotion/hls.js/issues/9
-                var brwsr = support.browser;
-
                 return isHlsType(type) &&
                         (!brwsr.safari || (brwsr.safari && !support.dataload) || hlsconf.safari);
             };

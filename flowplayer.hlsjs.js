@@ -869,7 +869,8 @@
                             hls.attachMedia(videoTag);
 
                             // Android Chrome only
-                            if (support.android && support.dataload && autoplay && videoTag.paused) {
+                            if (!support.firstframe && support.dataload && !brwsr.mozilla &&
+                                    autoplay && videoTag.paused) {
                                 var playPromise = videoTag.play();
                                 if (playPromise !== undefined) {
                                     playPromise.catch(function () {
