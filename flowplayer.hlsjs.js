@@ -48,8 +48,6 @@
 
             engineImpl = function hlsjsEngine(player, root) {
                 var bean = flowplayer.bean,
-                    fpdefaults = flowplayer.defaults,
-                    defaultErrors = fpdefaults.errors.slice(0),
                     videoTag,
                     hls,
 
@@ -157,16 +155,6 @@
                         common.find(".fp-audio", root).forEach(common.removeNode);
                     },
                     initAudio = function (data) {
-                        var parsedAudioTracks = data.audioTracks,
-                            loadedAudioTracks = hls.audioTracks,
-                            errobj;
-
-                        if (parsedAudioTracks && parsedAudioTracks.length &&
-                                (!loadedAudioTracks || !loadedAudioTracks.length)) {
-                            errobj = handleError(player.conf.errors.length - 1, player.video.src);
-                            player.trigger('error', [player, errobj]);
-                            return;
-                        }
                         audioGroups = [];
                         audioUXGroup = [];
                         data.levels.forEach(function (level) {
@@ -179,7 +167,7 @@
                         });
                         if (audioGroups.length) {
                             // create sample group
-                            audioUXGroup = parsedAudioTracks.filter(function (audioTrack) {
+                            audioUXGroup = data.audioTracks.filter(function (audioTrack) {
                                 return audioTrack.groupId === audioGroups[0];
                             });
                         }
@@ -493,7 +481,6 @@
                             }
 
                             if (!hls) {
-                                conf.errors.push("Alternate audio tracks not supported by light plugin build.");
                                 videoTag = common.findDirect("video", root)[0]
                                         || common.find(".fp-player > video", root)[0];
 
@@ -919,8 +906,6 @@
                                 bean.off(videoTag, listeners);
                                 common.removeNode(videoTag);
                                 videoTag = 0;
-                                player.conf.errors = defaultErrors;
-                                fpdefaults.errors = defaultErrors;
                             }
                         }
                     };
