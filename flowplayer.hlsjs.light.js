@@ -46,8 +46,6 @@
 
             engineImpl = function hlsjsEngine(player, root) {
                 var bean = flowplayer.bean,
-                    fpdefaults = flowplayer.defaults,
-                    defaultErrors = fpdefaults.errors.slice(0),
                     videoTag,
                     hls,
 
@@ -246,7 +244,6 @@
                             }
 
                             if (!hls) {
-                                conf.errors.push("Alternate audio tracks not supported by light plugin build.");
                                 videoTag = common.findDirect("video", root)[0]
                                         || common.find(".fp-player > video", root)[0];
 
@@ -471,6 +468,7 @@
                                 hls.on(etype, function (e, data) {
                                     var fperr,
                                         errobj = {},
+                                        errors = player.conf.errors,
                                         ERRORTYPES = Hls.ErrorTypes,
                                         ERRORDETAILS = Hls.ErrorDetails,
                                         updatedVideo = player.video,
@@ -485,8 +483,10 @@
                                     case "MANIFEST_LOADED":
                                         if (data.audioTracks && data.audioTracks.length &&
                                                 (!hls.audioTracks || !hls.audioTracks.length)) {
-                                            errobj = handleError(player.conf.errors.length - 1, updatedVideo.src);
+                                            errors.push("Alternate audio tracks not supported by light plugin build.");
+                                            errobj = handleError(errors.length - 1, player.video.src);
                                             player.trigger('error', [player, errobj]);
+                                            errors.slice(0, errors.length - 1);
                                         }
                                         break;
                                     case "MEDIA_ATTACHED":
@@ -631,8 +631,6 @@
                                 bean.off(videoTag, listeners);
                                 common.removeNode(videoTag);
                                 videoTag = 0;
-                                player.conf.errors = defaultErrors;
-                                fpdefaults.errors = defaultErrors;
                             }
                         }
                     };
