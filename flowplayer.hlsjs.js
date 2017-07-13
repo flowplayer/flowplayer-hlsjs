@@ -352,7 +352,7 @@
                                 if (level.width && level.height) {
                                     label = Math.min(level.width, level.height) + "p";
                                 }
-                                if (!coreV6 && hlsQualitiesConf !== "drive" && level.bitrate) {
+                                if (hlsQualitiesConf !== "drive" && level.bitrate) {
                                     label += " (" + Math.round(level.bitrate / 1000) + "k)";
                                 }
                             }
