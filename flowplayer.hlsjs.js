@@ -858,7 +858,7 @@
                             // Android Chrome only
                             if (!support.firstframe && support.dataload && !brwsr.mozilla &&
                                     autoplay && videoTag.paused) {
-                                var playPromise = videoTag.play();
+                                var playPromise = videoTag.load();
                                 if (playPromise !== undefined) {
                                     playPromise.catch(function () {
                                         player.unload();
