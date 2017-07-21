@@ -545,7 +545,6 @@
                                             removePoster();
                                             if (!hlsUpdatedConf.bufferWhilePaused && videoTag.paused) {
                                                 hls.stopLoad();
-                                                videoTag.pause();
                                             }
                                             arg = ct;
                                             break;
