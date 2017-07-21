@@ -376,9 +376,6 @@
                                 if (!hlsUpdatedConf.bufferWhilePaused) {
                                     player.on("beforeseek." + engineName, function (_e, api, pos) {
                                         if (api.paused) {
-                                            bean.one(videoTag, "seeked." + engineName, function () {
-                                                videoTag.pause();
-                                            });
                                             hls.startLoad(pos);
                                         }
                                     });
