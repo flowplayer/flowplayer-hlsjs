@@ -262,7 +262,8 @@
                                     "class": "fp-engine " + engineName + "-engine",
                                     "autoplay": autoplay
                                         ? "autoplay"
-                                        : false
+                                        : false,
+                                    "volume": player.volumeLevel
                                 });
 
                                 Object.keys(EVENTS).forEach(function (key) {
