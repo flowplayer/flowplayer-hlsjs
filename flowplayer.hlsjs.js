@@ -158,10 +158,11 @@
                         audioGroups = [];
                         audioUXGroup = [];
                         data.levels.forEach(function (level) {
-                            var agroup = level.attrs && level.attrs.AUDIO;
+                            var agroup = level.attrs && level.attrs.AUDIO,
+                                acodec = level.audioCodec;
 
                             if (agroup && audioGroups.indexOf(agroup) < 0 &&
-                                    mse.isTypeSupported("video/mp4;codecs=" + level.videoCodec + "," + level.audioCodec)) {
+                                    (!acodec || mse.isTypeSupported("audio/mp4;codecs=" + acodec))) {
                                 audioGroups.push(agroup);
                             }
                         });
