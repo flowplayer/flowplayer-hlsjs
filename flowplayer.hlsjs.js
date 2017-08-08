@@ -624,15 +624,14 @@
                                     if (hls) {
                                         player.engine.unload();
                                     }
-                                });
 
-                                if (!hlsUpdatedConf.bufferWhilePaused) {
-                                    player.on("beforeseek." + engineName, function (_e, api, pos) {
-                                        if (api.paused) {
-                                            hls.startLoad(pos);
-                                        }
-                                    });
-                                }
+                                }).on("beforeseek." + engineName, function (e, api, pos) {
+                                    if (pos === undefined) {
+                                        e.preventDefault();
+                                    } else if (!hlsUpdatedConf.bufferWhilePaused && api.paused) {
+                                        hls.startLoad(pos);
+                                    }
+                                });
 
                                 if (!coreV6) {
                                     player.on("quality." + engineName, function (_e, _api, q) {
