@@ -30,6 +30,8 @@
             support = flowplayer.support,
             brwsr = support.browser,
             desktopSafari = brwsr.safari && support.dataload,
+            androidChrome = (support.android && !support.android.firefox) ||
+                    (!support.firstframe && support.dataload && !brwsr.mozilla),
             win = window,
             mse = win.MediaSource || win.WebKitMediaSource,
             performance = win.performance,
@@ -586,9 +588,7 @@
 
                             hls.attachMedia(videoTag);
 
-                            // Android Chrome only
-                            if (!support.firstframe && support.dataload && !brwsr.mozilla &&
-                                    autoplay && videoTag.paused) {
+                            if (androidChrome && autoplay && videoTag.paused) {
                                 var playPromise = videoTag.play();
                                 if (playPromise !== undefined) {
                                     playPromise.catch(function () {
