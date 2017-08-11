@@ -253,6 +253,13 @@
                             });
                         }
                     },
+                    disableSubtitleTracks = function () {
+                        [].forEach.call(videoTag.textTracks, function (track) {
+                            if (track.kind === "subtitles") {
+                                track.mode = "hidden";
+                            }
+                        });
+                    },
                     initSubtitles = function (data, conf) {
                         var subtitleTracks = data.subtitleTracks;
 
@@ -274,16 +281,15 @@
                             };
                         });
                         bean.on(videoTag, "loadeddata." + engineName, function () {
-                            var subtitles = player.video.subtitles;
+                            var subtitles = player.video.subtitles,
+                                nativeSubs = support.subtitles && player.conf.nativesubtitles;
 
                             if (!subtitles || !subtitles.length) {
                                 return;
                             }
-                            [].forEach.call(videoTag.textTracks, function (track) {
-                                if (track.kind === "subtitles") {
-                                    track.mode = "hidden";
-                                }
-                            });
+                            if (!nativeSubs) {
+                                disableSubtitleTracks();
+                            }
                             if (!subtitles.filter(function (sub) {
                                 if (sub.default) {
                                     hls.subtitleTrack = sub.id;
@@ -297,18 +303,22 @@
                         bean.on(root, "click." + engineName, ".fp-subtitle-menu [data-subtitle-index]", function (e) {
                             e.preventDefault();
                             var idx = e.target.getAttribute("data-subtitle-index"),
-                                internalSubs = hlsSubtitles[idx];
+                                internalSubs = hlsSubtitles[idx],
+                                nativeSubs = support.subtitles && player.conf.nativesubtitles;
 
                             player.disableSubtitles();
                             hls.subtitleTrack = idx;
                             if (idx < 0) {
+                                disableSubtitleTracks();
                                 return;
                             }
                             setActiveSubtitleClass(idx);
-                            if (internalSubs && internalSubs.length) {
-                                internalSubs.forEach(function (entry) {
-                                    loadHlsSubtitle(player, entry);
-                                });
+                            if (!nativeSubs) {
+                                if (internalSubs && internalSubs.length) {
+                                    internalSubs.forEach(function (entry) {
+                                        loadHlsSubtitle(player, entry);
+                                    });
+                                }
                             }
                         });
                     },
@@ -645,11 +655,14 @@
                                 hlsQualitiesConf = false;
                             }
 
-                            if (!hls) {
+                            if (!hls || (videoTag && videoTag.textTracks)) {
                                 videoTag = common.findDirect("video", root)[0]
                                         || common.find(".fp-player > video", root)[0];
 
                                 if (videoTag) {
+                                    if (hls) {
+                                        hls.destroy();
+                                    }
                                     // destroy video tag
                                     // otherwise <video autoplay> continues to play
                                     common.find("source", videoTag).forEach(function (source) {
@@ -919,7 +932,8 @@
                                         hls.loadSource(src);
                                         break;
                                     case "FRAG_LOADED":
-                                        if (data.frag.type === "subtitle" && hlsUpdatedConf.subtitles) {
+                                        if (data.frag.type === "subtitle" && hlsUpdatedConf.subtitles &&
+                                                !(conf.nativesubtitles && support.subtitles)) {
                                             entries = conf.subtitleParser(arrayToText(data.payload));
                                             entries.forEach(function (entry) {
                                                 updateSubtitles(entry, hls.subtitleTrack);
@@ -928,6 +942,16 @@
                                         if (hlsUpdatedConf.bufferWhilePaused && !player.live &&
                                                 hls.autoLevelEnabled && hls.nextLoadLevel > maxLevel) {
                                             maxLevel = hls.nextLoadLevel;
+                                        }
+                                        break;
+                                    case "SUBTITLE_TRACK_SWITCH":
+                                        if (support.subtitles && conf.nativesubtitles) {
+                                            [].forEach.call(videoTag.textTracks, function (track) {
+                                                track.mode = (hls.subtitleTracks[data.id].lang === track.language &&
+                                                        track.kind === "subtitles")
+                                                    ? "showing"
+                                                    : "hidden";
+                                            });
                                         }
                                         break;
                                     case "FRAG_PARSING_METADATA":
