@@ -205,6 +205,7 @@
                         common.find(".fp-audio", root).forEach(common.removeNode);
                     },
 
+                    nativeSubs,
                     hlsSubtitles,
                     setActiveSubtitleClass = function (idx) {
                         var menu = common.find(".fp-subtitle-menu", root)[0];
@@ -281,8 +282,7 @@
                             };
                         });
                         bean.on(videoTag, "loadeddata." + engineName, function () {
-                            var subtitles = player.video.subtitles,
-                                nativeSubs = support.subtitles && player.conf.nativesubtitles;
+                            var subtitles = player.video.subtitles;
 
                             if (!subtitles || !subtitles.length) {
                                 return;
@@ -303,8 +303,7 @@
                         bean.on(root, "click." + engineName, ".fp-subtitle-menu [data-subtitle-index]", function (e) {
                             e.preventDefault();
                             var idx = e.target.getAttribute("data-subtitle-index"),
-                                internalSubs = hlsSubtitles[idx],
-                                nativeSubs = support.subtitles && player.conf.nativesubtitles;
+                                internalSubs = hlsSubtitles[idx];
 
                             player.disableSubtitles();
                             hls.subtitleTrack = idx;
@@ -654,15 +653,22 @@
                             if (video.hlsQualities === false) {
                                 hlsQualitiesConf = false;
                             }
+                            // native subtitles would accumulate text tracks in
+                            // playlists: video tag must be destroyed.
+                            // this causes autoplay issue in Android Chrome
+                            // -> disallow native subtitles in this case
+                            nativeSubs = hlsUpdatedConf.subtitles &&
+                                    support.subtitles && conf.nativesubtitles &&
+                                    !(androidChrome && conf.playlist.length);
 
-                            if (!hls || (videoTag && videoTag.textTracks)) {
+                            if (!hls || (nativeSubs && videoTag && videoTag.textTracks)) {
                                 videoTag = common.findDirect("video", root)[0]
                                         || common.find(".fp-player > video", root)[0];
 
+                                if (hls) {
+                                    hls.destroy();
+                                }
                                 if (videoTag) {
-                                    if (hls) {
-                                        hls.destroy();
-                                    }
                                     // destroy video tag
                                     // otherwise <video autoplay> continues to play
                                     common.find("source", videoTag).forEach(function (source) {
@@ -932,8 +938,7 @@
                                         hls.loadSource(src);
                                         break;
                                     case "FRAG_LOADED":
-                                        if (data.frag.type === "subtitle" && hlsUpdatedConf.subtitles &&
-                                                !(conf.nativesubtitles && support.subtitles)) {
+                                        if (data.frag.type === "subtitle" && hlsUpdatedConf.subtitles && !nativeSubs) {
                                             entries = conf.subtitleParser(arrayToText(data.payload));
                                             entries.forEach(function (entry) {
                                                 updateSubtitles(entry, hls.subtitleTrack);
@@ -945,7 +950,7 @@
                                         }
                                         break;
                                     case "SUBTITLE_TRACK_SWITCH":
-                                        if (support.subtitles && conf.nativesubtitles) {
+                                        if (nativeSubs) {
                                             [].forEach.call(videoTag.textTracks, function (track) {
                                                 track.mode = (hls.subtitleTracks[data.id].lang === track.language &&
                                                         track.kind === "subtitles")
