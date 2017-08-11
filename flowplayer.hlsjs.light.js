@@ -29,6 +29,7 @@
             extend = flowplayer.extend,
             support = flowplayer.support,
             brwsr = support.browser,
+            desktopSafari = brwsr.safari && support.dataload,
             win = window,
             mse = win.MediaSource || win.WebKitMediaSource,
             performance = win.performance,
@@ -222,7 +223,12 @@
                             var conf = player.conf,
                                 EVENTS = {
                                     ended: "finish",
-                                    loadeddata: "ready",
+                                    loadeddata: !desktopSafari
+                                        ? "ready"
+                                        : 0,
+                                    canplaythrough: desktopSafari
+                                        ? "ready"
+                                        : 0,
                                     pause: "pause",
                                     play: "resume",
                                     progress: "buffer",
@@ -651,8 +657,7 @@
                 }, conf[engineName], conf.clip[engineName]);
 
                 // https://github.com/dailymotion/hls.js/issues/9
-                return isHlsType(type) &&
-                        (!brwsr.safari || (brwsr.safari && !support.dataload) || hlsconf.safari);
+                return isHlsType(type) && (!desktopSafari || hlsconf.safari);
             };
 
             // put on top of engine stack
