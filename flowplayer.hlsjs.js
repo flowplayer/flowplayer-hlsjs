@@ -49,19 +49,23 @@
                         (hlsQualities && hlsQualities.length));
             },
 
-            arrayToText = function (raw) {
-                var Decoder = win.TextDecoder;
+            textencoding = require("text-encoding"),
+            uint8ArrayToString = function (arr) {
+                var Decoder = textencoding.TextDecoder,
+                    txt = "";
 
-                if (Decoder && typeof Decoder === "function") {
-                    Decoder.ignoreBOM = true;
-                    return new Decoder('utf-8').decode(raw);
-                }
-                // breaks on non-ascii chars
                 try {
-                    return decodeURIComponent(encodeURIComponent(
-                        String.fromCharCode.apply(null, raw)
-                    ));
-                } catch (ignore) {}
+                    txt = new Decoder("utf-8").decode(arr);
+                } catch (ignore) {
+                    try {
+                        txt = new Decoder("utf-16be").decode(arr);
+                    } catch (ignore) {
+                        try {
+                            txt = new Decoder("utf-16le").decode(arr);
+                        } catch (ignore) {}
+                    }
+                }
+                return txt;
             },
 
             loadHlsSubtitle = function (api, entry) {
@@ -937,7 +941,7 @@
                                         break;
                                     case "FRAG_LOADED":
                                         if (data.frag.type === "subtitle" && hlsUpdatedConf.subtitles && !nativeSubs) {
-                                            entries = conf.subtitleParser(arrayToText(data.payload));
+                                            entries = conf.subtitleParser(uint8ArrayToString(data.payload));
                                             entries.forEach(function (entry) {
                                                 updateSubtitles(entry, hls.subtitleTrack);
                                             });
@@ -970,7 +974,7 @@
                                                 }
                                                 bean.off(videoTag, 'timeupdate.' + engineName, metadataHandler);
 
-                                                var txt = arrayToText(sample.unit || sample.data);
+                                                var txt = uint8ArrayToString(sample.unit || sample.data);
 
                                                 player.trigger('metadata', [player, {
                                                     key: txt.substr(10, 4),
