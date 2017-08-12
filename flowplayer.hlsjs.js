@@ -50,18 +50,20 @@
             },
 
             textencoding = require("text-encoding"),
+            Decoder = new textencoding.TextDecoder("utf-8"),
+            Decoder16be = new textencoding.TextDecoder("utf-16be"),
+            Decoder16le = new textencoding.TextDecoder("utf-16le"),
             uint8ArrayToString = function (arr) {
-                var Decoder = textencoding.TextDecoder,
-                    txt = "";
+                var txt = "";
 
                 try {
-                    txt = new Decoder("utf-8").decode(arr);
+                    txt = Decoder.decode(arr);
                 } catch (ignore) {
                     try {
-                        txt = new Decoder("utf-16be").decode(arr);
+                        txt = Decoder16be.decode(arr);
                     } catch (ignore) {
                         try {
-                            txt = new Decoder("utf-16le").decode(arr);
+                            txt = Decoder16le.decode(arr);
                         } catch (ignore) {}
                     }
                 }
@@ -69,11 +71,6 @@
             },
 
             loadHlsSubtitle = function (api, entry) {
-                if (api.subtitles && api.subtitles.map(function (sub) {
-                    return sub.startTime;
-                }).indexOf(entry.startTime) > -1) {
-                    return;
-                }
                 entry.title = entry.title || "dummy";
 
                 var cue = {
@@ -217,36 +214,38 @@
                         common.toggleClass(common.find('a.fp-selected', menu)[0], 'fp-selected');
                         common.toggleClass(common.find('a[data-subtitle-index="' + idx + '"]', menu)[0], 'fp-selected');
                     },
-                    updateSubtitles = function (entry, idx) {
-                        if (!hlsSubtitles[idx]) {
-                            hlsSubtitles[idx] = [];
-                        }
-                        var internalSubs = hlsSubtitles[idx];
+                    updateSubtitles = function (data, conf) {
+                        var entries = uint8ArrayToString(data.payload),
+                            id = data.frag.trackId;
 
-                        if (internalSubs.map(function (sub) {
-                            return sub.startTime;
-                        }).indexOf(entry.startTime) > -1) {
+                        if (!entries) {
                             return;
                         }
-                        internalSubs.push(entry);
-                        if (player.ready) {
-                            internalSubs.forEach(function (entry) {
-                                loadHlsSubtitle(player, entry);
-                            });
-                            if (player.live) {
-                                internalSubs = internalSubs.filter(function (sub) {
-                                    return sub.endTime >= player.video.seekOffset;
-                                });
-                                player.subtitles = player.subtitles.filter(function (sub) {
-                                    return sub.endTime >= player.video.seekOffset;
-                                });
-                                player.cuepoints.forEach(function (cue) {
-                                    if (cue.subtitle && cue.time < player.video.seekOffset) {
-                                        player.removeCuepoint(cue);
-                                    }
-                                });
-                            }
+                        if (!hlsSubtitles[id]) {
+                            hlsSubtitles[id] = [];
                         }
+                        entries = conf.subtitleParser(entries);
+                        entries.forEach(function (entry) {
+                            if (entry.text) {
+                                hlsSubtitles[id].push(entry);
+                                if (player.ready) {
+                                    loadHlsSubtitle(player, entry);
+                                    if (player.live) {
+                                        hlsSubtitles[id] = hlsSubtitles[id].filter(function (sub) {
+                                            return sub.endTime >= player.video.seekOffset;
+                                        });
+                                        player.subtitles = player.subtitles.filter(function (sub) {
+                                            return sub.endTime >= player.video.seekOffset;
+                                        });
+                                        player.cuepoints.forEach(function (cue) {
+                                            if (cue.subtitle && cue.time < player.video.seekOffset) {
+                                                player.removeCuepoint(cue);
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                        });
                     },
                     disableSubtitleTracks = function () {
                         [].forEach.call(videoTag.textTracks, function (track) {
@@ -292,7 +291,7 @@
                             });
                             defaultTrack = hls.subtitleTrack;
                             if (defaultTrack > -1) {
-                                if (hlsSubtitles[defaultTrack]) {
+                                if (!nativeSubs && hlsSubtitles[defaultTrack]) {
                                     hlsSubtitles[defaultTrack].forEach(function (entry) {
                                         loadHlsSubtitle(player, entry);
                                     });
@@ -304,8 +303,7 @@
                         });
                         bean.on(root, "click." + engineName, ".fp-subtitle-menu [data-subtitle-index]", function (e) {
                             e.preventDefault();
-                            var idx = e.target.getAttribute("data-subtitle-index"),
-                                internalSubs = hlsSubtitles[idx];
+                            var idx = e.target.getAttribute("data-subtitle-index");
 
                             player.disableSubtitles();
                             hls.subtitleTrack = idx;
@@ -314,8 +312,8 @@
                                 return;
                             }
                             setActiveSubtitleClass(idx);
-                            if (!nativeSubs && internalSubs) {
-                                internalSubs.forEach(function (entry) {
+                            if (!nativeSubs && hlsSubtitles[idx]) {
+                                hlsSubtitles[idx].forEach(function (entry) {
                                     loadHlsSubtitle(player, entry);
                                 });
                             }
@@ -916,8 +914,7 @@
                                         ERRORTYPES = Hls.ErrorTypes,
                                         ERRORDETAILS = Hls.ErrorDetails,
                                         updatedVideo = player.video,
-                                        src = updatedVideo.src,
-                                        entries;
+                                        src = updatedVideo.src;
 
                                     switch (key) {
                                     case "MANIFEST_PARSED":
@@ -939,10 +936,7 @@
                                         break;
                                     case "FRAG_LOADED":
                                         if (data.frag.type === "subtitle" && hlsUpdatedConf.subtitles && !nativeSubs) {
-                                            entries = conf.subtitleParser(uint8ArrayToString(data.payload));
-                                            entries.forEach(function (entry) {
-                                                updateSubtitles(entry, hls.subtitleTrack);
-                                            });
+                                            updateSubtitles(data, conf);
                                         }
                                         if (hlsUpdatedConf.bufferWhilePaused && !player.live &&
                                                 hls.autoLevelEnabled && hls.nextLoadLevel > maxLevel) {
