@@ -312,12 +312,10 @@
                                 return;
                             }
                             setActiveSubtitleClass(idx);
-                            if (!nativeSubs) {
-                                if (internalSubs && internalSubs.length) {
-                                    internalSubs.forEach(function (entry) {
-                                        loadHlsSubtitle(player, entry);
-                                    });
-                                }
+                            if (!nativeSubs && internalSubs) {
+                                internalSubs.forEach(function (entry) {
+                                    loadHlsSubtitle(player, entry);
+                                });
                             }
                         });
                     },
