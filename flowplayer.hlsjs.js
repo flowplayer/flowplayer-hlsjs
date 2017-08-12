@@ -246,16 +246,6 @@
                                     }
                                 });
                             }
-                        } else {
-                            player.on("ready." + engineName, function () {
-                                var defaultSubtitles = hls.subtitleTrack;
-
-                                if (defaultSubtitles > -1 && hlsSubtitles[defaultSubtitles]) {
-                                    hlsSubtitles[defaultSubtitles].forEach(function (entry) {
-                                        loadHlsSubtitle(player, entry);
-                                    });
-                                }
-                            });
                         }
                     },
                     disableSubtitleTracks = function () {
@@ -286,21 +276,29 @@
                             };
                         });
                         bean.on(videoTag, "loadeddata." + engineName, function () {
-                            var subtitles = player.video.subtitles;
+                            var tracks = hls.subtitleTracks,
+                                defaultTrack;
 
-                            if (!subtitles || !subtitles.length) {
+                            if (!tracks || !tracks.length) {
                                 return;
                             }
                             if (!nativeSubs) {
                                 disableSubtitleTracks();
                             }
-                            if (!subtitles.filter(function (sub) {
+                            tracks.map(function (sub, idx) {
                                 if (sub.default) {
-                                    hls.subtitleTrack = sub.id;
-                                    setActiveSubtitleClass(sub.id);
+                                    hls.subtitleTrack = idx;
                                 }
-                                return sub.default;
-                            })[0]) {
+                            });
+                            defaultTrack = hls.subtitleTrack;
+                            if (defaultTrack > -1) {
+                                if (hlsSubtitles[defaultTrack]) {
+                                    hlsSubtitles[defaultTrack].forEach(function (entry) {
+                                        loadHlsSubtitle(player, entry);
+                                    });
+                                }
+                                setActiveSubtitleClass(defaultTrack);
+                            } else {
                                 setActiveSubtitleClass(-1);
                             }
                         });
