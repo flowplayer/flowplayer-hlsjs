@@ -502,34 +502,6 @@
                                             maxLevel = hls.nextLoadLevel;
                                         }
                                         break;
-                                    case "FRAG_PARSING_METADATA":
-                                        data.samples.forEach(function (sample) {
-                                            var metadataHandler;
-
-                                            metadataHandler = function () {
-                                                if (videoTag.currentTime < sample.dts) {
-                                                    return;
-                                                }
-                                                bean.off(videoTag, 'timeupdate.' + engineName, metadataHandler);
-
-                                                var raw = sample.unit || sample.data,
-                                                    Decoder = win.TextDecoder;
-
-                                                if (Decoder && typeof Decoder === "function") {
-                                                    raw = new Decoder('utf-8').decode(raw);
-                                                } else {
-                                                    raw = decodeURIComponent(encodeURIComponent(
-                                                        String.fromCharCode.apply(null, raw)
-                                                    ));
-                                                }
-                                                player.trigger('metadata', [player, {
-                                                    key: raw.substr(10, 4),
-                                                    data: raw
-                                                }]);
-                                            };
-                                            bean.on(videoTag, 'timeupdate.' + engineName, metadataHandler);
-                                        });
-                                        break;
                                     case "LEVEL_UPDATED":
                                         if (player.live) {
                                             player.video.seekOffset = data.details.fragments[0].start + hls.config.nudgeOffset;

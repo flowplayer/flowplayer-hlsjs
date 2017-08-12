@@ -61,6 +61,11 @@ Features
 - by default the engine is only loaded if the browser supports
   [MediaSource extensions](http://w3c.github.io/media-source/) reliably for playback
 - configurable manual HLS quality selection
+- manual audio track selection and optional audio ABR
+- display of HLS subtitles, Flowplayer style or native
+- ID3 metadata processing to string
+- optional light build - `flowplayer.hlsjs.light.min.js` - without multiple audio track, subtitles,
+  and ID3 support
 
 Debugging
 ---------
