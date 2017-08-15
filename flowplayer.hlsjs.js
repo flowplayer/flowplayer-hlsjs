@@ -51,8 +51,6 @@
 
             textencoding = require("text-encoding"),
             Decoder = new textencoding.TextDecoder("utf-8"),
-            Decoder16be = new textencoding.TextDecoder("utf-16be"),
-            Decoder16le = new textencoding.TextDecoder("utf-16le"),
             uint8ArrayToString = function (arr) {
                 var txt = "";
 
@@ -60,10 +58,12 @@
                     txt = Decoder.decode(arr);
                 } catch (ignore) {
                     try {
-                        txt = Decoder16be.decode(arr);
+                        Decoder = new textencoding.TextDecoder("utf-16be");
+                        txt = Decoder.decode(arr);
                     } catch (ignore) {
                         try {
-                            txt = Decoder16le.decode(arr);
+                            Decoder = new textencoding.TextDecoder("utf-16le");
+                            txt = Decoder.decode(arr);
                         } catch (ignore) {}
                     }
                 }
