@@ -70,8 +70,8 @@
                 return txt;
             },
 
-            loadHlsSubtitle = function (api, entry) {
-                entry.title = entry.title || "dummy";
+            loadHlsSubtitle = function (api, entry, num) {
+                entry.title = entry.title || num + "";
 
                 var cue = {
                     time: entry.startTime,
@@ -229,7 +229,7 @@
                             if (entry.text) {
                                 hlsSubtitles[id].push(entry);
                                 if (player.ready) {
-                                    loadHlsSubtitle(player, entry);
+                                    loadHlsSubtitle(player, entry, hlsSubtitles[id].length);
                                     if (player.live) {
                                         hlsSubtitles[id] = hlsSubtitles[id].filter(function (sub) {
                                             return sub.endTime >= player.video.seekOffset;
@@ -296,8 +296,8 @@
                             defaultTrack = hls.subtitleTrack;
                             if (defaultTrack > -1) {
                                 if (!nativeSubs && hlsSubtitles[defaultTrack]) {
-                                    hlsSubtitles[defaultTrack].forEach(function (entry) {
-                                        loadHlsSubtitle(player, entry);
+                                    hlsSubtitles[defaultTrack].forEach(function (entry, i) {
+                                        loadHlsSubtitle(player, entry, i + 1);
                                     });
                                 }
                                 setActiveSubtitleClass(defaultTrack);
@@ -317,8 +317,8 @@
                             }
                             setActiveSubtitleClass(idx);
                             if (!nativeSubs && hlsSubtitles[idx]) {
-                                hlsSubtitles[idx].forEach(function (entry) {
-                                    loadHlsSubtitle(player, entry);
+                                hlsSubtitles[idx].forEach(function (entry, i) {
+                                    loadHlsSubtitle(player, entry, i + 1);
                                 });
                             }
                         });
