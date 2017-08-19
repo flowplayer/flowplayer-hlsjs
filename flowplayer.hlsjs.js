@@ -266,13 +266,15 @@
                         });
                         player.video.subtitles = subtitleTracks.map(function (subtitleTrack) {
                             // fake tracks
-                            return {
+                            var track = {
                                 kind: "subtitles",
                                 id: subtitleTrack.id,
                                 srclang: subtitleTrack.lang,
                                 label: subtitleTrack.name,
                                 "default": subtitleTrack.default
                             };
+                            common.append(videoTag, common.createElement("track", track));
+                            return track;
                         });
                         bean.on(videoTag, "loadeddata." + engineName, function () {
                             var tracks = hls.subtitleTracks,
@@ -281,7 +283,9 @@
                             if (!tracks || !tracks.length) {
                                 return;
                             }
-                            if (!nativeSubs) {
+                            if (nativeSubs) {
+                                common.addClass(videoTag, "native-subtitles");
+                            } else {
                                 disableSubtitleTracks();
                             }
                             tracks.map(function (sub, idx) {
@@ -651,21 +655,13 @@
                             if (video.hlsQualities === false) {
                                 hlsQualitiesConf = false;
                             }
-                            // native subtitles would accumulate text tracks in
-                            // playlists: video tag must be destroyed.
-                            // this causes autoplay issue in Android Chrome
-                            // -> disallow native subtitles in this case
                             nativeSubs = hlsUpdatedConf.subtitles &&
-                                    support.subtitles && conf.nativesubtitles &&
-                                    !(androidChrome && conf.playlist.length);
+                                    support.subtitles && conf.nativesubtitles;
 
-                            if (!hls || (nativeSubs && videoTag && videoTag.textTracks)) {
+                            if (!hls) {
                                 videoTag = common.findDirect("video", root)[0]
                                         || common.find(".fp-player > video", root)[0];
 
-                                if (hls) {
-                                    hls.destroy();
-                                }
                                 if (videoTag) {
                                     // destroy video tag
                                     // otherwise <video autoplay> continues to play
@@ -839,6 +835,8 @@
 
                             } else {
                                 hls.destroy();
+                                common.find("track", videoTag).forEach(common.removeNode);
+                                common.removeClass(videoTag, "native-subtitles");
                                 if ((player.video.src && video.src !== player.video.src) || video.index) {
                                     common.attr(videoTag, "autoplay", "autoplay");
                                 }
