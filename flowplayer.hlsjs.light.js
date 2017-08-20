@@ -287,8 +287,11 @@
                                         var ct = videoTag.currentTime,
                                             seekable = videoTag.seekable,
                                             updatedVideo = player.video,
-                                            seekOffset = updatedVideo.seekOffset,
-                                            liveSyncPosition = player.live && hls.liveSyncPosition,
+                                            liveResumePosition = player.dvr
+                                                ? updatedVideo.seekOffset
+                                                : player.live
+                                                    ? hls.liveSyncPosition
+                                                    : 0,
                                             buffered = videoTag.buffered,
                                             i,
                                             buffends = [],
@@ -309,6 +312,9 @@
                                             if (!hlsUpdatedConf.bufferWhilePaused) {
                                                 hls.startLoad(ct);
                                             }
+                                            if (ct < liveResumePosition) {
+                                                videoTag.currentTime = liveResumePosition;
+                                            }
                                             break;
                                         case "seek":
                                             if (!hlsUpdatedConf.bufferWhilePaused && videoTag.paused) {
@@ -322,18 +328,6 @@
                                             }
                                             break;
                                         case "progress":
-                                            if (liveSyncPosition) {
-                                                updatedVideo.duration = liveSyncPosition;
-                                                if (player.dvr) {
-                                                    player.trigger('dvrwindow', [player, {
-                                                        start: seekOffset,
-                                                        end: liveSyncPosition
-                                                    }]);
-                                                    if (ct < seekOffset) {
-                                                        videoTag.currentTime = seekOffset;
-                                                    }
-                                                }
-                                            }
                                             arg = ct;
                                             break;
                                         case "speed":
@@ -504,7 +498,16 @@
                                         break;
                                     case "LEVEL_UPDATED":
                                         if (player.live) {
-                                            updatedVideo.seekOffset = data.details.fragments[0].start + hls.config.nudgeOffset;
+                                            extend(updatedVideo, {
+                                                seekOffset: data.details.fragments[0].start + hls.config.nudgeOffset,
+                                                duration: hls.liveSyncPosition
+                                            });
+                                            if (player.dvr && player.playing) {
+                                                player.trigger('dvrwindow', [player, {
+                                                    start: updatedVideo.seekOffset,
+                                                    end: hls.liveSyncPosition
+                                                }]);
+                                            }
                                         }
                                         break;
                                     case "BUFFER_APPENDED":
