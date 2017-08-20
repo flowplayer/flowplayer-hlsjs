@@ -231,14 +231,16 @@
                                 if (player.ready) {
                                     loadHlsSubtitle(player, entry, hlsSubtitles[id].length);
                                     if (player.live) {
+                                        var seekOffset = player.video.seekOffset;
+
                                         hlsSubtitles[id] = hlsSubtitles[id].filter(function (sub) {
-                                            return sub.endTime >= player.video.seekOffset;
+                                            return sub.endTime >= seekOffset;
                                         });
                                         player.subtitles = player.subtitles.filter(function (sub) {
-                                            return sub.endTime >= player.video.seekOffset;
+                                            return sub.endTime >= seekOffset;
                                         });
                                         player.cuepoints.forEach(function (cue) {
-                                            if (cue.subtitle && cue.time < player.video.seekOffset) {
+                                            if (cue.subtitle && cue.time < seekOffset) {
                                                 player.removeCuepoint(cue);
                                             }
                                         });
@@ -976,7 +978,7 @@
                                         break;
                                     case "LEVEL_UPDATED":
                                         if (player.live) {
-                                            player.video.seekOffset = data.details.fragments[0].start + hls.config.nudgeOffset;
+                                            updatedVideo.seekOffset = data.details.fragments[0].start + hls.config.nudgeOffset;
                                         }
                                         break;
                                     case "LEVEL_SWITCHED":

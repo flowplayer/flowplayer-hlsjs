@@ -504,7 +504,7 @@
                                         break;
                                     case "LEVEL_UPDATED":
                                         if (player.live) {
-                                            player.video.seekOffset = data.details.fragments[0].start + hls.config.nudgeOffset;
+                                            updatedVideo.seekOffset = data.details.fragments[0].start + hls.config.nudgeOffset;
                                         }
                                         break;
                                     case "BUFFER_APPENDED":
