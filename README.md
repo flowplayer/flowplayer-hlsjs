@@ -76,7 +76,7 @@ run your stream in the [hls.js demo player](http://streambox.fr/mse/hls.js-0.7.1
 For fine grained debugging load the unminified components and turn hlsjs debugging on:
 
 ```html
-<script src="//releases.flowplayer.org/7.0.4/flowplayer.min.js"></script>
+<script src="//releases.flowplayer.org/7.1.0/flowplayer.min.js"></script>
 <!-- test a hls.js release -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/hls.js/0.7.11/hls.min.js"></script>
 <!-- separate hlsjs plugin component -->
