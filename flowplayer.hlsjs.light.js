@@ -32,6 +32,7 @@
             desktopSafari = brwsr.safari && support.dataload,
             androidChrome = (support.android && !support.android.firefox) ||
                     (!support.firstframe && support.dataload && !brwsr.mozilla),
+            version = flowplayer.version,
             win = window,
             mse = win.MediaSource || win.WebKitMediaSource,
             performance = win.performance,
@@ -615,7 +616,7 @@
                 return engine;
             };
 
-        if (Hls.isSupported() && parseInt(flowplayer.version.split(".")[0]) > 6) {
+        if (Hls.isSupported() && (parseInt(version.split(".")[0]) > 6 || version === "dev")) {
             // only load engine if it can be used
             engineImpl.engineName = engineName; // must be exposed
             engineImpl.canPlay = function (type, conf) {
