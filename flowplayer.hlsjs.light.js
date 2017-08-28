@@ -643,7 +643,7 @@
 
     };
     if (typeof module === 'object' && module.exports) {
-        module.exports = extension.bind(undefined, require('hls.js'));
+        module.exports = extension.bind(undefined, require('hls.js/dist/hls.light.js'));
     } else if (window.Hls && window.flowplayer) {
         extension(window.Hls, window.flowplayer);
     }
