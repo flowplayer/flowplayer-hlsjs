@@ -741,7 +741,6 @@
                                             }
                                             break;
                                         case "progress":
-
                                             arg = ct;
                                             break;
                                         case "speed":
