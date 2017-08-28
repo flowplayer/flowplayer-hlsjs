@@ -278,7 +278,7 @@
                             common.append(videoTag, common.createElement("track", track));
                             return track;
                         });
-                        bean.on(videoTag, "loadeddata." + engineName, function () {
+                        player.on("ready." + engineName, function (_e, api) {
                             var tracks = hls.subtitleTracks,
                                 defaultTrack;
 
@@ -299,7 +299,7 @@
                             if (defaultTrack > -1) {
                                 if (!nativeSubs && hlsSubtitles[defaultTrack]) {
                                     hlsSubtitles[defaultTrack].forEach(function (entry, i) {
-                                        loadHlsSubtitle(player, entry, i + 1);
+                                        loadHlsSubtitle(api, entry, i + 1);
                                     });
                                 }
                                 setActiveSubtitleClass(defaultTrack);
