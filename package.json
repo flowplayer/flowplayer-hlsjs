@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/flowplayer/flowplayer-hlsjs",
   "dependencies": {
-    "hls.js": "0.7.11",
+    "hls.js": "0.8.1",
     "text-encoding": "https://github.com/aiham/text-encoding#remove-encoding-indexes",
     "webworkify-webpack": "^1.0.4"
   },
