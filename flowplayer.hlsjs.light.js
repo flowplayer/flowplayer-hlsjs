@@ -274,7 +274,7 @@
                                         : false,
                                     "volume": player.volumeLevel
                                 });
-                                if (autoplay && support.mutedAutoplay) {
+                                if (support.mutedAutoplay && autoplay) {
                                     videoTag.muted = true;
                                 }
 
@@ -638,6 +638,17 @@
                 // https://github.com/dailymotion/hls.js/issues/9
                 return isHlsType(type) && (!desktopSafari || hlsconf.safari);
             };
+
+            // issue #94
+            flowplayer(function (api) {
+                var c = api.conf;
+
+                if (support.mutedAutoplay && !c.splash && !c.autoplay) {
+                    api.splash = true;
+                    c.splash = true;
+                    c.autoplay = true;
+                }
+            });
 
             // put on top of engine stack
             // so hlsjs is tested before html5 video hls and flash hls

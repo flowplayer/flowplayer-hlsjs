@@ -682,7 +682,7 @@
                                         : false,
                                     "volume": player.volumeLevel
                                 });
-                                if (autoplay && support.mutedAutoplay) {
+                                if (support.mutedAutoplay && autoplay) {
                                     videoTag.muted = true;
                                 }
 
@@ -1138,17 +1138,25 @@
                 return isHlsType(type) && (!desktopSafari || hlsconf.safari);
             };
 
+            flowplayer(function (api) {
+                var c = api.conf;
+
+                if (coreV6) {
+                    // to take precedence over VOD quality selector
+                    api.pluginQualitySelectorEnabled = hlsQualitiesSupport(c) &&
+                            engineImpl.canPlay("application/x-mpegurl", c);
+
+                } else if (support.mutedAutoplay && !c.splash && !c.autoplay) {
+                    // issue #94
+                    api.splash = true;
+                    c.splash = true;
+                    c.autoplay = true;
+                }
+            });
+
             // put on top of engine stack
             // so hlsjs is tested before html5 video hls and flash hls
             flowplayer.engines.unshift(engineImpl);
-
-            if (coreV6) {
-                flowplayer(function (api) {
-                    // to take precedence over VOD quality selector
-                    api.pluginQualitySelectorEnabled = hlsQualitiesSupport(api.conf) &&
-                            engineImpl.canPlay("application/x-mpegurl", api.conf);
-                });
-            }
         }
 
     };
