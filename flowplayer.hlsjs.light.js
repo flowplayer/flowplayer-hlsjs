@@ -47,6 +47,19 @@
                         (hlsQualities === true ||
                         (hlsQualities && hlsQualities.length));
             },
+            destroyVideoTag = function (root) {
+                var vtag = common.findDirect("video", root)[0]
+                        || common.find(".fp-player>video", root)[0];
+
+                if (vtag) {
+                    common.find("source", vtag).forEach(function (source) {
+                        source.removeAttribute("src");
+                    });
+                    vtag.removeAttribute("src");
+                    vtag.load();
+                    common.removeNode(vtag);
+                }
+            },
 
             engineImpl = function hlsjsEngine(player, root) {
                 var bean = flowplayer.bean,
@@ -253,20 +266,7 @@
                             }
 
                             if (!hls) {
-                                videoTag = common.findDirect("video", root)[0]
-                                        || common.find(".fp-player > video", root)[0];
-
-                                if (videoTag) {
-                                    // destroy video tag
-                                    // otherwise <video autoplay> continues to play
-                                    common.find("source", videoTag).forEach(function (source) {
-                                        source.removeAttribute("src");
-                                    });
-                                    videoTag.removeAttribute("src");
-                                    videoTag.load();
-                                    common.removeNode(videoTag);
-                                }
-
+                                destroyVideoTag(root);
                                 videoTag = common.createElement("video", {
                                     "class": "fp-engine " + engineName + "-engine",
                                     "autoplay": autoplay
@@ -640,13 +640,17 @@
             };
 
             // issue #94
-            flowplayer(function (api) {
+            flowplayer(function (api, root) {
                 var c = api.conf;
 
                 if (support.mutedAutoplay && !c.splash && !c.autoplay) {
                     api.splash = true;
-                    c.splash = true;
+                    c.splash = typeof c.poster === "string"
+                        ? c.poster
+                        : true;
+                    c.poster = undefined;
                     c.autoplay = true;
+                    destroyVideoTag(root);
                 }
             });
 
