@@ -682,6 +682,9 @@
                                         : false,
                                     "volume": player.volumeLevel
                                 });
+                                if (autoplay && support.mutedAutoplay) {
+                                    videoTag.muted = true;
+                                }
 
                                 Object.keys(EVENTS).forEach(function (key) {
                                     var flow = EVENTS[key],
