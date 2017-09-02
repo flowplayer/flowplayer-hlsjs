@@ -1146,7 +1146,8 @@
                     api.pluginQualitySelectorEnabled = hlsQualitiesSupport(c) &&
                             engineImpl.canPlay("application/x-mpegurl", c);
 
-                } else if (support.mutedAutoplay && !c.splash && !c.autoplay) {
+                } else if (support.mutedAutoplay && !c.splash && !c.autoplay &&
+                        (version === "7.1.0" || version === "7.0.0")) {
                     // issue #94
                     api.splash = true;
                     c.splash = typeof c.poster === "string"

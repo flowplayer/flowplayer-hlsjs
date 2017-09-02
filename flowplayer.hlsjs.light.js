@@ -640,19 +640,21 @@
             };
 
             // issue #94
-            flowplayer(function (api, root) {
-                var c = api.conf;
+            if (support.mutedAutoplay && (version === "7.1.1" || version === "7.1.0")) {
+                flowplayer(function (api, root) {
+                    var c = api.conf;
 
-                if (support.mutedAutoplay && !c.splash && !c.autoplay) {
-                    api.splash = true;
-                    c.splash = typeof c.poster === "string"
-                        ? c.poster
-                        : true;
-                    c.poster = undefined;
-                    c.autoplay = true;
-                    destroyVideoTag(root);
-                }
-            });
+                    if (!c.splash && !c.autoplay) {
+                        api.splash = true;
+                        c.splash = typeof c.poster === "string"
+                            ? c.poster
+                            : true;
+                        c.poster = undefined;
+                        c.autoplay = true;
+                        destroyVideoTag(root);
+                    }
+                });
+            }
 
             // put on top of engine stack
             // so hlsjs is tested before html5 video hls and flash hls
