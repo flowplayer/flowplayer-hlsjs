@@ -619,7 +619,8 @@
                 return engine;
             };
 
-        if (Hls.isSupported() && (parseInt(version.split(".")[0]) > 6 || version === "dev")) {
+        if (Hls.isSupported() &&
+                (parseInt(version.split(".")[0]) > 6 || (/adhoc|dev/.test(version)))) {
             // only load engine if it can be used
             engineImpl.engineName = engineName; // must be exposed
             engineImpl.canPlay = function (type, conf) {
