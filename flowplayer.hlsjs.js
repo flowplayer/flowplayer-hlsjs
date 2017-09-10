@@ -1121,6 +1121,7 @@
         if (Hls.isSupported() && version.indexOf("5.") !== 0) {
             // only load engine if it can be used
             engineImpl.engineName = engineName; // must be exposed
+            engineImpl[engineName + "ClientVersion"] = Hls.version;
             engineImpl.canPlay = function (type, conf) {
                 if (conf[engineName] === false || conf.clip[engineName] === false) {
                     // engine disabled for player
