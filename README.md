@@ -80,7 +80,7 @@ For fine grained debugging load the unminified components and turn hlsjs debuggi
 <!-- test a hls.js release -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/hls.js/0.8.2/hls.min.js"></script>
 <!-- separate hlsjs plugin component -->
-<script src="//releases.flowplayer.org/hlsjs/flowplayer.hlsjs.js"></script>
+<script src="//releases.flowplayer.org/hlsjs/flowplayer.hlsjs.light.js"></script>
 
 <script>
 // turn on hlsjs debugging
@@ -89,6 +89,10 @@ flowplayer.conf.hlsjs = {
 };
 </script>
 ```
+
+If you need to debug features only available from the
+[full plugin](https://flowplayer.com/docs/plugins.html#hlsjs-assets) you have to
+[build](https://github.com/flowplayer/flowplayer-hlsjs#building-the-plugin) the plugin.
 
 ### Building the plugin
 
