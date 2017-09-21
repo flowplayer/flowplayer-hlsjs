@@ -30,8 +30,6 @@
             support = flowplayer.support,
             brwsr = support.browser,
             desktopSafari = brwsr.safari && support.dataload,
-            androidChrome = (support.android && !support.android.firefox) ||
-                    (!support.firstframe && support.dataload && !brwsr.mozilla),
             version = flowplayer.version,
             coreV6 = version.indexOf("6.") === 0,
             win = window,
@@ -677,9 +675,6 @@
                                 destroyVideoTag(root);
                                 videoTag = common.createElement("video", {
                                     "class": "fp-engine " + engineName + "-engine",
-                                    "autoplay": autoplay
-                                        ? "autoplay"
-                                        : false,
                                     "volume": player.volumeLevel
                                 });
                                 if (support.mutedAutoplay && autoplay) {
@@ -836,9 +831,6 @@
                                 hls.destroy();
                                 common.find("track", videoTag).forEach(common.removeNode);
                                 common.removeClass(videoTag, "native-subtitles");
-                                if ((player.video.src && video.src !== player.video.src) || video.index) {
-                                    common.attr(videoTag, "autoplay", "autoplay");
-                                }
                             }
 
                             // #28 obtain api.video props before ready
@@ -1049,7 +1041,7 @@
 
                             hls.attachMedia(videoTag);
 
-                            if (androidChrome && autoplay && videoTag.paused) {
+                            if (autoplay && videoTag.paused) {
                                 var playPromise = videoTag.play();
                                 if (playPromise !== undefined) {
                                     playPromise.catch(function () {

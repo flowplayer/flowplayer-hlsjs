@@ -30,8 +30,6 @@
             support = flowplayer.support,
             brwsr = support.browser,
             desktopSafari = brwsr.safari && support.dataload,
-            androidChrome = (support.android && !support.android.firefox) ||
-                    (!support.firstframe && support.dataload && !brwsr.mozilla),
             version = flowplayer.version,
             win = window,
             mse = win.MediaSource || win.WebKitMediaSource,
@@ -269,9 +267,6 @@
                                 destroyVideoTag(root);
                                 videoTag = common.createElement("video", {
                                     "class": "fp-engine " + engineName + "-engine",
-                                    "autoplay": autoplay
-                                        ? "autoplay"
-                                        : false,
                                     "volume": player.volumeLevel
                                 });
                                 if (support.mutedAutoplay && autoplay) {
@@ -400,9 +395,6 @@
 
                             } else {
                                 hls.destroy();
-                                if ((player.video.src && video.src !== player.video.src) || video.index) {
-                                    common.attr(videoTag, "autoplay", "autoplay");
-                                }
                             }
 
                             // #28 obtain api.video props before ready
@@ -567,7 +559,7 @@
 
                             hls.attachMedia(videoTag);
 
-                            if (androidChrome && autoplay && videoTag.paused) {
+                            if (autoplay && videoTag.paused) {
                                 var playPromise = videoTag.play();
                                 if (playPromise !== undefined) {
                                     playPromise.catch(function () {
