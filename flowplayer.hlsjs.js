@@ -29,7 +29,6 @@
             extend = flowplayer.extend,
             support = flowplayer.support,
             brwsr = support.browser,
-            desktopSafari = brwsr.safari && support.dataload,
             version = flowplayer.version,
             coreV6 = version.indexOf("6.") === 0,
             win = window,
@@ -643,12 +642,7 @@
                             var conf = player.conf,
                                 EVENTS = {
                                     ended: "finish",
-                                    loadeddata: !desktopSafari
-                                        ? "ready"
-                                        : 0,
-                                    canplaythrough: desktopSafari
-                                        ? "ready"
-                                        : 0,
+                                    loadeddata: "ready",
                                     pause: "pause",
                                     play: "resume",
                                     progress: "buffer",
@@ -675,6 +669,9 @@
                                 destroyVideoTag(root);
                                 videoTag = common.createElement("video", {
                                     "class": "fp-engine " + engineName + "-engine",
+                                    "autoplay": autoplay
+                                        ? "autoplay"
+                                        : false,
                                     "volume": player.volumeLevel
                                 });
                                 if (support.mutedAutoplay && autoplay) {
@@ -831,6 +828,9 @@
                                 hls.destroy();
                                 common.find("track", videoTag).forEach(common.removeNode);
                                 common.removeClass(videoTag, "native-subtitles");
+                                if ((player.video.src && video.src !== player.video.src) || video.index) {
+                                    common.attr(videoTag, "autoplay", "autoplay");
+                                }
                             }
 
                             // #28 obtain api.video props before ready
@@ -1128,7 +1128,7 @@
                 }, conf[engineName], conf.clip[engineName]);
 
                 // https://github.com/dailymotion/hls.js/issues/9
-                return isHlsType(type) && (!desktopSafari || hlsconf.safari);
+                return isHlsType(type) && (!(brwsr.safari && support.dataload) || hlsconf.safari);
             };
 
             flowplayer(function (api, root) {
