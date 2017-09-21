@@ -563,7 +563,7 @@
                                 var playPromise = videoTag.play();
                                 if (playPromise !== undefined) {
                                     playPromise.catch(function () {
-                                        player.unload();
+                                        player.stop();
                                         player.message("Please click the play button", 3000);
                                     });
                                 }
