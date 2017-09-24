@@ -1045,10 +1045,7 @@
                                 var playPromise = videoTag.play();
                                 if (playPromise !== undefined) {
                                     playPromise.catch(function () {
-                                        player.stop();
-                                        if (!coreV6) {
-                                            player.message("Please click the play button", 3000);
-                                        }
+                                        player.pause();
                                     });
                                 }
                             }
