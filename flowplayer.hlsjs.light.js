@@ -578,7 +578,9 @@
                         },
 
                         seek: function (time) {
-                            videoTag.currentTime = time;
+                            if (videoTag) {
+                                videoTag.currentTime = time;
+                            }
                         },
 
                         volume: function (level) {
