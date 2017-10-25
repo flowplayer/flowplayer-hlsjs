@@ -266,7 +266,7 @@
                                         : false,
                                     "volume": player.volumeLevel
                                 });
-                                if (support.mutedAutoplay && autoplay) {
+                                if (support.mutedAutoplay && !conf.splash && autoplay) {
                                     videoTag.muted = true;
                                 }
 
