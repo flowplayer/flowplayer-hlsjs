@@ -1,6 +1,12 @@
 Flowplayer hlsjs plugin
 ===========================
 
+**deprecated**
+
+The development of this plugins is discontinued. You should use the [`hlsjs-lite`](https://flowplayer.com/docs/player/setup#hlsjs-lite) plugin available in Flowplayer Core now.
+
+**deprecated**
+
 This plugin provides the `hlsjs` [engine](https://flowplayer.org/docs/api.html#engines) for
 playback of [HLS](https://flowplayer.org/docs/setup.html#hls) streams in browsers which do not
 support playback of HLS in a VIDEO tag, and without the need for
